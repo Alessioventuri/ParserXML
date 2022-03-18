@@ -1,10 +1,11 @@
 #include "Route.hpp"
 
 
-Route::Route(int &id_,int src_, int dest_, map<int,string> points_, vector<int> path_,
+Route::Route(int &id_,int src_, int dest_,string dire_, map<int,string> points_, vector<int> path_,
  	map<int,bool> signals_, vector<bool> overlap_, map<int,bool> conflict_, int maxPoints_){
      	routeId = id_;
 		src = src_;
+		direction = dire_;
 		destination = dest_;
 		points = points_;
 		signals = signals_;

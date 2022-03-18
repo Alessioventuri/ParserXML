@@ -244,6 +244,7 @@ int main(int argc, char *argv[]){
         //ADD SOURCE AND DESTINATION TO THE SIGNALS OF ROUTE
         signals.at(id.find(route->first_attribute("source")->value())->second) = true;
         signals.at(id.find(route->first_attribute("destination")->value())->second) = true;
+        string direction = route->first_attribute("dir")->value();
         //ADD THE SOURCE SECTION ON THE PATH ( IT'S COMING FROM THAT SECTION TO THE DESTINATION'S SECTION)
         path.push_back(nl.getSignals().at(id.find(route->first_attribute("source")->value())->second).getSectionId());
         int tempPath = 1;
@@ -274,6 +275,7 @@ int main(int argc, char *argv[]){
         Route rou(id.find(route->first_attribute("id")->value())->second,
             id.find(route->first_attribute("source")->value())->second,
             id.find(route->first_attribute("destination")->value())->second,
+            direction,
             points,
             path,
             signals,
@@ -284,8 +286,8 @@ int main(int argc, char *argv[]){
         il.setMaxValues(maxPathLenght);
 
     }
-    //FIXME: find the error on factory design pattern
     writer* obj = writer::write(UMCFile);
     obj->writeFile(outputFile,nl,il,plCorrispondence,mbCorrispondence);
+    delete obj;
 }
 
