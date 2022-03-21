@@ -152,9 +152,9 @@ int main(int argc, char *argv[]){
             auto b = (string)markerboard->first_attribute("mounted")->value(); 
 
             //UPPER CASE
-            for(int x = 0; x < b.length();x++){
-                b[x] = b[x] - 32;
-            }
+            // for(int x = 0; x < b.length();x++){
+            //     b[x] = b[x] - 32;
+            // }
             nl.addSignal(count,a,b);
             count++;
         }

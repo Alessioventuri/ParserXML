@@ -26,7 +26,7 @@ void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<in
                 myfile << il.getRoutes().at(i).toString(il.getMaxPathLenght(), il.getMaxChunk()) + "\n";
                 myfile << "\n/* Interlocking End */\n";
                 myfile << "\n/* UMC code */\n";
-                myfile << defaultUMCsetup(nl,il,i,pl);
+                myfile << defaultUMCsetup(nl,il,i,pl,mb);
                 myfile.close();
                 cout << "Successfully wrote to the file."<<endl;
             }catch(const exception& e){
@@ -36,18 +36,19 @@ void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<in
     } 
 }
 
-string writerUMC::defaultUMCsetup(NetworkLayout nl,Interlock il,int i,map<int,string> pl){
+string writerUMC::defaultUMCsetup(NetworkLayout nl,Interlock il,int i,map<int,string> pl,map<int,string> sC){
     string s;
     
     s += "Objects:\n";
    // s += pointObjectUMC(il.getRoutes().at(i),);
-    s += "\n\n";
-    s += linearObjectUMC(il.getRoutes().at(i),pl,nl);
-    s += "\n\n";
+    s += "\n";
+    s += linearObjectUMC(il.getRoutes().at(i),pl,sC,nl);
+    s += "\n";
    // s += signalObjectUMC();
     return s;
 }
-string writerUMC::linearObjectUMC(Route route,map<int,string> pl,NetworkLayout nl){
+
+string writerUMC::linearObjectUMC(Route route,map<int,string> pl,map<int,string> sC, NetworkLayout nl){
     string output;
     int index;
     for(int i = 0; i < route.getPath().size();i++){
@@ -55,48 +56,61 @@ string writerUMC::linearObjectUMC(Route route,map<int,string> pl,NetworkLayout n
             index = route.getPath().at(i)-nl.getPoints().size(); 
             string up  = nl.getLinears().at(index).getUpNeig() != -1 ? pl.find(nl.getLinears().at(index).getUpNeig())->second : "null";
             string down = nl.getLinears().at(index).getDownNeig() != -1 ? pl.find(nl.getLinears().at(index).getDownNeig())->second : "null";
+            string sign = findMb(route,nl,nl.getLinears().at(index).sectionId,sC);
+            string train = (nl.getLinears().at(index).sectionId == route.getPath().at(0)) ? "train" : "null";
             if(route.getDirection() == "up"){
                 output += pl.find(nl.getLinears().at(index).sectionId)->second + ": CircuitoDiBinario (\n\t";
                 output += "prev => [" + down + "],";
                 output += "\n\t";
                 output += "next => [" + up + "],";
-                //TODO: do the train if it is the initial linear
-                output += "\n);\n";
-            }
-            else{
+                output += "\n\t";
+                output += "sign => [" + sign + "],";
+                output += "\n\t";
+                output += "treno => " + train;
+                output += "\n);\n\n";
+            }else{
                 output += pl.find(nl.getLinears().at(index).sectionId)->second + ": CircuitoDiBinario (\n\t";
                 output += "prev => [" + up + "],";
                 output += "\n\t";
                 output += "next => [" + down + "],";
-                //TODO: do signals and train if it is the initial linear
-                output += "\n);\n";
+                output += "\n\t";
+                output += "sign => [" + sign + "],";
+                output += "\n\t";
+                output += "treno => " + train;
+                output += "\n);\n\n";
             }
         }
     }
     return output;
 }
 
-// string NetworkLayout::linearStringAdaptive(Route route,map<int,string> plC){
+//USED TO FIND THE MARKERBOARD ON THE CHUNK
+string writerUMC::findMb(Route route,NetworkLayout nl,int linearId,map<int,string> sC){
+    for(int i = 0; i < route.getSignals().size();i++){
+        if(route.getSignals().at(i) == true){
+            if(nl.getSignals().at(i).getSectionId() == linearId && nl.getSignals().at(i).getLinearEnd() == route.getDirection())
+                return sC.find(nl.getSignals().at(i).getMbId())->second;
+        }
+    }
+    return "null";
+}
+
+// string Signal::toString(map<int,string> sC,map<int,string> plC){
+//     string mId = sC.find(mbId)->second;
+//     //cout << mId << " " <<  to_string(sectionId) << " "<< linearEnd<< endl;
+//     return "mbSection[" + mId + " - " + to_string(mbId) + "] = " + plC.find(sectionId)->second + " - " + to_string(sectionId)
+//             + ",\nmbLinearEnd[" + mId + " - " + to_string(mbId) + "] = " + linearEnd;
+// }
+// string NetworkLayout::signalStringAdaptive(Route route,map<int,string> sC,map<int,string> plC){
 //     string output;
-//     for(int i = 0; i < route.getPath().size();i++){
-//         //path contains index of linears and linears start when points end 
-//         //(ie. path{8},points has index (0,1,2,3,4), and linears start from 5, so path.at(i)-points.size() ( 8-5 = 3) 
-//         if(route.getPath().at(i) >= points.size())
-//             output += linears.at(route.getPath().at(i)-points.size()).toString(plC) +",\n";
+//     for(int i = 0; i< route.getSignals().size();i++){
+//         if(route.getSignals().at(i) == true)
+//             output += signals.at(i).toString(sC,plC) + ",\n";
 //     }
 //     if (output.length() > 0)
 //         output = output.substr(0, output.length() - 2);
 //     return output;
 // }
-// string Linear::toString(map<int,string> pl){
-// 	string secId = pl.find(sectionId)->second;
-// 	string upN =  upNeighbour != -1 ? pl.find(upNeighbour)->second : "null";
-// 	string downN = downNeighbour != -1 ? pl.find(downNeighbour)->second : "null";
-// 	return  "linearUp[" + secId + " - "+ to_string(sectionId)+ "] = " + upN + " - " + to_string(upNeighbour)
-// 			 + ",\nlinearDown[" + secId + " - "+ to_string(sectionId)+ "] = " + downN + " - " + to_string(downNeighbour);
-
-// }
-
 // string writerUMC::pointObjectUMC(Route route, map<int,string> pl,NetworkLayout nl){
 //     string output;
 //     for(int i = 0; i < route.getPoints().size();i++){
