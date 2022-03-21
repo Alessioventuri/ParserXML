@@ -118,6 +118,7 @@ string Route::pathString(int max) {
 
 string Route::toString(int maxpath, int maxChunk){
 	return "routeSrc[" + to_string(routeId) + "] = " + to_string(src)
+			+ "\nrouteDirection[" + to_string(routeId) + "] = " + getDirection() 
 			+ ",\nrouteDest[" + to_string(routeId) + "] = " + to_string(destination) 
 			+ (!points.empty() ? ",\n" + pointString() : "")
 			+ ",\n" + pathString(maxpath)

@@ -39,8 +39,8 @@ void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<in
 string writerUMC::defaultUMCsetup(NetworkLayout nl,Interlock il,int i,map<int,string> pl,map<int,string> sC){
     string s;
     
-    s += "Objects:\n";
-   // s += pointObjectUMC(il.getRoutes().at(i),);
+    s += "Objects:\n\n";
+    s += pointObjectUMC(il.getRoutes().at(i),pl,nl);
     s += "\n";
     s += linearObjectUMC(il.getRoutes().at(i),pl,sC,nl);
     s += "\n";
@@ -58,27 +58,15 @@ string writerUMC::linearObjectUMC(Route route,map<int,string> pl,map<int,string>
             string down = nl.getLinears().at(index).getDownNeig() != -1 ? pl.find(nl.getLinears().at(index).getDownNeig())->second : "null";
             string sign = findMb(route,nl,nl.getLinears().at(index).sectionId,sC);
             string train = (nl.getLinears().at(index).sectionId == route.getPath().at(0)) ? "train" : "null";
-            if(route.getDirection() == "up"){
-                output += pl.find(nl.getLinears().at(index).sectionId)->second + ": CircuitoDiBinario (\n\t";
-                output += "prev => [" + down + "],";
-                output += "\n\t";
-                output += "next => [" + up + "],";
-                output += "\n\t";
-                output += "sign => [" + sign + "],";
-                output += "\n\t";
-                output += "treno => " + train;
-                output += "\n);\n\n";
-            }else{
-                output += pl.find(nl.getLinears().at(index).sectionId)->second + ": CircuitoDiBinario (\n\t";
-                output += "prev => [" + up + "],";
-                output += "\n\t";
-                output += "next => [" + down + "],";
-                output += "\n\t";
-                output += "sign => [" + sign + "],";
-                output += "\n\t";
-                output += "treno => " + train;
-                output += "\n);\n\n";
-            }
+            output += pl.find(nl.getLinears().at(index).sectionId)->second + ": CircuitoDiBinario (\n\t";
+            output += "prev => [" + (route.getDirection() == "up" ? down : up) + "],";
+            output += "\n\t";
+            output += "next => [" + (route.getDirection() == "up" ? up : down) + "],";
+            output += "\n\t";
+            output += "sign => [" + sign + "],";
+            output += "\n\t";
+            output += "treno => " + train;
+            output += "\n);\n\n";
         }
     }
     return output;
@@ -95,57 +83,92 @@ string writerUMC::findMb(Route route,NetworkLayout nl,int linearId,map<int,strin
     return "null";
 }
 
-// string Signal::toString(map<int,string> sC,map<int,string> plC){
-//     string mId = sC.find(mbId)->second;
-//     //cout << mId << " " <<  to_string(sectionId) << " "<< linearEnd<< endl;
-//     return "mbSection[" + mId + " - " + to_string(mbId) + "] = " + plC.find(sectionId)->second + " - " + to_string(sectionId)
-//             + ",\nmbLinearEnd[" + mId + " - " + to_string(mbId) + "] = " + linearEnd;
-// }
-// string NetworkLayout::signalStringAdaptive(Route route,map<int,string> sC,map<int,string> plC){
-//     string output;
-//     for(int i = 0; i< route.getSignals().size();i++){
-//         if(route.getSignals().at(i) == true)
-//             output += signals.at(i).toString(sC,plC) + ",\n";
-//     }
-//     if (output.length() > 0)
-//         output = output.substr(0, output.length() - 2);
-//     return output;
-// }
-// string writerUMC::pointObjectUMC(Route route, map<int,string> pl,NetworkLayout nl){
-//     string output;
-//     for(int i = 0; i < route.getPoints().size();i++){
-//         if(route.getDirection() == "up"){
-//             if(route.getPoints.at(i) != "INTER"){
-//                 output += pl.find(nl.getPoints().at(i).sectionId)->second +": Scambio (\n";
-//                 output += "prev => [" +pl.find(nl.getPoints().at(i).getStem())->second +"],\n";
-//                 if(route.getPoints().at(i) == "PLUS"){
-//                     output += "next => [" +pl.find(nl.getPoints().at(i).getPlus())->second +"],\n";
-//                     output += "conf => [true],\n";
-//                     output += "treno => null";
-//                 }else{
-//                     output += "next => [" +pl.find(nl.getPoints().at(i).getMinus())->second +"],\n";
-//                     output += "conf => [false],\n";
-//                     output += "treno => null";
-//                 }
-//             }
-//         }else{
-//             if(route.getPoints.at(i) != "INTER"){
-//                 output += pl.find(nl.getPoints().at(i).sectionId)->second +": Scambio (\n";
-//                 output += "prev => [" +pl.find(nl.getPoints().at(i).getStem())->second +"],\n";
-//                 if(route.getPoints().at(i) == "PLUS"){
-//                     output += "next => [" +pl.find(nl.getPoints().at(i).getPlus())->second +"],\n";
-//                     output += "conf => [true],\n";
-//                     output += "treno => null";
-//                 }else{
-//                     output += "next => [" +pl.find(nl.getPoints().at(i).getMinus())->second +"],\n";
-//                     output += "conf => [false],\n";
-//                     output += "treno => null";
-//                 }
-//             }            
-//         }
-//     }
+
+string writerUMC::pointObjectUMC(Route route, map<int,string> pl,NetworkLayout nl){
+    string output;
+    for(int i = 0; i < route.getPath().size();i++){
+        int current = route.getPath().at(i);
+        if(current < route.getPoints().size()){
+            if(route.getPoints().at(current) != "INTER"){
+                output += pl.find(current)->second +": Scambio (\n\t";
+                output += "prev => [" + pl.find(route.getPath().at(i-1))->second +"],\n\t";
+                output += "next => [" + pl.find(route.getPath().at(i+1))->second +"],\n\t";
+                string conf = route.getPoints().at(i) == "PLUS" ? "true" : "false";
+                output += "conf => ["+ conf +"],\n\t";
+                output += "treno => null\n);\n\n";
+            }
+        }
+    }
+    if(output.empty()){
+        string prev,next;
+        for(int i = route.getPoints().size()-1; i > -1;i-- ){
+            if(route.getPoints().at(i) != "INTER"){
+                if(nl.getPoints().at(i).getPlus() == route.getPath().back()) {
+                    prev = pl.find(nl.getPoints().at(i).getPlus())->second;
+                    next = pl.find(nl.getPoints().at(i).getStem())->second;
+                }
+                else if(nl.getPoints().at(i).getMinus() == route.getPath().back()){
+                    prev = pl.find(nl.getPoints().at(i).getMinus())->second;
+                    next = pl.find(nl.getPoints().at(i).getStem())->second;
+                }
+                else if(nl.getPoints().at(i).getStem() == route.getPath().back()){
+                    prev = pl.find(nl.getPoints().at(i).getStem())->second;
+                    next = route.getPoints().at(i) == "PLUS" ? pl.find(nl.getPoints().at(i).getPlus())->second :pl.find(nl.getPoints().at(i).getMinus())->second;
+                }
+                //TODO: find a solution to create all Scambio objects required
+                if(!prev.empty() ){
+                    output += pl.find(nl.getPoints().at(i).sectionId)->second +": Scambio (\n\t";
+                    output += "prev => [" + prev +"],\n\t";
+                    output += "next => [" + next  +"],\n\t";
+                    string conf = route.getPoints().at(i) == "PLUS" ? "true" : "false";
+                    output += "conf => ["+ conf +"],\n\t";
+                    output += "treno => null\n);\n\n";
+                }
+            } 
+        }
+
+    }
+    return output;
+        // if(route.getDirection() == "up"){
+        //     if(route.getPoints().at(i) != "INTER"){
+        //         output += pl.find(nl.getPoints().at(i).sectionId)->second +": Scambio (\n\t";
+        //         if(route.getPath()\.getPoints().at(i).sectionId )
+        //         output += "prev => [" +pl.find(nl.getPoints().at(i).getStem())->second +"],\n\t";
+        //         if(route.getPoints().at(i) == "PLUS"){
+        //             output += "next => [" +pl.find(nl.getPoints().at(i).getPlus())->second +"],\n\t";
+        //             output += "conf => [true],\n\t";
+        //             output += "treno => null";
+        //             output += "\n);";
+        //         }else{
+        //             output += "next => [" +pl.find(nl.getPoints().at(i).getMinus())->second +"],\n";
+        //             output += "conf => [false],\n\t";
+        //             output += "treno => null";
+        //             output += "\n);";
+        //         }
+        //     }
+        // }else{
+        //     if(route.getPoints().at(i) != "INTER"){
+        //         output += pl.find(nl.getPoints().at(i).sectionId)->second +": Scambio (\n\t";
+        //         output += "prev => [" +pl.find(nl.getPoints().at(i).getStem())->second +"],\n\t";
+        //         if(route.getPoints().at(i) == "PLUS"){
+        //             output += "next => [" +pl.find(nl.getPoints().at(i).getPlus())->second +"],\n\t";
+        //             output += "conf => [true],";
+        //             output += "\n\t";
+        //             output += "treno => null";
+        //             output += "\n);";
+        //         }else{
+        //             output += "next => [" +pl.find(nl.getPoints().at(i).getMinus())->second +"],";
+        //             output += "\n\t";
+        //             output += "conf => [false],";
+        //             output += "\n\t";
+        //             output += "treno => null";
+        //             output += "\n);";
+        //         }
+        //     }            
+        // }
     
-// }
+    
+}
 
 // string NetworkLayout::pointStringAdaptive(Route route,map<int,string> pl){
 //     string output; 

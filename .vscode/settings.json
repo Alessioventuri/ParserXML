@@ -54,5 +54,6 @@
         "system_error": "cpp",
         "initializer_list": "cpp",
         "numbers": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
 }
