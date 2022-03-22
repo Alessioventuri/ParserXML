@@ -11,7 +11,7 @@ enum fileType{
 
 class writer {
 public:
-   writer() = default;
+    writer() = default;
     // Destructor of base class must always be virtual 
     virtual ~writer() = default;  
     virtual void writeFile(string,NetworkLayout,Interlock,map<int,string>,map<int,string>) = 0;
