@@ -26,7 +26,7 @@ void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<in
                 myfile << il.getRoutes().at(i).toString(il.getMaxPathLenght(), il.getMaxChunk()) + "\n";
                 myfile << "\n/* Interlocking End */\n";
                 myfile << "\n/* UMC code */\n";
-                myfile << defaultUMCsetup(nl,il,i,pl,mb);
+                myfile << defaultUMCsetupOneRoute(nl,il,i,pl,mb);
                 myfile.close();
                 cout << "Successfully wrote to the file."<<endl;
             }catch(const exception& e){
@@ -36,19 +36,19 @@ void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<in
     } 
 }
 
-string writerUMC::defaultUMCsetup(NetworkLayout nl,Interlock il,int i,map<int,string> pl,map<int,string> sC){
+string writerUMC::defaultUMCsetupOneRoute(NetworkLayout nl,Interlock il,int i,map<int,string> pl,map<int,string> sC){
     string s;
     
     s += "Objects:\n\n";
-    s += pointObjectUMC(il.getRoutes().at(i),pl,nl);
-    s += linearObjectUMC(il.getRoutes().at(i),pl,sC,nl);
-    s += signalObjectUMC(il.getRoutes().at(i),pl,sC,nl);
-    s += trainObjectUMC(il.getRoutes().at(i),pl,nl);
-    s += abstractionUMC(il.getRoutes().at(i),pl,sC,nl);
+    s += pointObjectUmcOneRoute(il.getRoutes().at(i),pl,nl);
+    s += linearObjectUmcOneRoute(il.getRoutes().at(i),pl,sC,nl);
+    s += signalObjectUmcOneRoute(il.getRoutes().at(i),pl,sC,nl);
+    s += trainObjectUmcOneRoute(il.getRoutes().at(i),pl,nl);
+    s += abstractionUmcOneRoute(il.getRoutes().at(i),pl,sC,nl);
     return s;
 }
 
-string writerUMC::linearObjectUMC(Route route,map<int,string> plC,map<int,string> sC, NetworkLayout nl){
+string writerUMC::linearObjectUmcOneRoute(Route route,map<int,string> plC,map<int,string> sC, NetworkLayout nl){
     string output;
     int index;
     for(int i = 0; i < route.getPath().size();i++){
@@ -79,7 +79,7 @@ string writerUMC::findMb(Route route,NetworkLayout nl,int linearId,map<int,strin
     return "null";
 }
 
-string writerUMC::pointObjectUMC(Route route, map<int,string> plC,NetworkLayout nl){
+string writerUMC::pointObjectUmcOneRoute(Route route, map<int,string> plC,NetworkLayout nl){
     string output;
     for(int i = 0; i < route.getPath().size();i++){
         int current = route.getPath().at(i);
@@ -134,7 +134,7 @@ string writerUMC::pointObjectUMC(Route route, map<int,string> plC,NetworkLayout 
     return output;
 }
 
-string writerUMC::signalObjectUMC(Route route, map<int,string> plC, map<int,string> sC,NetworkLayout nl){
+string writerUMC::signalObjectUmcOneRoute(Route route, map<int,string> plC, map<int,string> sC,NetworkLayout nl){
     string output;
     int index;
     for(int i = 0; i < route.getSignals().size();i++){
@@ -147,7 +147,7 @@ string writerUMC::signalObjectUMC(Route route, map<int,string> plC, map<int,stri
     return output;
 }
 
-string writerUMC::trainObjectUMC(Route route, map<int,string> plC, NetworkLayout nl){
+string writerUMC::trainObjectUmcOneRoute(Route route, map<int,string> plC, NetworkLayout nl){
     string output;
     output += "train : Treno (\n\t";
     output += "id_itinerario => 0,\n\t";
@@ -162,18 +162,16 @@ string writerUMC::trainObjectUMC(Route route, map<int,string> plC, NetworkLayout
     return output;
 }
 
-
-//TODO: Should I have to put all Points ( also if they are not in the path )??
-string writerUMC::abstractionUMC(Route route,map<int,string> plC,map<int,string> sC,NetworkLayout nl){
-    string output = "Abstractions{\n\t";
-    bool write = false;
-    output += "State : train.nodo == " + plC.find(route.getPath().back())->second + " -> train_arrivato\n\t";
+string writerUMC::derailAbsOneRoute(Route route, map<int,string> plC, NetworkLayout nl){
+    string output;
+    bool write= false;
     for(int i = 0; i < route.getPath().size();i++){
         int current = route.getPath().at(i);
         if( current < route.getPoints().size()){
             string point = plC.find(current)->second;
             output += "State : " + point + ".conf[0] == ";
             output += route.getPoints().at(i) == "PLUS" ? "false" : "true";
+            output += " and " + point + ".treno == train";
             output += " and inState(train.MOVIMENTO) -> DERAGLIAMENTO_train\n\t";
             write = true;
         }
@@ -184,13 +182,41 @@ string writerUMC::abstractionUMC(Route route,map<int,string> plC,map<int,string>
                 string point = plC.find(nl.getPoints().at(i).getSectionId())->second;
                 output += "State : " + point + ".conf[0] == ";
                 output += route.getPoints().at(i) == "PLUS" ? "false" : "true";
-                output += " -> DERAGLIAMENTO_train\n\t";
+                output += " -> POSSIBILE_DERAGLIAMENTO\n\t";
             } 
         } 
     }
-    output += "\n}";
     return output;
 }
+
+string writerUMC::brokenSignalsOneRoute(Route route, map<int,string> plC, map<int,string> sC,NetworkLayout nl){
+    string output;
+    for(int i = 0; i < route.getPath().size();i++){
+        if(route.getPath().at(i) >= route.getPoints().size()){                                     
+            int index = route.getPath().at(i)-nl.getPoints().size(); 
+            output += "State : inState(train.MOVIMENTO) and ";
+            string sign = findMb(route,nl,nl.getLinears().at(index).sectionId,sC);
+            output += sign + ".red == true";
+            string init = plC.find(route.getPath().front())->second;
+            output += " and " + init + ".treno == train -> GUASTO_" + sign;
+            output += "\n\t";
+        }
+    }
+    return output;
+}
+
+//TODO: Should I have to put all Points ( also if they are not in the path )??
+string writerUMC::abstractionUmcOneRoute(Route route,map<int,string> plC,map<int,string> sC,NetworkLayout nl){
+    string output = "Abstractions{\n\t";
+    output += "Action $1($*) -> $1($*)\n\t";
+    output += "State : train.nodo == " + plC.find(route.getPath().back())->second + " -> train_arrivato\n\t";
+    output += derailAbsOneRoute(route,plC, nl);
+    output += brokenSignalsOneRoute(route,plC,sC,nl);
+    output += "\n}";
+    return output;
+
+}
+
 
 // Abstractions{ 
 //     Action $1($*) -> $1($*)
@@ -209,3 +235,302 @@ string writerUMC::abstractionUMC(Route route,map<int,string> plC,map<int,string>
 //     State : inState(Beppe.ARRIVATO) and GA4.treno == Beppe -> Beppe_ARRIVATO 
 //     Action: lostevent($e,$*) -> discarded_message
 //     Action: $obj:Runtime_Error -> Design_Error
+// Class Treno is
+
+//   Signals:
+//     ok, no;
+    
+//   Vars:
+//     id_itinerario: int;
+//     nodi_itinerario: obj[];
+//     posizione: int := 0;
+//     nodo: obj;
+
+//   State Top = PRONTO, ATTESA_OK, MOVIMENTO, ARRIVATO, STOP
+
+//   Transitions:
+//     PRONTO    -> ATTESA_OK { - /
+//                     a:obj:=nodi_itinerario[posizione];a.req(self, id_itinerario);
+//                 }
+
+//     ATTESA_OK -> PRONTO    { no }
+
+//     ATTESA_OK -> MOVIMENTO { ok }
+
+//     MOVIMENTO -> MOVIMENTO { - [posizione < nodi_itinerario.length-1] /
+//                                    pos: int := posizione;
+//                                    posizione := -1;
+//                                    nodo := null;
+//                                    b:obj:=nodi_itinerario[pos];b.sensoreOff(self, id_itinerario);
+//                                    c:obj:=nodi_itinerario[pos+1];c.sensoreOn(self, id_itinerario);
+//                                    posizione := pos+1;
+//                                    nodo := nodi_itinerario[posizione];
+//     }
+    
+//     MOVIMENTO -> ARRIVATO  { - [posizione = nodi_itinerario.length-1] }
+
+// end Treno
+
+// Class CircuitoDiBinario is
+
+//   Signals:
+//     req(sender: obj, id_itinerario: int);
+//     ack(sender: obj, id_itinerario: int);
+//     nack(sender: obj, id_itinerario: int);
+//     commit(sender: obj, id_itinerario: int);
+//     agree(sender: obj, id_itinerario: int);
+//     disagree(sender: obj, id_itinerario: int);
+//     green(id_itinerario:int);
+//     red(id_itinerario:int);
+
+//   Operations:
+//     sensoreOn(sender: obj, id_itinerario);
+//     sensoreOff(sender: obj, id_itinerario);
+
+//   Vars:
+//     next: obj[];
+//     prev: obj[];
+//     sign : obj[];
+//     treno: obj := null;
+
+//   State Top = NON_RISERVATO, ATTESA_ACK, ATTESA_COMMIT, ATTESA_AGREE, CHECK_LIGHT_START, RISERVATO, TRENO_IN_TRANSITO, CHECK_LIGHT_END
+//   State CHECK_LIGHT_END Defers  req( sender: obj, id_itinerario: int), red(id_itinerario: int) ,nack(sender : obj, id_itinerario : int)
+
+//   Transitions
+
+//     NON_RISERVATO -> ATTESA_ACK { req(sender, id_itinerario)
+//                        [(treno=null or sender=treno) and next[id_itinerario] /= null]   /
+//                          d:obj:=next[id_itinerario];d.req(self, id_itinerario);}
+
+//     NON_RISERVATO -> ATTESA_COMMIT { req(sender, id_itinerario)
+//                        [(treno=null or sender=treno) and next[id_itinerario] = null] /
+//                        e:obj:=prev[id_itinerario];e.ack(self, id_itinerario); }
+
+//     ATTESA_ACK    -> ATTESA_COMMIT { ack(sender, id_itinerario) [prev[id_itinerario] /= null] /
+//                        f:obj:=prev[id_itinerario];f.ack(self, id_itinerario); }
+
+//     ATTESA_ACK    -> ATTESA_AGREE  { ack(sender, id_itinerario) [prev[id_itinerario] = null] /
+//                        g:obj:=next[id_itinerario];g.commit(self, id_itinerario); }
+                                  
+//     ATTESA_COMMIT -> ATTESA_AGREE  { commit(sender, id_itinerario) [next[id_itinerario] /= null] /
+//                                        h:obj:=next[id_itinerario];h.commit(self, id_itinerario);}
+
+//     ATTESA_COMMIT -> Top.RISERVATO     { commit(sender, id_itinerario) [next[id_itinerario] = null and sign[id_itinerario] = null] /
+//                         i:obj:=prev[id_itinerario];i.agree(self, id_itinerario);}
+    
+//     ATTESA_COMMIT -> CHECK_LIGHT_START {  commit(sender, id_itinerario) [ next[id_itinerario] = null and sign[id_itinerario] /= null ] /   
+//                             a:obj:= sign[id_itinerario]; a.checkgreen(id_itinerario) }
+
+//     ATTESA_AGREE  -> CHECK_LIGHT_START    { agree(sender, id_itinerario) [prev[id_itinerario] /= null and sign[id_itinerario] /= null] /
+//                         a:obj:= sign[id_itinerario]; a.checkgreen(id_itinerario);}
+                       
+//     ATTESA_AGREE  -> Top.RISERVATO   { agree(sender, id_itinerario) [prev[id_itinerario] /= null and sign[id_itinerario] = null] /
+//                     l:obj:=prev[id_itinerario];l.agree(self, id_itinerario); }
+                    
+//     ATTESA_AGREE  -> CHECK_LIGHT_START {agree(sender, id_itinerario) [prev[id_itinerario] = null and sign[id_itinerario] /= null] /     
+//                                 a:obj:= sign[id_itinerario]; a.checkgreen(id_itinerario);
+//                                 }
+    
+//     ATTESA_AGREE  -> Top.RISERVATO     { agree(sender, id_itinerario) [prev[id_itinerario] = null and sign[id_itinerario] = null] / 
+//                          treno.ok;}
+     
+//     CHECK_LIGHT_START  -> Top.RISERVATO { green(id_itinerario)  [ prev[id_itinerario] = null and next[id_itinerario] /= null and sign[id_itinerario] /= null] /
+//                             treno.ok
+//                             }
+                            
+//     CHECK_LIGHT_START  -> Top.RISERVATO { green(id_itinerario)  [ next[id_itinerario] = null and prev[id_itinerario] /= null and sign[id_itinerario] /= null] /
+//                             i:obj:=prev[id_itinerario];i.agree(self, id_itinerario);
+//                             }
+                            
+//     CHECK_LIGHT_START  -> Top.RISERVATO { green(id_itinerario)  [ prev[id_itinerario] /= null and next[id_itinerario] /= null and sign[id_itinerario] /= null] /
+//                             i:obj:=prev[id_itinerario];i.agree(self, id_itinerario);
+//                             }                       
+                            
+//     CHECK_LIGHT_START  -> NON_RISERVATO { red(id_itinerario) [sign[id_itinerario] /= null and treno /= null ] /
+//                             treno.no }
+
+//     Top.RISERVATO     -> NON_RISERVATO { sensoreOff(sender, id_itinerario) [sign[id_itinerario] = null] /                        
+//                         treno := null;}
+ 
+//     Top.RISERVATO     -> CHECK_LIGHT_END { sensoreOff(sender, id_itinerario) [sign[id_itinerario] /= null] /
+//                          a:obj:=sign[id_itinerario];a.checkred(id_itinerario);
+//                          treno := null;}
+    
+//     Top.RISERVATO     -> TRENO_IN_TRANSITO { sensoreOn(sender, id_itinerario) / treno := sender; }
+
+//     TRENO_IN_TRANSITO -> NON_RISERVATO { sensoreOff(sender, id_itinerario) [sign[id_itinerario] = null] / 
+//                         treno := null;}
+
+//     TRENO_IN_TRANSITO -> CHECK_LIGHT_END { sensoreOff(sender,id_itinerario) [sign[id_itinerario] /= null] /
+//                         treno := null;
+//                         a:obj:=sign[id_itinerario];a.checkred(id_itinerario) }
+                        
+//     CHECK_LIGHT_END   -> NON_RISERVATO { red(id_itinerario) [treno = null and next[id_itinerario] /= null]}
+  
+//     ATTESA_ACK    -> NON_RISERVATO { nack(sender, id_itinerario) /
+//                        if  prev[id_itinerario] /= null  then
+//                          { m:obj:=prev[id_itinerario];m.nack(self, id_itinerario) }
+//                        else
+//                          { treno.no }; }
+
+//     ATTESA_COMMIT -> NON_RISERVATO { disagree(sender, id_itinerario) /
+//                        if  next[id_itinerario] /= null  then
+//                          { n:obj:=next[id_itinerario];n.disagree(self, id_itinerario) }; }
+
+//     ATTESA_AGREE  -> NON_RISERVATO { disagree(sender, id_itinerario) [sign[id_itinerario] = null] /
+//                        if  prev[id_itinerario] /= null  then
+//                          { o:obj:=prev[id_itinerario];o.disagree(self, id_itinerario) }
+//                        else
+//                          { treno.no};}
+                          
+//     ATTESA_AGREE  -> CHECK_LIGHT_START { disagree(sender, id_itinerario) [sign[id_itinerario] /= null] /
+//                        a:obj:=sign[id_itinerario]; a.checkred(id_itinerario)}
+                         
+//     CHECK_LIGHT_START    -> NON_RISERVATO { red(id_itinerario) [prev[id_itinerario] /= null] / 
+//                         o:obj:=prev[id_itinerario];o.disagree(self, id_itinerario);}
+                      
+//     Top.RISERVATO     -> NON_RISERVATO { disagree(sender, id_itinerario)  [sign[id_itinerario] = null ] /
+//                        if next[id_itinerario] /= null then
+//                         { p:obj:=next[id_itinerario];p.disagree(self, id_itinerario) } 
+//                        else
+//                         { p:obj:=prev[id_itinerario];p.nack(self, id_itinerario) };}
+            
+//     Top.RISERVATO     -> NON_RISERVATO { nack(sender, id_itinerario) [prev[id_itinerario] /= null] / 
+//                           p:obj:=prev[id_itinerario];p.nack(self,id_itinerario);
+//                         }
+//     Top.RISERVATO     -> CHECK_LIGHT_END { disagree(sender, id_itinerario) [sign[id_itinerario] /= null and next[id_itinerario] = null ]  /
+//                        o:obj:=sign[id_itinerario];o.checkred(id_itinerario);}
+                       
+//     Top.RISERVATO     -> CHECK_LIGHT_END { disagree(sender, id_itinerario)  [sign[id_itinerario] /= null and next[id_itinerario] /= null ]  /
+//                         p:obj:=next[id_itinerario];p.disagree(self, id_itinerario) ;
+//                         o:obj:=sign[id_itinerario];o.checkred(id_itinerario);}
+                        
+//     CHECK_LIGHT_END -> NON_RISERVATO {  red(id_itinerario) [next[id_itinerario] = null] /
+//                                     p:obj:=prev[id_itinerario];p.nack(self,id_itinerario);}
+                                    
+//     NON_RISERVATO -> NON_RISERVATO { nack(sender, id_itinerario) /
+//                                     o:obj:=prev[id_itinerario];o.nack(self, id_itinerario);}
+//     NON_RISERVATO -> NON_RISERVATO { req(sender, id_itinerario) [treno/=null and sender/=treno] /
+//                        sender.nack(self, id_itinerario); }
+                       
+//     ATTESA_ACK        -> ATTESA_ACK        { req(sender, id_itinerario) / sender.nack(self, id_itinerario); }
+//     ATTESA_COMMIT     -> ATTESA_COMMIT     { req(sender, id_itinerario) / sender.nack(self, id_itinerario); }
+//     ATTESA_AGREE      -> ATTESA_AGREE      { req(sender, id_itinerario) / sender.nack(self, id_itinerario); }
+//     Top.RISERVATO     -> Top.RISERVATO     { req(sender, id_itinerario) / sender.nack(self, id_itinerario); }
+//     TRENO_IN_TRANSITO -> TRENO_IN_TRANSITO { req(sender, id_itinerario) / sender.nack(self, id_itinerario); }
+
+// end CircuitoDiBinario
+
+// class Segnale is 
+//     Signals:
+//         checkgreen(id_itinerario);
+//         checkred(id_itinerario);
+      
+//     Vars:
+//         cbd :obj;
+//         red : bool:= true;
+        
+//     State Top = ROSSO , VERDE
+//     State VERDE Defers checkred(id_itinerario)
+//     State ROSSO Defers checkred(id_itinerario)
+
+//     Transitions:
+//      ROSSO -> VERDE { checkgreen(id_itinerario) [red = true] /
+//                        cbd.green(id_itinerario);
+//                         red = false; }
+//      ROSSO -> ROSSO { checkred(id_itinerario) [red = true] /
+//                         cbd.red(id_itinerario);
+//                         red = true}  
+                        
+//      VERDE -> ROSSO { checkred(id_itinerario)  [red = false] /
+//                         cbd.red(id_itinerario);
+//                         red = true;}
+                        
+//      VERDE -> VERDE { checkgreen(id_itinerario) [red = false] /
+//                         cbd.green(id_itinerario);
+//                         }
+// end Segnale
+
+// Class Scambio is
+
+//   Signals:
+//     req(sender: obj, id_itinerario: int);
+//     ack(sender: obj, id_itinerario: int);
+//     nack(sender: obj, id_itinerario: int);
+//     commit(sender: obj, id_itinerario: int);
+//     agree(sender: obj, id_itinerario: int);
+//     disagree(sender: obj, id_itinerario: int);
+
+//   Operations:
+//     sensoreOn(sender: obj, id_itinerario);
+//     sensoreOff(sender: obj, id_itinerario);
+
+//   Vars:
+//     next: obj[];
+//     prev: obj[];
+//     conf: bool[];
+//     rovescio: bool := False;
+//     treno: obj := null;
+//     itinerario: int;
+
+//   State Top = NON_RISERVATO, ATTESA_ACK, ATTESA_COMMIT, ATTESA_AGREE, POSIZIONAMENTO, RISERVATO,CHECK_NON_RISERVATO, TRENO_IN_TRANSITO
+//   State ATTESA_ACK Defers req(sender: obj, id_itinerario: int)
+//   State ATTESA_ACK Defers nack(sender,id_itinerario)
+
+//  Transitions:
+
+//     NON_RISERVATO  -> ATTESA_ACK     { req(sender, id_itinerario) /
+//                    q:obj:=next[id_itinerario];q.req(self, id_itinerario); }
+
+//     ATTESA_ACK     -> ATTESA_COMMIT  { ack(sender, id_itinerario) /
+//                    r:obj:=prev[id_itinerario];r.ack(self, id_itinerario); }
+
+//     ATTESA_COMMIT  -> ATTESA_AGREE   { commit(sender, id_itinerario) /
+//                    s:obj:=next[id_itinerario];s.commit(self, id_itinerario); }
+
+//     ATTESA_AGREE   -> Top.RISERVATO      { agree(sender, id_itinerario) [rovescio = conf[id_itinerario]]/
+//                                        t:obj:=prev[id_itinerario];t.agree(self, id_itinerario); }
+
+//     ATTESA_AGREE   -> POSIZIONAMENTO { agree(sender, id_itinerario) [rovescio /= conf[id_itinerario]] /
+//                                         itinerario := id_itinerario;}
+
+//     POSIZIONAMENTO -> Top.RISERVATO      { - /
+//                                            rovescio := not rovescio;
+//                        u:obj:=prev[itinerario];u.agree(self, itinerario); }
+                       
+//     POSIZIONAMENTO -> CHECK_NON_RISERVATO { - /
+//                        z:obj:=next[itinerario];z.disagree(self, itinerario);}
+                       
+//     CHECK_NON_RISERVATO -> NON_RISERVATO { nack(sender,id_itinerario) /
+//                         v:obj:=prev[id_itinerario];v.disagree(self, id_itinerario);}
+      
+//     NON_RISERVATO    -> NON_RISERVATO { nack(sender,id_itinerario)/
+//                         v:obj:=prev[id_itinerario];v.nack(self,id_itinerario);}
+                        
+//     Top.RISERVATO     -> TRENO_IN_TRANSITO { sensoreOn(sender, id_itinerario) / treno := sender; }
+
+//     TRENO_IN_TRANSITO -> NON_RISERVATO { sensoreOff(sender, id_itinerario) / 
+//                                         treno := null;}
+
+//     ATTESA_ACK     -> NON_RISERVATO { nack(sender, id_itinerario) /
+//                         a:obj:=prev[id_itinerario];a.nack(self, id_itinerario); }
+
+//     ATTESA_COMMIT  -> NON_RISERVATO { disagree(sender, id_itinerario) /
+//                         b:obj:=next[id_itinerario];b.disagree(self, id_itinerario); }
+
+//     ATTESA_AGREE   -> NON_RISERVATO { disagree(sender, id_itinerario) /
+//                         c:obj:=prev[id_itinerario];c.disagree(self, id_itinerario); }
+
+//     POSIZIONAMENTO -> NON_RISERVATO { disagree(sender, id_itinerario) /
+//                         d:obj:=next[id_itinerario];d.disagree(self, id_itinerario); }
+
+//     Top.RISERVATO      -> NON_RISERVATO { disagree(sender, id_itinerario) /
+//                         e:obj:=next[id_itinerario];e.disagree(self, id_itinerario); }
+
+//     ATTESA_COMMIT     -> ATTESA_COMMIT     { req(sender, id_itinerario) / sender.nack(self, id_itinerario); }
+//     ATTESA_AGREE      -> ATTESA_AGREE      { req(sender, id_itinerario) / sender.nack(self, id_itinerario); }
+//     POSIZIONAMENTO    -> POSIZIONAMENTO    { req(sender, id_itinerario) / sender.nack(self, id_itinerario); }
+//     Top.RISERVATO     -> Top.RISERVATO     { req(sender, id_itinerario) / sender.nack(self, id_itinerario); }
+//     TRENO_IN_TRANSITO -> TRENO_IN_TRANSITO { req(sender, id_itinerario) / sender.nack(self, id_itinerario); }
+
+// end Scambio

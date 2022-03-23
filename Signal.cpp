@@ -19,7 +19,7 @@ string Signal::toString(){
             + ",\nmbLinearEnd[" + mId + "] = " + linearEnd;
 }
 
-string Signal::toString(map<int,string> sC,map<int,string> plC){
+string Signal::toString(map<int,string> plC,map<int,string> sC){
     string mId = sC.find(mbId)->second;
     //cout << mId << " " <<  to_string(sectionId) << " "<< linearEnd<< endl;
     return "mbSection[" + mId + " - " + to_string(mbId) + "] = " + plC.find(sectionId)->second + " - " + to_string(sectionId)

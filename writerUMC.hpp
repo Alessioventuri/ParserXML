@@ -9,13 +9,19 @@ using namespace std;
 class writerUMC : public writer
 {
 private :
-    string defaultUMCsetup(NetworkLayout,Interlock,int,map<int,string>,map<int,string>);
-    string pointObjectUMC(Route,map<int,string>,NetworkLayout);
-    string linearObjectUMC(Route,map<int,string>,map<int,string>,NetworkLayout);
-    string signalObjectUMC(Route, map<int,string>,map<int,string>,NetworkLayout);
+    string defaultUMCsetupOneRoute(NetworkLayout,Interlock,int,map<int,string>,map<int,string>);
+    string pointObjectUmcOneRoute(Route,map<int,string>,NetworkLayout);
+    string linearObjectUmcOneRoute(Route,map<int,string>,map<int,string>,NetworkLayout);
+    string signalObjectUmcOneRoute(Route, map<int,string>,map<int,string>,NetworkLayout);
+    string trainObjectUmcOneRoute(Route,map<int,string>,NetworkLayout);
+
     string findMb(Route ,NetworkLayout ,int ,map<int,string>);
-    string trainObjectUMC(Route,map<int,string>,NetworkLayout);
-    string abstractionUMC(Route,map<int,string>,map<int,string>,NetworkLayout);
+
+    string abstractionUmcOneRoute(Route,map<int,string>,map<int,string>,NetworkLayout);
+    string derailAbsOneRoute(Route,map<int,string>,NetworkLayout);
+    string brokenSignalsOneRoute(Route,map<int,string>,map<int,string>,NetworkLayout);
+
+    string routeCombiner(NetworkLayout,Interlock);
 public:
     writerUMC(){};
     ~writerUMC() = default;

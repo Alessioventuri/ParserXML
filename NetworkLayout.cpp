@@ -5,10 +5,10 @@
 
 using namespace std;
 
-string NetworkLayout::pointString(){
+string NetworkLayout::pointString(map<int,string> plC){
     string output;
     for ( int i = 0 ; i < points.size(); i++ )
-        output += points.at(i).toString() + ",\n";
+        output += points.at(i).toString(plC) + ",\n";
     if (output.length() > 0)
         output = output.substr(0, output.length() - 2);
     return output;
@@ -24,10 +24,10 @@ string NetworkLayout::pointStringAdaptive(Route route,map<int,string> pl){
     return output;
 }
 
-string NetworkLayout::linearString(){
+string NetworkLayout::linearString(map<int,string> plC){
     string output;
     for ( int i = 0 ; i < linears.size(); i++ )
-        output += linears.at(i).toString() + ",\n";
+        output += linears.at(i).toString(plC) + ",\n";
     if (output.length() > 0)
         output = output.substr(0, output.length() - 2);
     return output;
@@ -45,10 +45,10 @@ string NetworkLayout::linearStringAdaptive(Route route,map<int,string> plC){
     return output;
 }
 
-string NetworkLayout::signalString(){
+string NetworkLayout::signalString(map<int,string> plC,map<int,string> sC){
     string output;
     for ( int i = 0 ; i < signals.size(); i++ )
-        output += signals.at(i).toString() + ",\n";
+        output += signals.at(i).toString(plC,sC) + ",\n";
     if (output.length() > 0)
         output = output.substr(0, output.length() - 2);
     return output;
@@ -64,19 +64,19 @@ string NetworkLayout::signalStringAdaptive(Route route,map<int,string> sC,map<in
     return output;
 }
 
-string NetworkLayout::toString(){
+string NetworkLayout::toString(map<int,string> plC,map<int,string> sC){
     string s;
     s += "value\nmaxLinear: Int = " + to_string(linears.size()) + ",\n";
     s += "maxPoint: Int = " + to_string(points.size()) + ",\n";
     s += "maxMb: Int = " + to_string(signals.size()) +"\n";
     s += "axiom\n";
-    s += pointString();
+    s += pointString(plC);
     
     if (points.size() != 0)
         s += ",\n\n";
-    s += linearString();
+    s += linearString(plC);
     s += ",\n\n";
-    s += signalString(); 
+    s += signalString(plC,sC); 
     return s;
 }
 string NetworkLayout::toStringAdaptive(Route route,map<int,string> plC,map<int,string> sC){

@@ -2,6 +2,7 @@
 #include "NetworkLayout.hpp"
 #include "writer.hpp"
 #include "writerUMC.hpp"
+#include "writerSimple.hpp"
 #include <stdexcept>
 #include <iostream>
 #include <stdlib.h>
@@ -37,6 +38,8 @@ int getIntFromNeighborPoint(xml_node<> *neighbor){
 writer* writer::write(fileType type){
     if(type == fileType::UMCFile) 
         return new writerUMC();
+    if(type == fileType::SimpleFile)
+        return new writerSimple();
     return NULL;
 }
 
@@ -286,7 +289,7 @@ int main(int argc, char *argv[]){
         il.setMaxValues(maxPathLenght);
 
     }
-    writer* obj = writer::write(UMCFile);
+    writer* obj = writer::write(SimpleFile);
     obj->writeFile(outputFile,nl,il,plCorrispondence,mbCorrispondence);
     delete obj;
 }

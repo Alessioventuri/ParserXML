@@ -6,7 +6,7 @@
 #include <map>
 
 enum fileType{
-    UMCFile,po
+    UMCFile,SimpleFile
 };
 
 class writer {
