@@ -14,6 +14,7 @@ public:
     Interlock(){};
     void generateMaxChunk();
     void addRoute(Route &rou);
+    void deleteRoute(Route &rou,int i);
     void setMaxValues(int &maxpath);
     string toString();
     int getMaxPathLenght(){ return maxPathlenght;}

@@ -57,7 +57,7 @@ string NetworkLayout::signalStringAdaptive(Route route,map<int,string> sC,map<in
     string output;
     for(int i = 0; i< route.getSignals().size();i++){
         if(route.getSignals().at(i) == true)
-            output += signals.at(i).toString(sC,plC) + ",\n";
+            output += signals.at(i).toString(plC,sC) + ",\n";
     }
     if (output.length() > 0)
         output = output.substr(0, output.length() - 2);

@@ -34,6 +34,7 @@ void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<in
             }
         }
     } 
+    routeCombiner(nl,il);
 }
 
 string writerUMC::defaultUMCsetupOneRoute(NetworkLayout nl,Interlock il,int i,map<int,string> pl,map<int,string> sC){
@@ -215,6 +216,21 @@ string writerUMC::abstractionUmcOneRoute(Route route,map<int,string> plC,map<int
     output += "\n}";
     return output;
 
+}
+//FIXME: combine routes with pathLength < 3 and delete that addition.
+string writerUMC::routeCombiner(NetworkLayout nl, Interlock il){
+    Interlock new_Il;
+    int size = il.getRoutes().size();
+    for(int i = 0; i < size;i++){
+        if(il.getRoutes().at(i).getPath().size() < 4){
+            for(int j = 0; j < size;j++){
+                if(il.getRoutes().at(i).getPath().back() == il.getRoutes().at(j).getPath().at(0) and il.getRoutes().at(i).getDirection() == il.getRoutes().at(j).getDirection())
+                    cout << "POTREBBE ESSERCI"  << " : "<< il.getRoutes().at(i).getRouteId() << " and "<< il.getRoutes().at(j).getRouteId()  << " lenght: " << il.getRoutes().at(j).getPath().size()  << endl ; 
+                    
+            }   
+        }
+    }
+    return "null";
 }
 
 

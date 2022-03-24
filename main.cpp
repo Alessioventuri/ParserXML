@@ -15,6 +15,10 @@
 #include <cstring>
 #include <exception>
 
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sstream>
+
 using namespace rapidxml;
 using namespace std;
 
@@ -34,6 +38,12 @@ int getIntFromNeighborPoint(xml_node<> *neighbor){
         return 1;
     else return 2;
 }
+string SplitFilename (string str)
+{
+  std::size_t found = str.find_last_of("/\\");
+  str = str.substr(found+1);
+  return str.substr(0,str.length()-4);
+}
 
 writer* writer::write(fileType type){
     if(type == fileType::UMCFile) 
@@ -45,7 +55,7 @@ writer* writer::write(fileType type){
 
 int main(int argc, char *argv[]){
     bool outputToFile = false;
-    string input;
+    string input = "/Users/alessioventuri/Desktop/XML/lvr_7_right_rt.xml";
     string outputFile = "/Users/alessioventuri/Desktop/Interlocking/";
     bool helpCalled = false;
     
@@ -81,13 +91,24 @@ int main(int argc, char *argv[]){
     //     exit(0);
 
     // }
+
+    //FIXME: to create a separate folders for xml ( later also for type of xml generated)
+    outputFile = outputFile + SplitFilename(input) + "/";
+    cout << outputFile << endl;
+    std::stringstream ss;
+    ss <<  outputFile;
+    int rc = mkdir(ss.str().c_str(), 0777);
+    if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
+    // ----
+
+
     cout << "Parsing the xml : " <<  input << endl;
 
     xml_document<> doc;
     xml_node<> *root_node;
 
     // Read the xml file into a vector
-    ifstream inputfile ("/Users/alessioventuri/Desktop/XML/lvr_7_right_rt.xml");
+    ifstream inputfile (input);
     vector<char> buffer((istreambuf_iterator<char>(inputfile)), istreambuf_iterator<char>());
 
     // Parse the buffer using the xml file parsing library into doc     
@@ -289,7 +310,8 @@ int main(int argc, char *argv[]){
         il.setMaxValues(maxPathLenght);
 
     }
-    writer* obj = writer::write(SimpleFile);
+
+    writer* obj = writer::write(UMCFile);
     obj->writeFile(outputFile,nl,il,plCorrispondence,mbCorrispondence);
     delete obj;
 }

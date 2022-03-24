@@ -6,6 +6,10 @@ using namespace std;
 void Interlock::addRoute(Route &rou){
 	routes.push_back(rou);
 }
+
+void Interlock::deleteRoute(Route &rou,int i){
+	routes.erase(routes.begin()+i);
+}
 	
 void Interlock::setMaxValues(int &maxpath) {
 		maxPathlenght = maxpath;
