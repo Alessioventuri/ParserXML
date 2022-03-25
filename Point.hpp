@@ -15,10 +15,10 @@ public:
     }
     string toString(map<int,string>);
     string toString();
-    int getStem(){ return stemNeighbour;}
-    int getPlus(){ return plusNeighbour;}
-    int getMinus(){ return minusNeighbour;}
-    int getSectionId(){return sectionId;}
+    int getStem(){ return stemNeighbour; }
+    int getPlus(){ return plusNeighbour; }
+    int getMinus(){ return minusNeighbour; }
+    int getSectionId(){ return sectionId; }
     
 };
 

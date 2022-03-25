@@ -224,9 +224,23 @@ string writerUMC::routeCombiner(NetworkLayout nl, Interlock il){
     for(int i = 0; i < size;i++){
         if(il.getRoutes().at(i).getPath().size() < 4){
             for(int j = 0; j < size;j++){
-                if(il.getRoutes().at(i).getPath().back() == il.getRoutes().at(j).getPath().at(0) and il.getRoutes().at(i).getDirection() == il.getRoutes().at(j).getDirection())
+                
+                if(il.getRoutes().at(i).getPath().back() == il.getRoutes().at(j).getPath().at(0) and il.getRoutes().at(i).getDirection() == il.getRoutes().at(j).getDirection()){
+                    Route route1(il.getRoutes().at(i));
+                    Route route2(il.getRoutes().at(j));
+                    Route routeCombined(route2.getRouteId()*100+route1.getRouteId(),
+                            route1.getSrc(),
+                            route2.getDest(),
+                            route1.getDirection(),
+                            pointsCombiner(route1.getPoints(),route2.getPoints()),
+                            pathCombiner(route1.getPath(),route2.getPath()),
+                            signalsCombiner(route1.getSignals(),route2.getSignals()),
+                            overlapCombiner(route1.getOverlap(),route2.getOverlap()),
+                            conflictCombiner(route1.getC)
+
+                }
                     cout << "POTREBBE ESSERCI"  << " : "<< il.getRoutes().at(i).getRouteId() << " and "<< il.getRoutes().at(j).getRouteId()  << " lenght: " << il.getRoutes().at(j).getPath().size()  << endl ; 
-                    
+
             }   
         }
     }

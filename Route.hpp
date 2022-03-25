@@ -37,7 +37,9 @@ public:
     int getRouteId(){return routeId;}
     int getSrc() {return src;}
     int getDest() {return destination;}
+    vector<bool> getOverlap(){return overlap;}
     string getDirection(){return direction;}
+    map<int,bool> getConflict(){return conflict;}
     map<int,string> getPoints(){return points;}
     vector<int> getPath(){return path;}
     map<int,bool> getSignals(){return signals;}
