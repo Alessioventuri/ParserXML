@@ -23,7 +23,7 @@ void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<in
                 myfile << nl.toStringAdaptive(il.getRoutes().at(i),pl,mb);
                 myfile << "\n\n/* NetworkLayout End */\n\n";
                 myfile << "\n/* Interlocking */\n\n";
-                myfile << il.getRoutes().at(i).toString(il.getMaxPathLenght(), il.getMaxChunk()) + "\n";
+                myfile << il.getRoutes().at(i).toString(il.getMaxPathLength(), il.getMaxChunk()) + "\n";
                 myfile << "\n/* Interlocking End */\n";
                 myfile << "\n/* UMC code */\n";
                 myfile << defaultUMCsetupOneRoute(nl,il,i,pl,mb);
@@ -215,20 +215,21 @@ string writerUMC::abstractionUmcOneRoute(Route route,map<int,string> plC,map<int
     output += brokenSignalsOneRoute(route,plC,sC,nl);
     output += "\n}";
     return output;
-
 }
+
 //FIXME: combine routes with pathLength < 3 and delete that addition.
 string writerUMC::routeCombiner(NetworkLayout nl, Interlock il){
     Interlock new_Il;
     int size = il.getRoutes().size();
     for(int i = 0; i < size;i++){
         if(il.getRoutes().at(i).getPath().size() < 4){
-            for(int j = 0; j < size;j++){
-                
-                if(il.getRoutes().at(i).getPath().back() == il.getRoutes().at(j).getPath().at(0) and il.getRoutes().at(i).getDirection() == il.getRoutes().at(j).getDirection()){
+            for(int j = 0; j < size;j++){   
+                if(il.getRoutes().at(i).getPath().back() == il.getRoutes().at(j).getPath().at(0) and
+                il.getRoutes().at(i).getDirection() == il.getRoutes().at(j).getDirection()){
                     Route route1(il.getRoutes().at(i));
                     Route route2(il.getRoutes().at(j));
-                    Route routeCombined(route2.getRouteId()*100+route1.getRouteId(),
+                    int id = route2.getRouteId()*100+route1.getRouteId();
+                    Route routeCombined(id,
                             route1.getSrc(),
                             route2.getDest(),
                             route1.getDirection(),
@@ -236,14 +237,17 @@ string writerUMC::routeCombiner(NetworkLayout nl, Interlock il){
                             pathCombiner(route1.getPath(),route2.getPath()),
                             signalsCombiner(route1.getSignals(),route2.getSignals()),
                             overlapCombiner(route1.getOverlap(),route2.getOverlap()),
-                            conflictCombiner(route1.getC)
+                            conflictCombiner(route1.getConflict(),route2.getConflict()),
+                            route1.getPoints().size());
+                    new_Il.addRoute(routeCombined);
 
                 }
-                    cout << "POTREBBE ESSERCI"  << " : "<< il.getRoutes().at(i).getRouteId() << " and "<< il.getRoutes().at(j).getRouteId()  << " lenght: " << il.getRoutes().at(j).getPath().size()  << endl ; 
-
             }   
         }
     }
+    int length = il.getMaxPathLength()+3;
+    new_Il.setMaxValues(length);
+    cout << new_Il.toString() << endl;
     return "null";
 }
 

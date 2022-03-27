@@ -7,7 +7,7 @@ using namespace std;
 class Interlock{
 private:
     vector<Route> routes;
-	int maxPathlenght;
+	int maxPathlength;
 	int maxChunk;
     	
 public:
@@ -17,7 +17,7 @@ public:
     void deleteRoute(Route &rou,int i);
     void setMaxValues(int &maxpath);
     string toString();
-    int getMaxPathLenght(){ return maxPathlenght;}
+    int getMaxPathLength(){ return maxPathlength;}
     int getMaxChunk(){return maxChunk;}
     void getRoutesDisplay();
     vector<Route> getRoutes(){ return routes;}

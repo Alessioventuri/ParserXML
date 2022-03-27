@@ -33,6 +33,7 @@ private:
 public:
     Route(int &id, int src, int dest,string direction, map<int,string> points, vector<int> path, map<int,bool> signals, vector<bool> overlap, map<int,bool> conflict, int maxPoints);
     string toString(int maxpath, int maxChunk);
+    string toString(int maxpath);
     vector<int> getCheckPoints(){return checkPoints;}
     int getRouteId(){return routeId;}
     int getSrc() {return src;}

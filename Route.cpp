@@ -128,4 +128,15 @@ string Route::toString(int maxpath, int maxChunk){
 			+ ",\nrouteLastElem[" + to_string(routeId) +"] = " + to_string(lastElem) 
 			+ ",\n" + checkPointString(maxChunk); 
 }
+string Route::toString(int maxpath){
+	return "routeSrc[" + to_string(routeId) + "] = " + to_string(src)
+			+ "\nrouteDirection[" + to_string(routeId) + "] = " + getDirection() 
+			+ ",\nrouteDest[" + to_string(routeId) + "] = " + to_string(destination) 
+			+ (!points.empty() ? ",\n" + pointString() : "")
+			+ ",\n" + pathString(maxpath)
+			+ ",\n" + signalString()
+			+ ",\n" + overlapString()
+			+ ",\n" + conflictString()
+			+ ",\nrouteLastElem[" + to_string(routeId) +"] = " + to_string(lastElem);
+}
 

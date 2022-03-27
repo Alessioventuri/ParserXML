@@ -12,7 +12,7 @@ void Interlock::deleteRoute(Route &rou,int i){
 }
 	
 void Interlock::setMaxValues(int &maxpath) {
-		maxPathlenght = maxpath;
+		maxPathlength = maxpath;
 
 }
 void Interlock::generateMaxChunk(){
@@ -25,18 +25,18 @@ void Interlock::generateMaxChunk(){
 }
 string Interlock::toString() {
 	generateMaxChunk();
-	if (routes.size() == 0 && maxChunk == 0 && maxPathlenght == 0) 
+	if (routes.size() == 0 && maxChunk == 0 && maxPathlength == 0) 
 		return "";
 	string output = "value\n";
 	
 	output += "maxRoutes: Int = " + to_string(routes.size()) + ",\n" +
-			"maxPathLength: Int = " + to_string(maxPathlenght) + ",\n" +
+			"maxPathLength: Int = " + to_string(maxPathlength) + ",\n" +
 			"maxChunks: Int = " + to_string((maxChunk-1)) + "\n";
 	
 	
 	output += "axiom\n";
 	for ( int i = 0 ; i < routes.size(); i++ )
-		output += routes.at(i).toString(maxPathlenght, maxChunk) + ",\n";
+		output += routes.at(i).toString(maxPathlength, maxChunk) + ",\n";
 	if (output.length() > 0)
 		output = output.substr(0, output.length() - 2);
 	return output;
