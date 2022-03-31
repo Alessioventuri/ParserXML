@@ -1,8 +1,7 @@
 #include "writerUMC.hpp"
-#include "helpFunction.hpp"
 #include <string>
-
-void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<int,string> pl,map<int,string> mb){
+//FIXME: Find the error
+void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<int,string> pl,map<int,string> mb,int choose){
     // 1. create a file.txt for each route and add an extra routes that continue
     // 2. create a file.txt that contents all routes
     // 3. create a file.txt that contents some routes
@@ -23,7 +22,7 @@ void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<in
                 myfile << nl.toStringAdaptive(il.getRoutes().at(i),pl,mb);
                 myfile << "\n\n/* NetworkLayout End */\n\n";
                 myfile << "\n/* Interlocking */\n\n";
-                myfile << il.getRoutes().at(i).toString(il.getMaxPathLength(), il.getMaxChunk()) + "\n";
+                myfile << (choose == 1 ? il.getRoutes().at(i).toString(il.getMaxPathLength(), il.getMaxChunk()) :  il.getRoutes().at(i).toString(il.getMaxPathLength()))  + "\n";
                 myfile << "\n/* Interlocking End */\n";
                 myfile << "\n/* UMC code */\n";
                 myfile << defaultUMCsetupOneRoute(nl,il,i,pl,mb);
@@ -34,7 +33,6 @@ void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<in
             }
         }
     } 
-    routeCombiner(nl,il);
 }
 
 string writerUMC::defaultUMCsetupOneRoute(NetworkLayout nl,Interlock il,int i,map<int,string> pl,map<int,string> sC){
@@ -217,39 +215,6 @@ string writerUMC::abstractionUmcOneRoute(Route route,map<int,string> plC,map<int
     return output;
 }
 
-//FIXME: combine routes with pathLength < 3 and delete that addition.
-string writerUMC::routeCombiner(NetworkLayout nl, Interlock il){
-    Interlock new_Il;
-    int size = il.getRoutes().size();
-    for(int i = 0; i < size;i++){
-        if(il.getRoutes().at(i).getPath().size() < 4){
-            for(int j = 0; j < size;j++){   
-                if(il.getRoutes().at(i).getPath().back() == il.getRoutes().at(j).getPath().at(0) and
-                il.getRoutes().at(i).getDirection() == il.getRoutes().at(j).getDirection()){
-                    Route route1(il.getRoutes().at(i));
-                    Route route2(il.getRoutes().at(j));
-                    int id = route2.getRouteId()*100+route1.getRouteId();
-                    Route routeCombined(id,
-                            route1.getSrc(),
-                            route2.getDest(),
-                            route1.getDirection(),
-                            pointsCombiner(route1.getPoints(),route2.getPoints()),
-                            pathCombiner(route1.getPath(),route2.getPath()),
-                            signalsCombiner(route1.getSignals(),route2.getSignals()),
-                            overlapCombiner(route1.getOverlap(),route2.getOverlap()),
-                            conflictCombiner(route1.getConflict(),route2.getConflict()),
-                            route1.getPoints().size());
-                    new_Il.addRoute(routeCombined);
-
-                }
-            }   
-        }
-    }
-    int length = il.getMaxPathLength()+3;
-    new_Il.setMaxValues(length);
-    cout << new_Il.toString() << endl;
-    return "null";
-}
 
 
 // Abstractions{ 

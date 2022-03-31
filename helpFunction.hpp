@@ -11,6 +11,7 @@ map<int,bool> signalsCombiner(map<int,bool> s1, map<int,bool> s2);
 map<int,string> pointsCombiner(map<int,string> s1, map<int,string> s2);
 vector<int> pathCombiner(vector<int> v1, vector<int> v2);
 vector<bool> overlapCombiner(vector<bool> v1, vector<bool> v2);
+map<int,bool> conflictCombiner(map<int,bool> m1, map<int,bool> m2);
 
 
 map<int,bool> signalsCombiner(map<int,bool> s1, map<int,bool> s2){

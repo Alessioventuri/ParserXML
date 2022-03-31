@@ -21,11 +21,10 @@ private :
     string derailAbsOneRoute(Route,map<int,string>,NetworkLayout);
     string brokenSignalsOneRoute(Route,map<int,string>,map<int,string>,NetworkLayout);
 
-    string routeCombiner(NetworkLayout,Interlock);
 public:
     writerUMC(){};
     ~writerUMC() = default;
-    void writeFile(string,NetworkLayout,Interlock,map<int,string>,map<int,string>);
+    void writeFile(string,NetworkLayout,Interlock,map<int,string>,map<int,string>,int);
     friend class writer;
 
 };

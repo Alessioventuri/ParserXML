@@ -22,6 +22,9 @@
 using namespace rapidxml;
 using namespace std;
 
+//FIXME: THIS SHOULD BE CLASS PARSERXML AND NOT MAIN...
+
+
 int getIntFromNeighborLinear(xml_node<> *neighbor){
     string neig = (string)neighbor->first_attribute("side")->value();
     if(neig == "up")
@@ -91,16 +94,6 @@ int main(int argc, char *argv[]){
     //     exit(0);
 
     // }
-
-    //FIXME: to create a separate folders for xml ( later also for type of xml generated)
-    outputFile = outputFile + SplitFilename(input) + "/";
-    cout << outputFile << endl;
-    std::stringstream ss;
-    ss <<  outputFile;
-    int rc = mkdir(ss.str().c_str(), 0777);
-    if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
-    // ----
-
 
     cout << "Parsing the xml : " <<  input << endl;
 
@@ -308,11 +301,63 @@ int main(int argc, char *argv[]){
             size);
         il.addRoute(rou);
         il.setMaxValues(maxPathLenght);
-
     }
+    outputFile = outputFile + SplitFilename(input) + "/";
+    cout << outputFile << endl;
+    std::stringstream ss;
+    ss <<  outputFile;
+    int rc = mkdir(ss.str().c_str(), 0777);
+    if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
+    int file;
+    cout << "WHICH TYPE DO YOU WANT" <<endl;
+    cout << "0 : UMCFile" << endl;
+    cout << "1 : SimpleFile " << endl;
+    cin >> file;
+    if(file == 0){
+        outputFile = outputFile  + "UMC/";
+        cout << outputFile << endl;
+        std::stringstream ss;
+        ss <<  outputFile;
+        int rc = mkdir(ss.str().c_str(), 0777);
+        if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
 
-    writer* obj = writer::write(UMCFile);
-    obj->writeFile(outputFile,nl,il,plCorrispondence,mbCorrispondence);
-    delete obj;
+        writer* obj = writer::write(UMCFile);
+        int choose;
+        cout << "DO YOU WANT TO COMBINE ROUTE WITH LENGTH < 4 ?" <<endl;
+        cout << "PRESS:" << endl;
+        cout << "0 : Yes" << endl;
+        cout << "1 : No"  <<endl;
+        cin >> choose;
+        if(choose == 0){
+            outputFile = outputFile + "CombinedRoutes/";
+            cout << outputFile << endl;
+            std::stringstream ss;
+            ss <<  outputFile;
+            int rc = mkdir(ss.str().c_str(), 0777);
+            if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
+            obj->writeFile(outputFile,nl,il.routeCombiner(nl,il),plCorrispondence,mbCorrispondence,choose);
+        }
+        else{
+            outputFile = outputFile + "singleRoute/";
+            cout << outputFile << endl;
+            std::stringstream ss;
+            ss <<  outputFile;
+            int rc = mkdir(ss.str().c_str(), 0777);
+            if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
+            obj->writeFile(outputFile,nl,il,plCorrispondence,mbCorrispondence,choose);
+        }
+    
+        delete obj;
+    }
+    if(file == 1){
+        writer* obj = writer::write(SimpleFile);
+        outputFile = outputFile  + "Simple/";
+        cout << outputFile << endl;
+        std::stringstream ss;
+        ss <<  outputFile;
+        int rc = mkdir(ss.str().c_str(), 0777);
+        if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
+        obj->writeFile(outputFile,nl,il,plCorrispondence,mbCorrispondence,0);
+    }
 }
 
