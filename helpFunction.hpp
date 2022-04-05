@@ -16,12 +16,12 @@ map<int,bool> conflictCombiner(map<int,bool> m1, map<int,bool> m2);
 
 map<int,bool> signalsCombiner(map<int,bool> s1, map<int,bool> s2){
     for(int i = 0; i < s1.size();i++){
-        if(s1.at(i) != s2.at(i))
+        if(s1.at(i) == false and s2.at(i) == true)
             s1.at(i) = s2.at(i);
     }
     return s1; 
 }
-
+//s1.at(i) == "INTER" and s2.at(i) != "INTER" or not because the s2 is supposed to be bigger that s1.
 map<int,string> pointsCombiner(map<int,string> s1, map<int,string> s2){
     for(int i = 0; i < s1.size();i++){
         if(s1.at(i) != s2.at(i))

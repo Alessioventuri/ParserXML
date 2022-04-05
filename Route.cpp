@@ -137,6 +137,7 @@ string Route::toString(int maxpath){
 			+ ",\n" + signalString()
 			+ ",\n" + overlapString()
 			+ ",\n" + conflictString()
-			+ ",\nrouteLastElem[" + to_string(routeId) +"] = " + to_string(lastElem);
+			+ ",\nrouteLastElem[" + to_string(routeId) +"] = " + to_string(lastElem) 
+			+ ",\n";
 }
 

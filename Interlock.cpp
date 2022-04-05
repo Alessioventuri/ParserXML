@@ -33,8 +33,6 @@ string Interlock::toString() {
 	output += "maxRoutes: Int = " + to_string(routes.size()) + ",\n" +
 			"maxPathLength: Int = " + to_string(maxPathlength) + ",\n" +
 			"maxChunks: Int = " + to_string((maxChunk-1)) + "\n";
-	
-	
 	output += "axiom\n";
 	for ( int i = 0 ; i < routes.size(); i++ )
 		output += routes.at(i).toString(maxPathlength, maxChunk) + ",\n";

@@ -313,6 +313,16 @@ int main(int argc, char *argv[]){
     cout << "0 : UMCFile" << endl;
     cout << "1 : SimpleFile " << endl;
     cin >> file;
+    // outputFile = outputFile + "CombinedRoutes/";
+    // writer* obj = writer::write(UMCFile);
+    // cout << outputFile << endl;
+    // std::stringstream sss;
+    // ss <<  outputFile;
+    // int rc1 = mkdir(sss.str().c_str(), 0777);
+    // if(rc1 == 0) std::cout << "Created " << ss.str() << " success\n";
+    // Interlock il_comb = il.routeCombiner(nl,il);
+    // obj->writeFile(outputFile,nl,il_comb,plCorrispondence,mbCorrispondence,0);
+    // }
     if(file == 0){
         outputFile = outputFile  + "UMC/";
         cout << outputFile << endl;
@@ -335,7 +345,9 @@ int main(int argc, char *argv[]){
             ss <<  outputFile;
             int rc = mkdir(ss.str().c_str(), 0777);
             if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
-            obj->writeFile(outputFile,nl,il.routeCombiner(nl,il),plCorrispondence,mbCorrispondence,choose);
+            Interlock il_comb = il.routeCombiner(nl,il);
+            // cout << il_comb.toStringCombiner() << endl;
+            obj->writeFile(outputFile,nl,il_comb,plCorrispondence,mbCorrispondence,choose);
         }
         else{
             outputFile = outputFile + "singleRoute/";

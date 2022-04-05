@@ -22,7 +22,7 @@ void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<in
                 myfile << nl.toStringAdaptive(il.getRoutes().at(i),pl,mb);
                 myfile << "\n\n/* NetworkLayout End */\n\n";
                 myfile << "\n/* Interlocking */\n\n";
-                myfile << (choose == 1 ? il.getRoutes().at(i).toString(il.getMaxPathLength(), il.getMaxChunk()) :  il.getRoutes().at(i).toString(il.getMaxPathLength()))  + "\n";
+                myfile << (choose == 0 ? il.getRoutes().at(i).toString(il.getMaxPathLength()) : il.getRoutes().at(i).toString(il.getMaxPathLength(), il.getMaxChunk()))  + "\n";
                 myfile << "\n/* Interlocking End */\n";
                 myfile << "\n/* UMC code */\n";
                 myfile << defaultUMCsetupOneRoute(nl,il,i,pl,mb);
@@ -59,7 +59,7 @@ string writerUMC::linearObjectUmcOneRoute(Route route,map<int,string> plC,map<in
             string train = (nl.getLinears().at(index).sectionId == route.getPath().at(0)) ? "train" : "null";
             output += plC.find(nl.getLinears().at(index).sectionId)->second + ": CircuitoDiBinario (\n\t";
             output += "prev => [" + (route.getDirection() == "up" ? down : up) + "],\n\t";
-            output += "next => [" + (route.getDirection() == "up" ? up : down) + "],";
+            output += "next => [" + (route.getDirection() == "up" ? up : down) + "],\n\t";
             output += "sign => [" + sign + "],\n\t";
             output += "treno => " + train +"\n);\n\n";
         }
@@ -89,7 +89,7 @@ string writerUMC::pointObjectUmcOneRoute(Route route, map<int,string> plC,Networ
                 output += "\n\t";
                 output += "next => [" + plC.find(route.getPath().at(i+1))->second +"],";
                 output += "\n\t";
-                string conf = route.getPoints().at(i) == "PLUS" ? "true" : "false";
+                string conf = (route.getPoints().at(current) == "PLUS") ? "true" : "false";
                 output += "conf => ["+ conf +"],\n\t";
                 output += "treno => null\n);\n\n";
             }
@@ -169,7 +169,7 @@ string writerUMC::derailAbsOneRoute(Route route, map<int,string> plC, NetworkLay
         if( current < route.getPoints().size()){
             string point = plC.find(current)->second;
             output += "State : " + point + ".conf[0] == ";
-            output += route.getPoints().at(i) == "PLUS" ? "false" : "true";
+            output += (route.getPoints().at(current) == "PLUS") ? "false" : "true";
             output += " and " + point + ".treno == train";
             output += " and inState(train.MOVIMENTO) -> DERAGLIAMENTO_train\n\t";
             write = true;
@@ -194,7 +194,8 @@ string writerUMC::brokenSignalsOneRoute(Route route, map<int,string> plC, map<in
         if(route.getPath().at(i) >= route.getPoints().size()){                                     
             int index = route.getPath().at(i)-nl.getPoints().size(); 
             output += "State : inState(train.MOVIMENTO) and ";
-            string sign = findMb(route,nl,nl.getLinears().at(index).sectionId,sC);
+            int linId = nl.getLinears().at(index).sectionId;
+            string sign = findMb(route,nl,linId,sC);
             output += sign + ".red == true";
             string init = plC.find(route.getPath().front())->second;
             output += " and " + init + ".treno == train -> GUASTO_" + sign;
