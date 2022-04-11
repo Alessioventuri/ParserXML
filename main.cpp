@@ -140,8 +140,9 @@ int main(int argc, char *argv[]){
     for(auto trackSection =network_node->first_node("trackSection");trackSection;trackSection = trackSection->next_sibling()){
         if((string)trackSection->name() == "trackSection"){
             if((string)trackSection->first_attribute("type")->value() == "point"){
-                id.insert(pair<string,int>(trackSection->first_attribute("id")->value(),id.size()));
-                plCorrispondence.insert(pair<int,string>(id.size()-1,trackSection->first_attribute("id")->value()));
+                string value = trackSection->first_attribute("id")->value();
+                id.insert(pair<string,int>(value,id.size()));
+                plCorrispondence.insert(pair<int,string>(id.size()-1,"_"+value));
                // cout << trackSection->first_attribute("id")->value()<<endl;
             }
         }
@@ -150,8 +151,9 @@ int main(int argc, char *argv[]){
     for(auto trackSection =network_node->first_node("trackSection");trackSection;trackSection = trackSection->next_sibling()){
         if((string)trackSection->name() == "trackSection"){
             if((string)trackSection->first_attribute("type")->value() == "linear"){
-                id.insert(pair<string,int>(trackSection->first_attribute("id")->value(),id.size()));
-                plCorrispondence.insert(pair<int,string>(id.size()-1,trackSection->first_attribute("id")->value()));
+                string value = trackSection->first_attribute("id")->value();
+                id.insert(pair<string,int>(value,id.size()));
+                plCorrispondence.insert(pair<int,string>(id.size()-1,"_"+value));
 
               //  cout << trackSection->first_attribute("id")->value()<<endl;
             }
@@ -162,8 +164,9 @@ int main(int argc, char *argv[]){
     //CHECK MARKERBOARD AND ADD TO NETWORKLAYOUT SIGNALS
     for(auto markerboard =network_node->first_node("markerboard");markerboard;markerboard = markerboard->next_sibling()){
         if((string)markerboard->name() == "markerboard"){
-            id.insert(pair<string,int>(markerboard->first_attribute("id")->value(),count));
-            mbCorrispondence.insert(pair<int,string>(count,markerboard->first_attribute("id")->value()));
+            string value = markerboard->first_attribute("id")->value();
+            id.insert(pair<string,int>(value,count));
+            mbCorrispondence.insert(pair<int,string>(count,("_"+value)));
 
             auto a =(id.find(markerboard->first_attribute("track")->value()))->second;
             auto b = (string)markerboard->first_attribute("mounted")->value(); 
@@ -256,7 +259,7 @@ int main(int argc, char *argv[]){
         }
         for(int i = 0;i <maxRoutes;i++){
             conflict.insert(pair<int,bool>(i,false));
-        }
+        } 
 
         //ADD SOURCE AND DESTINATION TO THE SIGNALS OF ROUTE
         signals.at(id.find(route->first_attribute("source")->value())->second) = true;
@@ -313,15 +316,15 @@ int main(int argc, char *argv[]){
     cout << "0 : UMCFile" << endl;
     cout << "1 : SimpleFile " << endl;
     cin >> file;
-    // outputFile = outputFile + "CombinedRoutes/";
+    // outputFile = outputFile + "SingleRoute/";
     // writer* obj = writer::write(UMCFile);
     // cout << outputFile << endl;
     // std::stringstream sss;
-    // ss <<  outputFile;
+    // sss <<  outputFile;
     // int rc1 = mkdir(sss.str().c_str(), 0777);
-    // if(rc1 == 0) std::cout << "Created " << ss.str() << " success\n";
-    // Interlock il_comb = il.routeCombiner(nl,il);
-    // obj->writeFile(outputFile,nl,il_comb,plCorrispondence,mbCorrispondence,0);
+    // if(rc1 == 0) std::cout << "Created " << sss.str() << " success\n";
+    // //Interlock il_comb = il.routeCombiner(nl,il);
+    // obj->writeFile(outputFile,nl,il,plCorrispondence,mbCorrispondence,0);
     // }
     if(file == 0){
         outputFile = outputFile  + "UMC/";

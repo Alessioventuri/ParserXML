@@ -11,6 +11,6 @@ class writerSimple : public writer
 public:
     writerSimple(){};
     ~writerSimple() = default;
-    void writeFile(string,NetworkLayout,Interlock,map<int,string>,map<int,string>,int) override;
+    virtual void writeFile(string,NetworkLayout,Interlock,map<int,string>,map<int,string>,int) override;
     friend class writer;
 };

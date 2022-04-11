@@ -1,5 +1,7 @@
 #include "writerUMC.hpp"
 #include <string>
+#include <ctype.h>
+#include <algorithm>
 //FIXME: Find the error
 void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<int,string> pl,map<int,string> mb,int choose){
     // 1. create a file.txt for each route and add an extra routes that continue
@@ -12,12 +14,6 @@ void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<in
             try{
                 ofstream myfile;
                 myfile.open(outputFiletxt);
-                // myfile << "/* Corrispondence Linears-Points */\n";
-                // myfile << getCorrispondenceLinearPoint(il.getRoutes().at(i),nl,pl);
-                // myfile << "\n/* Corrispondence Linears-Points End */\n\n";
-                // myfile << "\n/* Corrispondence Signals */\n";
-                // myfile << getCorrispondenceSignal(il.getRoutes().at(i),nl,mb);
-                // myfile << "\n/* Corrispondence Signals End */\n\n";
                 myfile << "\n/* NetworkLayout */\n\n";
                 myfile << nl.toStringAdaptive(il.getRoutes().at(i),pl,mb);
                 myfile << "\n\n/* NetworkLayout End */\n\n";
@@ -39,9 +35,12 @@ string writerUMC::defaultUMCsetupOneRoute(NetworkLayout nl,Interlock il,int i,ma
     string s;
     
     s += "Objects:\n\n";
-    s += pointObjectUmcOneRoute(il.getRoutes().at(i),pl,nl);
-    s += linearObjectUmcOneRoute(il.getRoutes().at(i),pl,sC,nl);
+    // In UMC I can't insert object that I didn't declare. So:
+    // 1 - I use only the pathChunck
+    // 2 - I declare everything (it may be too big)
     s += signalObjectUmcOneRoute(il.getRoutes().at(i),pl,sC,nl);
+    s += pointObjectUmcOneRoute(il.getRoutes().at(i),pl,nl);  // changed
+    s += linearObjectUmcOneRoute(il.getRoutes().at(i),pl,sC,nl);
     s += trainObjectUmcOneRoute(il.getRoutes().at(i),pl,nl);
     s += abstractionUmcOneRoute(il.getRoutes().at(i),pl,sC,nl);
     return s;
@@ -84,7 +83,8 @@ string writerUMC::pointObjectUmcOneRoute(Route route, map<int,string> plC,Networ
         int current = route.getPath().at(i);
         if(current < route.getPoints().size()){
             if(route.getPoints().at(current) != "INTER"){
-                output += plC.find(current)->second +": Scambio (\n\t";
+                string name = plC.find(current)->second;
+                output += (isdigit(name[0]) ? ("_"+name) :name) + ": Scambio (\n\t";
                 output += "prev => [" + plC.find(route.getPath().at(i-1))->second +"],";
                 output += "\n\t";
                 output += "next => [" + plC.find(route.getPath().at(i+1))->second +"],";
@@ -95,40 +95,45 @@ string writerUMC::pointObjectUmcOneRoute(Route route, map<int,string> plC,Networ
             }
         }
     }
+    // Should I comment/decomment this??
+    //Chain effect probably..
     if(output.empty()){
         string prev,next;
         for(int i =0; i < route.getPoints().size();i++ ){
             if(route.getPoints().at(i) != "INTER"){
-                if(nl.getPoints().at(i).getPlus() == route.getPath().back()) {
-                    prev = plC.find(nl.getPoints().at(i).getPlus())->second;
-                    next = plC.find(nl.getPoints().at(i).getStem())->second;
-                }
-                else if(nl.getPoints().at(i).getMinus() == route.getPath().back()){
-                    prev = plC.find(nl.getPoints().at(i).getMinus())->second;
-                    next = plC.find(nl.getPoints().at(i).getStem())->second;
-                }
-                else if(nl.getPoints().at(i).getStem() == route.getPath().back()){
-                    prev = plC.find(nl.getPoints().at(i).getStem())->second;
-                    next = route.getPoints().at(i) == "PLUS" ? plC.find(nl.getPoints().at(i).getPlus())->second :plC.find(nl.getPoints().at(i).getMinus())->second;
-                }
-                else if(prev == plC.find(nl.getPoints().at(i).getMinus())->second){
-                    prev = plC.find(nl.getPoints().at(i).getMinus())->second;
-                    next = plC.find(nl.getPoints().at(i).getStem())->second;
-                }
+                // if(nl.getPoints().at(i).getPlus() == route.getPath().back()) {
+                //     prev = plC.find(nl.getPoints().at(i).getPlus())->second;
+                //     next = plC.find(nl.getPoints().at(i).getStem())->second;
+                // }
+                // else if(nl.getPoints().at(i).getMinus() == route.getPath().back()){
+                //     prev = plC.find(nl.getPoints().at(i).getMinus())->second;
+                //     next = plC.find(nl.getPoints().at(i).getStem())->second;
+                // }
+                // else if(nl.getPoints().at(i).getStem() == route.getPath().back()){
+                //     prev = plC.find(nl.getPoints().at(i).getStem())->second;
+                //     next = route.getPoints().at(i) == "PLUS" ? plC.find(nl.getPoints().at(i).getPlus())->second :plC.find(nl.getPoints().at(i).getMinus())->second;
+                // }
+                // else if(prev == plC.find(nl.getPoints().at(i).getMinus())->second){
+                //     prev = plC.find(nl.getPoints().at(i).getMinus())->second;
+                //     next = plC.find(nl.getPoints().at(i).getStem())->second;
+                // }
                 //TODO: find a solution to create all Scambio objects required
                 // Could be inserted manually using only the config
                 // cut off the "if" to visualize all points ( even blank);
-              //  if(!prev.empty() ){
-                    output += plC.find(nl.getPoints().at(i).sectionId)->second +": Scambio (\n\t";
-                    output += "prev => [" + prev +"],\n\t";
-                    output += "next => [" + next  +"],\n\t";
+                if(!prev.empty() ){
+                    string name = plC.find(nl.getPoints().at(i).sectionId)->second;
+                    output += isdigit(name[0]) ? "_"+name : name +": Scambio (\n\t";
+                    // prev and next should be "null"
+                    // output += "prev => [" + prev + "],\n\t";
+                    // output += "next => [" + next  +"],\n\t";
+                    output += "prev => [null],\n\t";
+                    output += "next => [null],\n\t";
                     string conf = route.getPoints().at(i) == "PLUS" ? "true" : "false";
                     output += "conf => ["+ conf +"],\n\t";
                     output += "treno => null\n);\n\n";
-              //  }
+                }
             } 
         }
-
     }
     return output;
 }
@@ -136,12 +141,14 @@ string writerUMC::pointObjectUmcOneRoute(Route route, map<int,string> plC,Networ
 string writerUMC::signalObjectUmcOneRoute(Route route, map<int,string> plC, map<int,string> sC,NetworkLayout nl){
     string output;
     int index;
-    for(int i = 0; i < route.getSignals().size();i++){
-        if(route.getSignals().at(i) == true){   
-            string sign = sC.find(nl.getSignals().at(i).getMbId())->second;                                  
+    for(int i = 0; i < route.getPath().size(); i++){
+        if(route.getPath().at(i) >= route.getPoints().size()){                                     
+            int index = route.getPath().at(i)-nl.getPoints().size(); 
+            int linId = nl.getLinears().at(index).sectionId;
+            string sign = findMb(route,nl,linId,sC);
             output += sign + " : Segnale(\n\t";
-            output += "cdb => " + plC.find(nl.getSignals().at(i).getSectionId())->second + "\n);\n\n";
-            }
+            output += "cdb => " + plC.find(route.getPath().at(i))->second + "\n);\n\n";
+        }
     }
     return output;
 }
@@ -197,7 +204,7 @@ string writerUMC::brokenSignalsOneRoute(Route route, map<int,string> plC, map<in
             int linId = nl.getLinears().at(index).sectionId;
             string sign = findMb(route,nl,linId,sC);
             output += sign + ".red == true";
-            string init = plC.find(route.getPath().front())->second;
+            string init = plC.find(route.getPath().at(i))->second; 
             output += " and " + init + ".treno == train -> GUASTO_" + sign;
             output += "\n\t";
         }
@@ -206,6 +213,7 @@ string writerUMC::brokenSignalsOneRoute(Route route, map<int,string> plC, map<in
 }
 
 //TODO: Should I have to put all Points ( also if they are not in the path )??
+// in UMC if I put elements, they must be declared as objects.
 string writerUMC::abstractionUmcOneRoute(Route route,map<int,string> plC,map<int,string> sC,NetworkLayout nl){
     string output = "Abstractions{\n\t";
     output += "Action $1($*) -> $1($*)\n\t";
@@ -427,7 +435,7 @@ string writerUMC::abstractionUmcOneRoute(Route route,map<int,string> plC,map<int
 //         checkred(id_itinerario);
       
 //     Vars:
-//         cbd :obj;
+//         cdb :obj;
 //         red : bool:= true;
         
 //     State Top = ROSSO , VERDE
@@ -436,18 +444,18 @@ string writerUMC::abstractionUmcOneRoute(Route route,map<int,string> plC,map<int
 
 //     Transitions:
 //      ROSSO -> VERDE { checkgreen(id_itinerario) [red = true] /
-//                        cbd.green(id_itinerario);
+//                        cdb.green(id_itinerario);
 //                         red = false; }
 //      ROSSO -> ROSSO { checkred(id_itinerario) [red = true] /
-//                         cbd.red(id_itinerario);
+//                         cdb.red(id_itinerario);
 //                         red = true}  
                         
 //      VERDE -> ROSSO { checkred(id_itinerario)  [red = false] /
-//                         cbd.red(id_itinerario);
+//                         cdb.red(id_itinerario);
 //                         red = true;}
                         
 //      VERDE -> VERDE { checkgreen(id_itinerario) [red = false] /
-//                         cbd.green(id_itinerario);
+//                         cdb.green(id_itinerario);
 //                         }
 // end Segnale
 
