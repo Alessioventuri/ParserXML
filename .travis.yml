@@ -1,7 +1,4 @@
 language: cpp 
-dist: focal
 compiler: gcc
 os: osx
 sudo: true
-env:
-    - BUILD_TYPE=Debug
