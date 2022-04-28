@@ -1,13 +1,11 @@
 #pragma once
 #include "writer.hpp"
+#include "ParserXML.hpp"
 #include <string>
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-
-class writerUMC : public writer
-{
+class writerUMC : public writer{
 private :
     string defaultUMCsetupOneRoute(NetworkLayout,Interlock,int,map<int,string>,map<int,string>);
     string pointObjectUmcOneRoute(Route,map<int,string>,NetworkLayout);
@@ -24,7 +22,9 @@ private :
 public:
     writerUMC(){};
     ~writerUMC() = default;
-    virtual void writeFile(string,NetworkLayout,Interlock,map<int,string>,map<int,string>,int) override;
+    //virtual void writeFile(string,NetworkLayout,Interlock,map<int,string>,map<int,string>,int) override;
+    void writeFile(string,ParserXML*,int);
+
     friend class writer;
 
 };

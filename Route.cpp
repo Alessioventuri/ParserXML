@@ -103,6 +103,7 @@ string Route::checkPointString(int max) {
 	return s;
 }
 
+
 string Route::pathString(int max) {
 	string s = "routePath[" + to_string(routeId) + "] = { ";	
 	for ( int i = 0 ; i < path.size(); i++ )

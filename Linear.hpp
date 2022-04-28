@@ -1,3 +1,4 @@
+#pragma once
 #include "Section.hpp"
 #include <string>
 using namespace std;
