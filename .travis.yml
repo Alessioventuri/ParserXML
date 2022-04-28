@@ -18,5 +18,3 @@ addons:
 install:
 # /usr/bin/gcc points to an older compiler on Linux.
 - if [ "$CXX" = "g++" ]; then export CXX="g++-10" CC="gcc-10"; fi
-script: 
-  - ./build.sh
