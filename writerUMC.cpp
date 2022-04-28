@@ -3,25 +3,29 @@
 #include <ctype.h>
 #include <algorithm>
 //FIXME: Find the error
-void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<int,string> pl,map<int,string> mb,int choose){
+
+
+
+//void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<int,string> pl,map<int,string> mb,int choose){
+void writerUMC::writeFile(string outputFile, ParserXML *pXML, int choose){
     // 1. create a file.txt for each route and add an extra routes that continue
     // 2. create a file.txt that contents all routes
     // 3. create a file.txt that contents some routes
-    il.generateMaxChunk();
-    for ( int i = 0 ; i < il.getRoutes().size(); i++ ){
+    pXML->getIl().generateMaxChunk();
+    for ( int i = 0 ; i < pXML->getIl().getRoutes().size(); i++ ){
         if(outputFile != ""){ 
-            string outputFiletxt = outputFile + "route" + to_string(il.getRoutes().at(i).getRouteId()) + ".txt";      
+            string outputFiletxt = outputFile + "route" + to_string(pXML->getIl().getRoutes().at(i).getRouteId()) + ".txt";      
             try{
                 ofstream myfile;
                 myfile.open(outputFiletxt);
                 myfile << "\n/* NetworkLayout */\n\n";
-                myfile << nl.toStringAdaptive(il.getRoutes().at(i),pl,mb);
+                myfile << pXML->getNl().toStringAdaptive(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
                 myfile << "\n\n/* NetworkLayout End */\n\n";
                 myfile << "\n/* Interlocking */\n\n";
-                myfile << (choose == 0 ? il.getRoutes().at(i).toString(il.getMaxPathLength()) : il.getRoutes().at(i).toString(il.getMaxPathLength(), il.getMaxChunk()))  + "\n";
+                myfile << pXML->getIl().getRoutes().at(i).toString(pXML->getIl().getMaxPathLength(), pXML->getIl().getMaxChunk())  + "\n";
                 myfile << "\n/* Interlocking End */\n";
-                myfile << "\n/* UMC code */\n";
-                myfile << defaultUMCsetupOneRoute(nl,il,i,pl,mb);
+                myfile << "\n/* UMC code */\n"; 
+                myfile << defaultUMCsetupOneRoute(pXML->getNl(),pXML->getIl(),i,pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
                 myfile.close();
                 cout << "Successfully wrote to the file."<<endl;
             }catch(const exception& e){
@@ -33,7 +37,6 @@ void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<in
 
 string writerUMC::defaultUMCsetupOneRoute(NetworkLayout nl,Interlock il,int i,map<int,string> pl,map<int,string> sC){
     string s;
-    
     s += "Objects:\n\n";
     // In UMC I can't insert object that I didn't declare. So:
     // 1 - I use only the pathChunck
@@ -50,15 +53,29 @@ string writerUMC::linearObjectUmcOneRoute(Route route,map<int,string> plC,map<in
     string output;
     int index;
     for(int i = 0; i < route.getPath().size();i++){
-        if(route.getPath().at(i) >= route.getPoints().size()){                                     
+        if(route.getPath().at(i) >= route.getPoints().size() and i != route.getPath().size()-1){                                     
             index = route.getPath().at(i)-nl.getPoints().size(); 
-            string up  = nl.getLinears().at(index).getUpNeig() != -1 ? plC.find(nl.getLinears().at(index).getUpNeig())->second : "null";
-            string down = nl.getLinears().at(index).getDownNeig() != -1 ? plC.find(nl.getLinears().at(index).getDownNeig())->second : "null";
+            // I did that to put NULL on last cdb and stop the request. I know that there is also the point that have to checked
+            string up  = nl.getLinears().at(index).getUpNeig() != -1  ? plC.find(nl.getLinears().at(index).getUpNeig())->second : "null";
+            string down = nl.getLinears().at(index).getDownNeig() != -1  ? plC.find(nl.getLinears().at(index).getDownNeig())->second : "null";
+            string sign = findMb(route,nl,nl.getLinears().at(index).sectionId,sC);
+            string train = (nl.getLinears().at(index).sectionId == route.getPath().at(0)) ? "train" : "null";
+            output += plC.find(nl.getLinears().at(index).sectionId)->second + ": CircuitoDiBinario (\n\t";
+            output += "prev => [";
+            output += i != 0 ? (route.getDirection() == "up" ? down : up) : "null";
+            output += "],\n\t";
+            output += "next => [" + (route.getDirection() == "up" ? up : down) + "],\n\t";
+            output += "sign => [" + sign + "],\n\t";
+            output += "treno => " + train +"\n);\n\n";
+        }else if(i == route.getPath().size()-1){
+            index = route.getPath().at(i)-nl.getPoints().size(); 
+            string up  = nl.getLinears().at(index).getUpNeig() != -1  ? plC.find(nl.getLinears().at(index).getUpNeig())->second : "null";
+            string down = nl.getLinears().at(index).getDownNeig() != -1  ? plC.find(nl.getLinears().at(index).getDownNeig())->second : "null";
             string sign = findMb(route,nl,nl.getLinears().at(index).sectionId,sC);
             string train = (nl.getLinears().at(index).sectionId == route.getPath().at(0)) ? "train" : "null";
             output += plC.find(nl.getLinears().at(index).sectionId)->second + ": CircuitoDiBinario (\n\t";
             output += "prev => [" + (route.getDirection() == "up" ? down : up) + "],\n\t";
-            output += "next => [" + (route.getDirection() == "up" ? up : down) + "],\n\t";
+            output += "next => [null],\n\t";
             output += "sign => [" + sign + "],\n\t";
             output += "treno => " + train +"\n);\n\n";
         }
@@ -117,10 +134,12 @@ string writerUMC::pointObjectUmcOneRoute(Route route, map<int,string> plC,Networ
                 //     prev = plC.find(nl.getPoints().at(i).getMinus())->second;
                 //     next = plC.find(nl.getPoints().at(i).getStem())->second;
                 // }
+                // ----------------------
                 //TODO: find a solution to create all Scambio objects required
                 // Could be inserted manually using only the config
                 // cut off the "if" to visualize all points ( even blank);
-                if(!prev.empty() ){
+                // ----------------------
+                // if(!prev.empty() ){
                     string name = plC.find(nl.getPoints().at(i).sectionId)->second;
                     output += isdigit(name[0]) ? "_"+name : name +": Scambio (\n\t";
                     // prev and next should be "null"
@@ -131,7 +150,7 @@ string writerUMC::pointObjectUmcOneRoute(Route route, map<int,string> plC,Networ
                     string conf = route.getPoints().at(i) == "PLUS" ? "true" : "false";
                     output += "conf => ["+ conf +"],\n\t";
                     output += "treno => null\n);\n\n";
-                }
+                // }
             } 
         }
     }
