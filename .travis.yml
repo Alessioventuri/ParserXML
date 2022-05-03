@@ -14,3 +14,8 @@ install:
 
 script: 
   - g++ main.cpp !(main.cpp) -std=c++11 -o travis_main
+
+deploy:
+  provider: pages
+  skip-cleanuo: true
+  github-token: $GITHUB_TOKEN
