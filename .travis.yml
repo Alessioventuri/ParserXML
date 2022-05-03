@@ -19,5 +19,7 @@ deploy:
   provider: pages
   skip-cleanuo: true
   github-token: $GITHUB_TOKEN
+  on:
+    branches: master 
 
   
