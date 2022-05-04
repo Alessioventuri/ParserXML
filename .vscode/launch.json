@@ -22,7 +22,7 @@
             "externalConsole": true,
             "MIMode": "gdb",
             "miDebuggerPath": "/usr/local/bin/gdb",
-            "preLaunchTask": "C/C++: g++-11 build active file"
+            "preLaunchTask": "build"
         }
     ]
 }
