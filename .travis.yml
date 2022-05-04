@@ -20,6 +20,8 @@ deploy:
   skip-cleanuo: true
   github-token: $GITHUB_TOKEN
   on:
-    branches: master 
+    branches:    # ← new!
+      only:      # ← new!
+        - master # ← new!
 
   
