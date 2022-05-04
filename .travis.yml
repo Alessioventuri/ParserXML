@@ -16,7 +16,7 @@ script:
   - 
   # Wraps the compilation with the Build Wrapper to generate configuration (used
   # later by the SonarScanner) into the "bw-output" folder
-  - build-wrapper-linux-x86-64 --out-dir bw-output "g++ main.cpp !(main.cpp) -std=c++11 -o travis_main"
+  - build-wrapper-linux-x86-64 --out-dir bw-output g++ main.cpp !(main.cpp) -std=c++11 -o travis_main
   # And finally run the SonarCloud analysis - read the "sonar-project.properties"
   # file to see the specific configuration
   - sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output
