@@ -30,6 +30,7 @@ map<int,string> pointsCombiner(map<int,string> s1, map<int,string> s2){
     return s1;
 }
 
+
 vector<int> pathCombiner(vector<int> v1, vector<int> v2){
     vector<int> path;
     for(int i = 0; i < v1.size();i++){
