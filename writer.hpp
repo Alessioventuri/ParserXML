@@ -13,7 +13,7 @@ public:
     writer() = default;
     // Destructor of base class must always be virtual 
     virtual ~writer() = default; 
-    virtual void writeFile(string,ParserXML *,int) = 0;
+    virtual void writeFile(string,ParserXML *,int train = 1) = 0;
     static writer* write(fileType type);
 };
 

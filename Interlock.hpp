@@ -17,12 +17,16 @@ public:
     void addRoute(Route &rou);
     void deleteRoute(Route &rou,int i);
     void setMaxValues(int &maxpath);
+    void getRoutesDisplay();
+
     string toString();
     string toStringCombiner();
+
     int getMaxPathLength(){ return maxPathlength;}
     int getMaxChunk(){return maxChunk;}
-    void getRoutesDisplay();
+
     vector<Route> getRoutes(){ return routes;}
+    
     Interlock routeCombiner(NetworkLayout nl,Interlock il);
 
 };

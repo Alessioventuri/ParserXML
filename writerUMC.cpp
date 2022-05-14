@@ -1,4 +1,5 @@
 #include "writerUMC.hpp"
+#include "ParserXML.hpp"
 #include <string>
 #include <ctype.h>
 #include <algorithm>
@@ -7,47 +8,77 @@
 
 
 //void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<int,string> pl,map<int,string> mb,int choose){
-void writerUMC::writeFile(string outputFile, ParserXML *pXML, int choose){
+void writerUMC::writeFile(string outputFile, ParserXML *pXML,int train){
     // 1. create a file.txt for each route and add an extra routes that continue
     // 2. create a file.txt that contents all routes
     // 3. create a file.txt that contents some routes
     pXML->getIl().generateMaxChunk();
-    for ( int i = 0 ; i < pXML->getIl().getRoutes().size(); i++ ){
-        if(outputFile != ""){ 
-            string outputFiletxt = outputFile + "route" + to_string(pXML->getIl().getRoutes().at(i).getRouteId()) + ".txt";      
-            try{
-                ofstream myfile;
-                myfile.open(outputFiletxt);
-                myfile << "\n/* NetworkLayout */\n\n";
-                myfile << pXML->getNl().toStringAdaptive(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
-                myfile << "\n\n/* NetworkLayout End */\n\n";
-                myfile << "\n/* Interlocking */\n\n";
-                myfile << pXML->getIl().getRoutes().at(i).toString(pXML->getIl().getMaxPathLength(), pXML->getIl().getMaxChunk())  + "\n";
-                myfile << "\n/* Interlocking End */\n";
-                myfile << "\n/* UMC code */\n"; 
-                myfile << defaultUMCsetupOneRoute(pXML->getNl(),pXML->getIl(),i,pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
-                myfile.close();
-                cout << "Successfully wrote to the file."<<endl;
-            }catch(const exception& e){
-                cerr << "An error occured" << endl;
+    for ( int firstRoute = 0 ; firstRoute < pXML->getIl().getRoutes().size(); firstRoute++ ){
+        if(train == 1){
+            if(outputFile != ""){ 
+                string outputFiletxt = outputFile + "route" + to_string(pXML->getIl().getRoutes().at(firstRoute).getRouteId()) + ".txt";      
+                try{
+                    ofstream myfile;
+                    myfile.open(outputFiletxt);
+                    myfile << "\n/* NetworkLayout */\n\n";
+                    myfile << pXML->getNl().toStringAdaptive(pXML->getIl().getRoutes().at(firstRoute),pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
+                    myfile << "\n\n/* NetworkLayout End */\n\n";
+                    myfile << "\n/* Interlocking */\n\n";
+                    myfile << pXML->getIl().getRoutes().at(firstRoute).toString(pXML->getIl().getMaxPathLength(), pXML->getIl().getMaxChunk())  + "\n";
+                    myfile << "\n/* Interlocking End */\n";
+                    myfile << "\n/* UMC code */\n"; 
+                    //myfile << defaultUMCsetupOneRoute(pXML->getNl(),pXML->getIl(),i,pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
+                    myfile << defaultUMCsetupOneRoute(pXML,firstRoute);
+                    myfile.close();
+                    cout << "Successfully wrote to the file."<<endl;
+                }catch(const exception& e){
+                    cerr << "An error occured" << endl;
+                }
+            }
+        }else{
+            if(outputFile != ""){ 
+                int secondRoute = pXML->getSecondRoute(firstRoute);
+                string outputFiletxt = outputFile + "route" + stringCombinerId(firstRoute,secondRoute,pXML) + ".txt";      
+                try{
+                    ofstream myfile;
+                    myfile.open(outputFiletxt);
+                    myfile << "\n/* NetworkLayout */\n\n";
+                    myfile << stringCombinerNl(firstRoute,secondRoute,pXML);
+                    myfile << "\n\n/* NetworkLayout End */\n\n";
+                    myfile << "\n/* Interlocking */\n\n";
+                    myfile << stringCombinerIl(firstRoute, secondRoute,pXML)  + "\n";
+                    myfile << "\n/* Interlocking End */\n";
+                    myfile << "\n/* UMC code */\n"; 
+                    //myfile << defaultUMCsetupOneRoute(pXML->getNl(),pXML->getIl(),i,pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
+                    myfile << defaultUMCsetupTwoRoute(pXML,firstRoute);
+
+                    myfile.close();
+                    cout << "Successfully wrote to the file."<<endl;
+                }catch(const exception& e){
+                    cerr << "An error occured" << endl;
+                }
             }
         }
     } 
 }
 
-string writerUMC::defaultUMCsetupOneRoute(NetworkLayout nl,Interlock il,int i,map<int,string> pl,map<int,string> sC){
+string writerUMC::defaultUMCsetupOneRoute(ParserXML *pXML,int i){
     string s;
     s += "Objects:\n\n";
     // In UMC I can't insert object that I didn't declare. So:
     // 1 - I use only the pathChunck
     // 2 - I declare everything (it may be too big)
-    s += signalObjectUmcOneRoute(il.getRoutes().at(i),pl,sC,nl);
-    s += pointObjectUmcOneRoute(il.getRoutes().at(i),pl,nl);  // changed
-    s += linearObjectUmcOneRoute(il.getRoutes().at(i),pl,sC,nl);
-    s += trainObjectUmcOneRoute(il.getRoutes().at(i),pl,nl);
-    s += abstractionUmcOneRoute(il.getRoutes().at(i),pl,sC,nl);
+    s += signalObjectUmcOneRoute(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getMbCorrispondence(),pXML->getNl());
+    s += pointObjectUmcOneRoute(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getNl());  // changed
+    s += linearObjectUmcOneRoute(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getMbCorrispondence(),pXML->getNl());
+    s += trainObjectUmcOneRoute(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getNl());
+    s += abstractionUmcOneRoute(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getMbCorrispondence(),pXML->getNl());
     return s;
 }
+string writerUMC::defaultUMCsetupTwoRoute(ParserXML* pXML,int i){
+    return "null";
+}
+
 
 string writerUMC::linearObjectUmcOneRoute(Route route,map<int,string> plC,map<int,string> sC, NetworkLayout nl){
     string output;
@@ -241,6 +272,28 @@ string writerUMC::abstractionUmcOneRoute(Route route,map<int,string> plC,map<int
     output += brokenSignalsOneRoute(route,plC,sC,nl);
     output += "\n}";
     return output;
+}
+string writerUMC::stringCombinerNl(int i, int j,ParserXML *pXML){
+    string s;
+    s += pXML->getNl().toStringAdaptive(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
+    s+= "\n\n";
+    s += pXML->getNl().toStringAdaptive(pXML->getIl().getRoutes().at(j),pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
+    return s;
+}
+
+string writerUMC::stringCombinerIl(int i, int j,ParserXML *pXML){
+    string s;
+    s += pXML->getIl().getRoutes().at(i).toString(pXML->getIl().getMaxPathLength(), pXML->getIl().getMaxChunk());
+    s += "\n\n"; 
+    s += pXML->getIl().getRoutes().at(j).toString(pXML->getIl().getMaxPathLength(), pXML->getIl().getMaxChunk());
+    return s;
+}
+
+string writerUMC::stringCombinerId(int i, int j,ParserXML *pXML){
+    string s;
+    s += to_string(pXML->getIl().getRoutes().at(i).getRouteId()) + "-";
+    s += to_string(pXML->getIl().getRoutes().at(j).getRouteId());
+    return s;
 }
 
 

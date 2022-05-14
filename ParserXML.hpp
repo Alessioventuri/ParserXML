@@ -39,10 +39,12 @@ public:
     map<int, string> getPlCorrispondence(){return this->plCorrispondence;}
     map<int, string> getMbCorrispondence(){return this->mbCorrispondence;}
     unordered_map<string,int> getIdMap(){return this->id;}
+    int getSecondRoute(int i);
     void setIl(Interlock &i){this->il = i;}
 
 private:
     static int count;
+    int secondRoute;
     string input,output;
     Interlock il;
     NetworkLayout nl;
