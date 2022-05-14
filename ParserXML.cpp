@@ -244,3 +244,15 @@ void ParserXML::InterlockingProcess(xml_node<> *network_node){
         this->il.setMaxValues(maxPathLenght);
     }
 }
+
+int ParserXML::getSecondRoute(int i){
+    bool found = false;
+    int random;
+    while(!found){
+        random = rand() % this->il.getRoutes().at(i).getConflict().size();
+        if(this->il.getRoutes().at(i).getConflict().at(random) == false){
+            found = true;
+        }
+    }
+    return random;
+}
