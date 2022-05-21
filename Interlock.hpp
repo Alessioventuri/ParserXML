@@ -1,6 +1,4 @@
-#pragma once
 #include <vector>
-#include "Route.hpp"
 #include "NetworkLayout.hpp"
 
 using namespace std;
@@ -8,25 +6,27 @@ using namespace std;
 class Interlock{
 private:
     vector<Route> routes;
-	int maxPathlength;
+	int maxPathLength;
 	int maxChunk;
     	
 public:
-    Interlock(){};
+    Interlock(){
+        maxPathLength=0,maxChunk=0;
+    };
     void generateMaxChunk();
     void addRoute(Route &rou);
     void deleteRoute(Route &rou,int i);
-    void setMaxValues(int &maxpath);
+    void setMaxValues(const int &maxpath);
     void getRoutesDisplay();
 
     string toString();
     string toStringCombiner();
 
-    int getMaxPathLength(){ return maxPathlength;}
+    int getMaxPathLength(){ return maxPathLength;}
     int getMaxChunk(){return maxChunk;}
 
     vector<Route> getRoutes(){ return routes;}
     
-    Interlock routeCombiner(NetworkLayout nl,Interlock il);
+    Interlock routeCombiner(const NetworkLayout &nl,Interlock il);
 
 };

@@ -1,6 +1,7 @@
 #include "ParserXML.hpp"
 #include <string>
 #include <iostream>
+#include <fstream>
 using namespace std;
 
 int ParserXML::getIntFromNeighborLinear(xml_node<> *neighbor){
@@ -26,10 +27,8 @@ string ParserXML::SplitFilename (string str)
   return str.substr(0,str.length()-4);
 }
 
-ParserXML::ParserXML(string in){
-    string input = in;
-    bool helpCalled = false;
-
+ParserXML::ParserXML(const string in){
+    input = in;
     cout << "Parsing the xml : " <<  input << endl;
 
     xml_document<> doc;
@@ -57,14 +56,11 @@ ParserXML::ParserXML(string in){
         }
     }
     // cout << "Sono arrivato a :" << root_node->name()<<endl;
-   	unordered_map<string, int> id;
 	NetworkLayout nl;
 	Interlock il ;
     xml_node<> *network_node = root_node->first_node("network");
-    xml_node<> *trackSection = network_node->first_node("trackSection");
 
     // cout << "Sono arrivato a :" << network_node->name()<<endl;
-    // cout << "Sono arrivato a :" << trackSection->name()<<endl;
 
     searchPoints(network_node);
     searchLinears(network_node);
@@ -165,8 +161,6 @@ void ParserXML::NetworkLayoutProcess(xml_node<> *network_node){
 
 void ParserXML::InterlockingProcess(xml_node<> *network_node){
     xml_node<> *routeTable = network_node->next_sibling();
-    xml_node<> *routes = routeTable->first_node("route");
-    xml_node<> *condition = routes->first_node("condition");
     int maxRoutes = 0;
     count = 0;
     for(xml_node<> *route = routeTable->first_node("route");route;route= route->next_sibling()){
@@ -184,18 +178,18 @@ void ParserXML::InterlockingProcess(xml_node<> *network_node){
         map<int,bool> conflict;
         vector<bool> overlap;
 
-        for(int i = 0; i < this->nl.getPoints().size(); i++){
+        for(int i = 0; i < (int)this->nl.getPoints().size(); i++){
             points.insert(pair<int,string>(this->nl.getPoints().at(i).sectionId,"INTER"));
         }
-        for(int i = 0;i < this->nl.getSignals().size();i++){
+        for(int i = 0;i < (int)this->nl.getSignals().size();i++){
             signals.insert(pair<int,bool>(this->nl.getSignals().at(i).getMbId(),false));
 
         }
-        for(int i = 0;i < this->nl.getLinears().size()+ this->nl.getPoints().size();i++){
+        for(int i = 0;i < (int)(this->nl.getLinears().size() + this->nl.getPoints().size());i++){
             overlap.push_back(false);
 
         }
-        for(int i = 0;i <maxRoutes;i++){
+        for(int i = 0;i < maxRoutes; i++){
             conflict.insert(pair<int,bool>(i,false));
         } 
 
@@ -206,24 +200,24 @@ void ParserXML::InterlockingProcess(xml_node<> *network_node){
         //ADD THE SOURCE SECTION ON THE PATH ( IT'S COMING FROM THAT SECTION TO THE DESTINATION'S SECTION)
         path.push_back(nl.getSignals().at(this->id.find(route->first_attribute("source")->value())->second).getSectionId());
         int tempPath = 1;
-        for(xml_node<> *condition = route->first_node("condition");condition ;condition= condition->next_sibling()){  
-            if((string)condition->name() == "condition"){
-                if((string)condition->first_attribute("type")->value() == "point"){
-                    auto stringpoint = (string)condition->first_attribute("val")->value();
-                    for(int x = 0; x < stringpoint.length();x++){
+        for(xml_node<> *icondition = route->first_node("condition");icondition ;icondition= icondition->next_sibling()){  
+            if((string)icondition->name() == "condition"){
+                if((string)icondition->first_attribute("type")->value() == "point"){
+                    auto stringpoint = (string)icondition->first_attribute("val")->value();
+                    for(int x = 0; x < (int)stringpoint.length();x++){
                         stringpoint[x] = stringpoint[x] - 32;
                     }
-                    points.at(this->id.find(condition->first_attribute("ref")->value())->second) = stringpoint;
+                    points.at(this->id.find(icondition->first_attribute("ref")->value())->second) = stringpoint;
                 }
-                else if((string)condition->first_attribute("type")->value() == "signal"){
-                    signals.at(this->id.find(condition->first_attribute("ref")->value())->second) = true;
+                else if((string)icondition->first_attribute("type")->value() == "signal"){
+                    signals.at(this->id.find(icondition->first_attribute("ref")->value())->second) = true;
                 }
-                else if((string)condition->first_attribute("type")->value() == "trackvacancy"){
-                    path.push_back(this->id.find(condition->first_attribute("ref")->value())->second);
+                else if((string)icondition->first_attribute("type")->value() == "trackvacancy"){
+                    path.push_back(this->id.find(icondition->first_attribute("ref")->value())->second);
                     tempPath++;
                 }
                 else {
-                    conflict.at(this->id.find(condition->first_attribute("ref")->value())->second) = true;
+                    conflict.at(this->id.find(icondition->first_attribute("ref")->value())->second) = true;
                 }
             }
         }

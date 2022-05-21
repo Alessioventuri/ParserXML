@@ -12,8 +12,8 @@ void Interlock::deleteRoute(Route &rou,int i){
 	routes.erase(routes.begin()+i);
 }
 	
-void Interlock::setMaxValues(int &maxpath) {
-		maxPathlength = maxpath;
+void Interlock::setMaxValues(const int &maxpath) {
+		maxPathLength = maxpath;
 
 }
 void Interlock::generateMaxChunk(){
@@ -26,32 +26,32 @@ void Interlock::generateMaxChunk(){
 }
 string Interlock::toString() {
 	generateMaxChunk();
-	if (routes.size() == 0 && maxChunk == 0 && maxPathlength == 0) 
+	if (routes.size() == 0 && maxChunk == 0 && maxPathLength == 0) 
 		return "";
 	string output = "value\n";
 	
 	output += "maxRoutes: Int = " + to_string(routes.size()) + ",\n" +
-			"maxPathLength: Int = " + to_string(maxPathlength) + ",\n" +
+			"maxPathLength: Int = " + to_string(maxPathLength) + ",\n" +
 			"maxChunks: Int = " + to_string((maxChunk-1)) + "\n";
 	output += "axiom\n";
 	for ( int i = 0 ; i < routes.size(); i++ )
-		output += routes.at(i).toString(maxPathlength, maxChunk) + ",\n";
+		output += routes.at(i).toString(maxPathLength, maxChunk) + ",\n";
 	if (output.length() > 0)
 		output = output.substr(0, output.length() - 2);
 	return output;
 }
 string Interlock::toStringCombiner() {
 	generateMaxChunk();
-	if (routes.size() == 0 && maxChunk == 0 && maxPathlength == 0) 
+	if (routes.size() == 0 && maxChunk == 0 && maxPathLength == 0) 
 		return "";
 	string output = "value\n";
 	
 	output += "maxRoutes: Int = " + to_string(routes.size()) + ",\n" +
-			"maxPathLength: Int = " + to_string(maxPathlength) + ",\n" +
+			"maxPathLength: Int = " + to_string(maxPathLength) + ",\n" +
 			"maxChunks: Int = " + to_string((maxChunk-1)) + "\n";
 	output += "axiom\n";
 	for ( int i = 0 ; i < routes.size(); i++ )
-		output += routes.at(i).toString(maxPathlength) + ",\n";
+		output += routes.at(i).toString(maxPathLength,maxChunk) + ",\n";
 	if (output.length() > 0)
 		output = output.substr(0, output.length() - 2);
 	return output;
@@ -64,7 +64,7 @@ void Interlock::getRoutesDisplay()
 		<< (*it).getSrc() << " : source" << endl;
 	}
 }
-Interlock Interlock::routeCombiner(NetworkLayout nl, Interlock il){
+Interlock Interlock::routeCombiner(const NetworkLayout &nl, Interlock il){
     Interlock new_Il;
     int size = il.getRoutes().size();
     for(int i = 0; i < size;i++){

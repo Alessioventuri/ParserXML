@@ -1,5 +1,4 @@
 #pragma once
-
 #include <string>
 #include <map>
 using namespace std;
@@ -13,9 +12,9 @@ public:
     int getMbId(){return mbId;}
     int getSectionId(){return sectionId;}
     string getLinearEnd(){return linearEnd;}
-    Signal(int &id, int &secId, string &linEnd);
+    Signal(int &id,const int &secId,const string &linEnd);
     string toString();
-    string toString(map<int,string>,map<int,string>);
+    string toString(const map<int,string>,const map<int,string>);
 
 };
 

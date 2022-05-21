@@ -8,12 +8,12 @@
 
 
 //void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<int,string> pl,map<int,string> mb,int choose){
-void writerUMC::writeFile(string outputFile, ParserXML *pXML,int train){
+void writerUMC::writeFile(const string outputFile, ParserXML *pXML,int train){
     // 1. create a file.txt for each route and add an extra routes that continue
     // 2. create a file.txt that contents all routes
     // 3. create a file.txt that contents some routes
     pXML->getIl().generateMaxChunk();
-    for ( int firstRoute = 0 ; firstRoute < pXML->getIl().getRoutes().size(); firstRoute++ ){
+    for ( int firstRoute = 0 ; firstRoute < (int)pXML->getIl().getRoutes().size(); firstRoute++ ){
         if(train == 1){
             if(outputFile != ""){ 
                 string outputFiletxt = outputFile + "route" + to_string(pXML->getIl().getRoutes().at(firstRoute).getRouteId()) + ".txt";      
@@ -38,19 +38,19 @@ void writerUMC::writeFile(string outputFile, ParserXML *pXML,int train){
         }else{
             if(outputFile != ""){ 
                 int secondRoute = pXML->getSecondRoute(firstRoute);
-                string outputFiletxt = outputFile + "route" + stringCombinerId(firstRoute,secondRoute,pXML) + ".txt";      
+                string outputFiletxt = outputFile + "route" + stringCombinerId(pXML,firstRoute,secondRoute) + ".txt";      
                 try{
                     ofstream myfile;
                     myfile.open(outputFiletxt);
                     myfile << "\n/* NetworkLayout */\n\n";
-                    myfile << stringCombinerNl(firstRoute,secondRoute,pXML);
+                    myfile << stringCombinerNl(pXML,firstRoute,secondRoute);
                     myfile << "\n\n/* NetworkLayout End */\n\n";
                     myfile << "\n/* Interlocking */\n\n";
-                    myfile << stringCombinerIl(firstRoute, secondRoute,pXML)  + "\n";
+                    myfile << stringCombinerIl(pXML,firstRoute, secondRoute)  + "\n";
                     myfile << "\n/* Interlocking End */\n";
                     myfile << "\n/* UMC code */\n"; 
                     //myfile << defaultUMCsetupOneRoute(pXML->getNl(),pXML->getIl(),i,pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
-                    myfile << defaultUMCsetupTwoRoute(pXML,firstRoute);
+                    myfile << defaultUMCsetupTwoRoute(pXML,firstRoute,secondRoute);
 
                     myfile.close();
                     cout << "Successfully wrote to the file."<<endl;
@@ -62,35 +62,50 @@ void writerUMC::writeFile(string outputFile, ParserXML *pXML,int train){
     } 
 }
 
-string writerUMC::defaultUMCsetupOneRoute(ParserXML *pXML,int i){
+string writerUMC::defaultUMCsetupOneRoute(ParserXML *pXML, int firstRoute){
     string s;
     s += "Objects:\n\n";
     // In UMC I can't insert object that I didn't declare. So:
     // 1 - I use only the pathChunck
     // 2 - I declare everything (it may be too big)
-    s += signalObjectUmcOneRoute(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getMbCorrispondence(),pXML->getNl());
-    s += pointObjectUmcOneRoute(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getNl());  // changed
-    s += linearObjectUmcOneRoute(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getMbCorrispondence(),pXML->getNl());
-    s += trainObjectUmcOneRoute(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getNl());
-    s += abstractionUmcOneRoute(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getMbCorrispondence(),pXML->getNl());
+    s += signalObjectUmcOneRoute(pXML->getIl().getRoutes().at(firstRoute), pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
+    s += pointObjectUmcOneRoute (pXML->getIl().getRoutes().at(firstRoute), pXML->getPlCorrispondence(), pXML->getNl());  // changed
+    s += linearObjectUmcOneRoute(pXML->getIl().getRoutes().at(firstRoute), 1, pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
+    s += trainObjectUmcOneRoute (pXML->getIl().getRoutes().at(firstRoute), 1, pXML->getPlCorrispondence());
+    s += abstractionUmcOneRoute (pXML->getIl().getRoutes().at(firstRoute), 1, pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
     return s;
 }
-string writerUMC::defaultUMCsetupTwoRoute(ParserXML* pXML,int i){
-    return "null";
+
+string writerUMC::defaultUMCsetupTwoRoute(ParserXML *pXML, int firstRoute, int secondRoute){
+    string s;
+    s += "Objects:\n\n";
+    s += signalObjectUmcOneRoute(pXML->getIl().getRoutes().at(firstRoute),  pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
+    s += signalObjectUmcOneRoute(pXML->getIl().getRoutes().at(secondRoute), pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
+
+    s += pointObjectUmcOneRoute (pXML->getIl().getRoutes().at(firstRoute),  pXML->getPlCorrispondence(), pXML->getNl());  // changed
+    s += pointObjectUmcOneRoute (pXML->getIl().getRoutes().at(secondRoute), pXML->getPlCorrispondence(), pXML->getNl());  // changed
+
+    s += linearObjectUmcOneRoute(pXML->getIl().getRoutes().at(firstRoute),  1, pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
+    s += linearObjectUmcOneRoute(pXML->getIl().getRoutes().at(secondRoute), 2, pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
+    
+    s += trainObjectUmcOneRoute (pXML->getIl().getRoutes().at(firstRoute),  1, pXML->getPlCorrispondence());
+    s += trainObjectUmcOneRoute (pXML->getIl().getRoutes().at(secondRoute), 2, pXML->getPlCorrispondence());
+
+    s += abstractionUmcTwoRoute (pXML->getIl().getRoutes().at(firstRoute),pXML->getIl().getRoutes().at(secondRoute), 1, 2, pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
+    return s;
 }
 
-
-string writerUMC::linearObjectUmcOneRoute(Route route,map<int,string> plC,map<int,string> sC, NetworkLayout nl){
+string writerUMC::linearObjectUmcOneRoute(Route route,int number, const map<int,string> plC, const map<int,string> sC, NetworkLayout nl){
     string output;
     int index;
-    for(int i = 0; i < route.getPath().size();i++){
-        if(route.getPath().at(i) >= route.getPoints().size() and i != route.getPath().size()-1){                                     
+    for(int i = 0; i < (int)route.getPath().size();i++){
+        if(route.getPath().at(i) >= (int)route.getPoints().size() and i != (int)route.getPath().size()-1){                                     
             index = route.getPath().at(i)-nl.getPoints().size(); 
             // I did that to put NULL on last cdb and stop the request. I know that there is also the point that have to checked
             string up  = nl.getLinears().at(index).getUpNeig() != -1  ? plC.find(nl.getLinears().at(index).getUpNeig())->second : "null";
             string down = nl.getLinears().at(index).getDownNeig() != -1  ? plC.find(nl.getLinears().at(index).getDownNeig())->second : "null";
             string sign = findMb(route,nl,nl.getLinears().at(index).sectionId,sC);
-            string train = (nl.getLinears().at(index).sectionId == route.getPath().at(0)) ? "train" : "null";
+            string train = (nl.getLinears().at(index).sectionId == route.getPath().at(0)) ? "train"+to_string(number) : "null";
             output += plC.find(nl.getLinears().at(index).sectionId)->second + ": CircuitoDiBinario (\n\t";
             output += "prev => [";
             output += i != 0 ? (route.getDirection() == "up" ? down : up) : "null";
@@ -98,12 +113,12 @@ string writerUMC::linearObjectUmcOneRoute(Route route,map<int,string> plC,map<in
             output += "next => [" + (route.getDirection() == "up" ? up : down) + "],\n\t";
             output += "sign => [" + sign + "],\n\t";
             output += "treno => " + train +"\n);\n\n";
-        }else if(i == route.getPath().size()-1){
+        }else if(i == (int)route.getPath().size()-1){
             index = route.getPath().at(i)-nl.getPoints().size(); 
             string up  = nl.getLinears().at(index).getUpNeig() != -1  ? plC.find(nl.getLinears().at(index).getUpNeig())->second : "null";
             string down = nl.getLinears().at(index).getDownNeig() != -1  ? plC.find(nl.getLinears().at(index).getDownNeig())->second : "null";
             string sign = findMb(route,nl,nl.getLinears().at(index).sectionId,sC);
-            string train = (nl.getLinears().at(index).sectionId == route.getPath().at(0)) ? "train" : "null";
+            string train = (nl.getLinears().at(index).sectionId == route.getPath().at(0)) ? "train"+number : "null";
             output += plC.find(nl.getLinears().at(index).sectionId)->second + ": CircuitoDiBinario (\n\t";
             output += "prev => [" + (route.getDirection() == "up" ? down : up) + "],\n\t";
             output += "next => [null],\n\t";
@@ -115,8 +130,8 @@ string writerUMC::linearObjectUmcOneRoute(Route route,map<int,string> plC,map<in
 }
 
 //USED TO FIND THE MARKERBOARD ON THE CHUNK
-string writerUMC::findMb(Route route,NetworkLayout nl,int linearId,map<int,string> sC){
-    for(int i = 0; i < route.getSignals().size();i++){
+string writerUMC::findMb(Route route,NetworkLayout nl,int linearId,const map<int,string> sC){
+    for(int i = 0; i < (int)route.getSignals().size();i++){
         if(route.getSignals().at(i) == true){
             if(nl.getSignals().at(i).getSectionId() == linearId && nl.getSignals().at(i).getLinearEnd() == route.getDirection())
                 return sC.find(nl.getSignals().at(i).getMbId())->second;
@@ -125,11 +140,11 @@ string writerUMC::findMb(Route route,NetworkLayout nl,int linearId,map<int,strin
     return "null";
 }
 
-string writerUMC::pointObjectUmcOneRoute(Route route, map<int,string> plC,NetworkLayout nl){
+string writerUMC::pointObjectUmcOneRoute(Route route,const map<int,string> plC,NetworkLayout nl){
     string output;
-    for(int i = 0; i < route.getPath().size();i++){
+    for(int i = 0; i < (int)route.getPath().size();i++){
         int current = route.getPath().at(i);
-        if(current < route.getPoints().size()){
+        if(current < (int)route.getPoints().size()){
             if(route.getPoints().at(current) != "INTER"){
                 string name = plC.find(current)->second;
                 output += (isdigit(name[0]) ? ("_"+name) :name) + ": Scambio (\n\t";
@@ -146,8 +161,8 @@ string writerUMC::pointObjectUmcOneRoute(Route route, map<int,string> plC,Networ
     // Should I comment/decomment this??
     //Chain effect probably..
     if(output.empty()){
-        string prev,next;
-        for(int i =0; i < route.getPoints().size();i++ ){
+        //string prev,next;
+        for(int i =0; i < (int)route.getPoints().size();i++ ){
             if(route.getPoints().at(i) != "INTER"){
                 // if(nl.getPoints().at(i).getPlus() == route.getPath().back()) {
                 //     prev = plC.find(nl.getPoints().at(i).getPlus())->second;
@@ -166,7 +181,7 @@ string writerUMC::pointObjectUmcOneRoute(Route route, map<int,string> plC,Networ
                 //     next = plC.find(nl.getPoints().at(i).getStem())->second;
                 // }
                 // ----------------------
-                //TODO: find a solution to create all Scambio objects required
+                //FIXME: find a solution to create all Scambio objects required
                 // Could be inserted manually using only the config
                 // cut off the "if" to visualize all points ( even blank);
                 // ----------------------
@@ -188,12 +203,12 @@ string writerUMC::pointObjectUmcOneRoute(Route route, map<int,string> plC,Networ
     return output;
 }
 
-string writerUMC::signalObjectUmcOneRoute(Route route, map<int,string> plC, map<int,string> sC,NetworkLayout nl){
+string writerUMC::signalObjectUmcOneRoute(Route route,const map<int,string> plC,const map<int,string> sC,NetworkLayout nl){
     string output;
     int index;
-    for(int i = 0; i < route.getPath().size(); i++){
-        if(route.getPath().at(i) >= route.getPoints().size()){                                     
-            int index = route.getPath().at(i)-nl.getPoints().size(); 
+    for(int i = 0; i < (int)route.getPath().size(); i++){
+        if(route.getPath().at(i) >= (int)route.getPoints().size()){                                     
+            index = route.getPath().at(i)-nl.getPoints().size(); 
             int linId = nl.getLinears().at(index).sectionId;
             string sign = findMb(route,nl,linId,sC);
             output += sign + " : Segnale(\n\t";
@@ -203,12 +218,12 @@ string writerUMC::signalObjectUmcOneRoute(Route route, map<int,string> plC, map<
     return output;
 }
 
-string writerUMC::trainObjectUmcOneRoute(Route route, map<int,string> plC, NetworkLayout nl){
+string writerUMC::trainObjectUmcOneRoute(Route route,int number,const map<int,string> plC){
     string output;
-    output += "train : Treno (\n\t";
+    output += "train"+to_string(number)+" : Treno (\n\t";
     output += "id_itinerario => 0,\n\t";
     output += "nodi_itinerario => [";
-    for(int i = 0; i < route.getPath().size();i++){
+    for(int i = 0; i < (int)route.getPath().size();i++){
         output += plC.find(route.getPath().at(i))->second +", ";
     }
     output = output.substr(0, output.length() - 2);
@@ -218,22 +233,22 @@ string writerUMC::trainObjectUmcOneRoute(Route route, map<int,string> plC, Netwo
     return output;
 }
 
-string writerUMC::derailAbsOneRoute(Route route, map<int,string> plC, NetworkLayout nl){
+string writerUMC::derailAbsOneRoute(Route route,int number,const map<int,string> plC, NetworkLayout nl){
     string output;
     bool write= false;
-    for(int i = 0; i < route.getPath().size();i++){
+    for(int i = 0; i < (int)route.getPath().size();i++){
         int current = route.getPath().at(i);
-        if( current < route.getPoints().size()){
+        if( current < (int)route.getPoints().size()){
             string point = plC.find(current)->second;
             output += "State : " + point + ".conf[0] == ";
             output += (route.getPoints().at(current) == "PLUS") ? "false" : "true";
-            output += " and " + point + ".treno == train";
-            output += " and inState(train.MOVIMENTO) -> DERAGLIAMENTO_train\n\t";
+            output += " and " + point + ".treno == train"+to_string(number);
+            output += " and inState(train"+to_string(number)+".MOVIMENTO) -> DERAGLIAMENTO_train"+to_string(number)+"\n\t";
             write = true;
         }
     }
     if(write == false){
-        for(int i = 0; i < route.getPoints().size();i++){
+        for(int i = 0; i < (int)route.getPoints().size();i++){
             if(route.getPoints().at(i) != "INTER"){
                 string point = plC.find(nl.getPoints().at(i).getSectionId())->second;
                 output += "State : " + point + ".conf[0] == ";
@@ -245,35 +260,54 @@ string writerUMC::derailAbsOneRoute(Route route, map<int,string> plC, NetworkLay
     return output;
 }
 
-string writerUMC::brokenSignalsOneRoute(Route route, map<int,string> plC, map<int,string> sC,NetworkLayout nl){
+string writerUMC::brokenSignalsOneRoute(Route route,const int number,const map<int,string> plC,const map<int,string> sC,NetworkLayout nl){
     string output;
-    for(int i = 0; i < route.getPath().size();i++){
-        if(route.getPath().at(i) >= route.getPoints().size()){                                     
+    for(int i = 0; i < (int)route.getPath().size();i++){
+        if(route.getPath().at(i) >= (int)route.getPoints().size()){                                     
             int index = route.getPath().at(i)-nl.getPoints().size(); 
-            output += "State : inState(train.MOVIMENTO) and ";
+            output += "State : inState(train"+to_string(number)+".MOVIMENTO) and ";
             int linId = nl.getLinears().at(index).sectionId;
             string sign = findMb(route,nl,linId,sC);
             output += sign + ".red == true";
             string init = plC.find(route.getPath().at(i))->second; 
-            output += " and " + init + ".treno == train -> GUASTO_" + sign;
+            output += " and " + init + ".treno == train" + to_string(number) + " -> GUASTO_" + sign;
             output += "\n\t";
         }
     }
     return output;
 }
 
-//TODO: Should I have to put all Points ( also if they are not in the path )??
+//FIXME: Should I have to put all Points ( also if they are not in the path )??
 // in UMC if I put elements, they must be declared as objects.
-string writerUMC::abstractionUmcOneRoute(Route route,map<int,string> plC,map<int,string> sC,NetworkLayout nl){
+string writerUMC::abstractionUmcOneRoute(Route route,int number,const map<int,string> plC,const map<int,string> sC,const NetworkLayout nl){
     string output = "Abstractions{\n\t";
     output += "Action $1($*) -> $1($*)\n\t";
-    output += "State : train.nodo == " + plC.find(route.getPath().back())->second + " -> train_arrivato\n\t";
-    output += derailAbsOneRoute(route,plC, nl);
-    output += brokenSignalsOneRoute(route,plC,sC,nl);
+    output += "State : train"+to_string(number)+".nodo == " + plC.find(route.getPath().back())->second + " -> train"+to_string(number)+"_arrivato\n\t";
+    output += derailAbsOneRoute(route,number,plC, nl);
+    output += brokenSignalsOneRoute(route,number,plC,sC,nl);
     output += "\n}";
     return output;
 }
-string writerUMC::stringCombinerNl(int i, int j,ParserXML *pXML){
+string writerUMC::abstractionUmcTwoRoute(Route route1,Route route2,int n1, int n2,const map<int,string> plC,const map<int,string> sC,const NetworkLayout &nl){
+    string output = "Abstractions{\n\t";
+    output += "Action $1($*) -> $1($*)\n\t";
+    output += trainArrived(route1,n1,plC);
+    output += trainArrived(route2,n2,plC);
+    output += derailAbsOneRoute(route1,n1,plC, nl);
+    output += derailAbsOneRoute(route2,n2,plC, nl);
+    output += brokenSignalsOneRoute(route1,n1,plC,sC,nl);
+    output += brokenSignalsOneRoute(route2,n2,plC,sC,nl);
+
+    output += "\n}";
+    return output;
+}
+string writerUMC::trainArrived(Route route,int number,const map<int,string> plC){
+    string output;
+    output += "State : train"+to_string(number)+".nodo == " + plC.find(route.getPath().back())->second + " -> train"+to_string(number)+"_arrivato\n\t";;
+    return output; 
+    // "State : train.nodo == " + plC.find(route.getPath().back())->second + " -> train_arrivato\n\t";
+}
+string writerUMC::stringCombinerNl(ParserXML *pXML, int i, int j){
     string s;
     s += pXML->getNl().toStringAdaptive(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
     s+= "\n\n";
@@ -281,7 +315,7 @@ string writerUMC::stringCombinerNl(int i, int j,ParserXML *pXML){
     return s;
 }
 
-string writerUMC::stringCombinerIl(int i, int j,ParserXML *pXML){
+string writerUMC::stringCombinerIl(ParserXML *pXML, int i, int j){
     string s;
     s += pXML->getIl().getRoutes().at(i).toString(pXML->getIl().getMaxPathLength(), pXML->getIl().getMaxChunk());
     s += "\n\n"; 
@@ -289,7 +323,7 @@ string writerUMC::stringCombinerIl(int i, int j,ParserXML *pXML){
     return s;
 }
 
-string writerUMC::stringCombinerId(int i, int j,ParserXML *pXML){
+string writerUMC::stringCombinerId(ParserXML *pXML, int i, int j){
     string s;
     s += to_string(pXML->getIl().getRoutes().at(i).getRouteId()) + "-";
     s += to_string(pXML->getIl().getRoutes().at(j).getRouteId());

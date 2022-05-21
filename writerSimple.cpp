@@ -1,7 +1,7 @@
 #include "writerSimple.hpp"
 #include <string>
 
-void writerSimple::writeFile(string outputFile,ParserXML *pXML,int train){
+void writerSimple::writeFile(const string outputFile,ParserXML *pXML,int train){
     // 1. create a file.txt for each route and add an extra routes that continue
     // 2. create a file.txt that contents all routes
     // 3. create a file.txt that contents some routes

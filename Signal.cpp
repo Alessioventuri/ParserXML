@@ -4,7 +4,7 @@
 
 using namespace std;
 
-Signal::Signal(int &id, int &secId, string &linEnd){
+Signal::Signal(int &id,const int &secId,const string &linEnd){
     mbId = id;
     sectionId = secId;
     linearEnd = linEnd;
@@ -19,7 +19,7 @@ string Signal::toString(){
             + ",\nmbLinearEnd[" + mId + "] = " + linearEnd;
 }
 
-string Signal::toString(map<int,string> plC,map<int,string> sC){
+string Signal::toString(const map<int,string> plC,const map<int,string> sC){
     string mId = sC.find(mbId)->second;
     //cout << mId << " " <<  to_string(sectionId) << " "<< linearEnd<< endl;
     return "mbSection[" + mId + " - " + to_string(mbId) + "] = " + plC.find(sectionId)->second + " - " + to_string(sectionId)

@@ -1,7 +1,4 @@
-#include "Interlock.hpp"
 #include "NetworkLayout.hpp"
-#include "writer.hpp"
-#include "writerUMC.hpp"
 #include "writerUMC.hpp"
 #include "writerSimple.hpp"
 #include "ParserXML.hpp"
@@ -31,7 +28,7 @@ writer* writer::write(fileType type){
 }
 int ParserXML::count = 0;
 
-int main(int argc, char *argv[]){
+int main(int argc,const char *argv[]){
     // bool outputToFile = false;
     string input;
     // string input = "/Users/alessioventuri/Desktop/XML/lvr_7_right_rt.xml";
@@ -144,7 +141,6 @@ int main(int argc, char *argv[]){
             if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
             obj->writeFile(outputFile,pXML,train);
         } 
-        delete obj,pXML;
     }
     if(file == 1){
         obj = writer::write(SimpleFile);
@@ -154,7 +150,8 @@ int main(int argc, char *argv[]){
         rc = mkdir(ss.str().c_str(), 0777);
         if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
         obj->writeFile(outputFile,pXML);
-        delete obj,pXML;
     }
+    delete obj;
+
 }
 

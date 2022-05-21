@@ -8,10 +8,10 @@ string Linear::toString(){
 	return  "linearUp[" + secId + "] = " + upN + ",\nlinearDown[" + secId + "] = " + downN;
 }
 
-string Linear::toString(map<int,string> pl){
-	string secId = pl.find(sectionId)->second;
-	string upN =  upNeighbour != -1 ? pl.find(upNeighbour)->second : "null";
-	string downN = downNeighbour != -1 ? pl.find(downNeighbour)->second : "null";
+string Linear::toString(const map<int,string> plC){
+	string secId = plC.find(sectionId)->second;
+	string upN =  upNeighbour != -1 ? plC.find(upNeighbour)->second : "null";
+	string downN = downNeighbour != -1 ? plC.find(downNeighbour)->second : "null";
 	return  "linearUp[" + secId + " - "+ to_string(sectionId)+ "] = " + upN + " - " + to_string(upNeighbour)
 			 + ",\nlinearDown[" + secId + " - "+ to_string(sectionId)+ "] = " + downN + " - " + to_string(downNeighbour);
 
