@@ -10,7 +10,7 @@ private:
 	int downNeighbour;
 
 public: 
-    Linear(int &id, int &up, int &down) : Section(id){
+    Linear(int &id,const int &up,const int &down) : Section(id){
 		upNeighbour = up;
 		downNeighbour = down;
         

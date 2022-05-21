@@ -1,32 +1,19 @@
 #pragma once
 #include "Interlock.hpp"
-#include "NetworkLayout.hpp"
-#include <stdexcept>
-#include <iostream>
-#include <stdlib.h>
-#include <fstream>
 #include "rapidxml.hpp"
-#include "rapidxml_utils.hpp"
-#include "rapidxml_print.hpp"
+#include <iostream>
 #include <unordered_map>
-#include <string>
-#include <cstring>
-#include <exception>
-
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sstream>
-
 
 using namespace rapidxml;
 using namespace std;
 
 class ParserXML{
 public:
+    // cppcheck-suppress  noExplicitConstructor 
+    ParserXML(string input);    
     int getIntFromNeighborLinear(xml_node<> *neighbor);
     int getIntFromNeighborPoint(xml_node<> *neighbor);
     string SplitFilename(string str);
-    ParserXML(string input);
     ~ParserXML();
     void searchPoints(xml_node<> *network_node);
     void searchLinears(xml_node<> *network_node);
@@ -40,7 +27,7 @@ public:
     map<int, string> getMbCorrispondence(){return this->mbCorrispondence;}
     unordered_map<string,int> getIdMap(){return this->id;}
     int getSecondRoute(int i);
-    void setIl(Interlock &i){this->il = i;}
+    void setIl(const Interlock &i){this->il = i;}
 
 private:
     static int count;

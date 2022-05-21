@@ -1,7 +1,7 @@
 #include "Route.hpp"
 
 
-Route::Route(int &id_,int src_, int dest_,string dire_, map<int,string> points_, vector<int> path_,
+Route::Route(int &id_,int src_, int dest_,string dire_, map<int,string> points_,const vector<int> path_,
  	map<int,bool> signals_, vector<bool> overlap_, map<int,bool> conflict_, int maxPoints_){
      	routeId = id_;
 		src = src_;
@@ -14,7 +14,7 @@ Route::Route(int &id_,int src_, int dest_,string dire_, map<int,string> points_,
 		overlap = overlap_;
 		lastElem = path.at(path.size() -1);
 
-		for (int i = 0; i < path.size(); i++) {
+		for (int i = 0; i < (int)path.size(); i++) {
 			if (path.at(i) == -1){
 				lastElem = path.at(i-1);
 				break;
@@ -25,7 +25,7 @@ Route::Route(int &id_,int src_, int dest_,string dire_, map<int,string> points_,
 
 void Route::generateCheckPoints(int maxPoints,vector<int> &path){
     checkPoints.push_back(path.at(0));
-	for (int i = 1; i < path.size(); i++) {
+	for (int i = 1; i < (int)path.size(); i++) {
         if (path.at(i) < maxPoints)
             checkPoints.push_back(path.at(i));
     }
@@ -78,7 +78,7 @@ string Route::pointString(){
 	
 string Route::overlapString() {
 	string s = "routeOverlap[" + to_string(routeId) + "] = { ";
-	for ( int i = 0 ; i < overlap.size(); i++ ){
+	for ( int i = 0 ; i < (int)overlap.size(); i++ ){
 		s += (overlap.at(i) ? "true" : "false");
 		s += ", ";
 	}
@@ -92,10 +92,10 @@ string Route::overlapString() {
 string Route::checkPointString(int max) {
 	string s = "routeCheckPoints[" + to_string(routeId) + "] = { ";
 	
-	for ( int i = 0 ; i < checkPoints.size(); i++ )
+	for ( int i = 0 ; i < (int)checkPoints.size(); i++ )
 		s += to_string(checkPoints.at(i)) + ", ";
-	if (checkPoints.size() < max) {
-			for ( int i = 0 ; i < max - checkPoints.size(); i++ )
+	if ((int)checkPoints.size() < max) {
+			for ( int i = 0 ; i < max - (int)checkPoints.size(); i++ )
 				s +=  "-1, ";
 	}
 	s = s.substr(0, s.length() - 2);
@@ -106,10 +106,10 @@ string Route::checkPointString(int max) {
 
 string Route::pathString(int max) {
 	string s = "routePath[" + to_string(routeId) + "] = { ";	
-	for ( int i = 0 ; i < path.size(); i++ )
+	for ( int i = 0 ; i < (int)path.size(); i++ )
 		s += to_string(path.at(i)) + ", ";
-	if (path.size() < max) {
-			for ( int i = 0 ; i < max - path.size(); i++ )
+	if ((int)path.size() < max) {
+			for ( int i = 0 ; i < max - (int)path.size(); i++ )
 				s +=  "-1, ";
 	}
 	s = s.substr(0, s.length() - 2);

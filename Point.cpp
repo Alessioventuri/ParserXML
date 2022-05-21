@@ -8,10 +8,10 @@ string Point::toString(){
             + ",\npointPlus[" + secId + "] = " + to_string(plusNeighbour) 
             + ",\npointMinus[" + secId + "] = " + to_string(minusNeighbour);
 }
-string Point::toString(map<int,string> pl){
+string Point::toString(const map<int,string> plC){
     
-    string id = pl.find(sectionId)->second;
-    return "pointStem[" + id + " - " + to_string(getSectionId()) +"] = " + pl.find(stemNeighbour)->second + " - "+ to_string(stemNeighbour)
-            + ",\npointPlus[" + id + " - " + to_string(getSectionId())+"] = " + pl.find(plusNeighbour)->second + " - " + to_string(plusNeighbour)
-            + ",\npointMinus[" + id + " - " +to_string(getSectionId())+ "] = " + pl.find(minusNeighbour)->second + " - " + to_string(minusNeighbour);
+    string id = plC.find(sectionId)->second;
+    return "pointStem[" + id + " - " + to_string(getSectionId()) +"] = " + plC.find(stemNeighbour)->second + " - "+ to_string(stemNeighbour)
+            + ",\npointPlus[" + id + " - " + to_string(getSectionId())+"] = " + plC.find(plusNeighbour)->second + " - " + to_string(plusNeighbour)
+            + ",\npointMinus[" + id + " - " +to_string(getSectionId())+ "] = " + plC.find(minusNeighbour)->second + " - " + to_string(minusNeighbour);
 }
