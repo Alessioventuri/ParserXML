@@ -8,27 +8,75 @@
 
 
 //void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<int,string> pl,map<int,string> mb,int choose){
-void writerUMC::writeFile(const string outputFile, ParserXML *pXML,int train){
+void writerUMC::writeFile(const string outputFile, ParserXML *pXML,int train,int select,int route1, int route2){
     // 1. create a file.txt for each route and add an extra routes that continue
     // 2. create a file.txt that contents all routes
     // 3. create a file.txt that contents some routes
     pXML->getIl().generateMaxChunk();
-    for ( int firstRoute = 0 ; firstRoute < (int)pXML->getIl().getRoutes().size(); firstRoute++ ){
+    if(select != 1){
+        for ( int firstRoute = 0 ; firstRoute < (int)pXML->getIl().getRoutes().size(); firstRoute++ ){
+            if(train == 1){
+                if(outputFile != ""){ 
+                    string outputFiletxt = outputFile + "route" + to_string(pXML->getIl().getRoutes().at(firstRoute).getRouteId()) + ".txt";      
+                    try{
+                        ofstream myfile;
+                        myfile.open(outputFiletxt);
+                        myfile << "\n/* NetworkLayout */\n\n";
+                        myfile << pXML->getNl().toStringAdaptive(pXML->getIl().getRoutes().at(firstRoute),pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
+                        myfile << "\n\n/* NetworkLayout End */\n\n";
+                        myfile << "\n/* Interlocking */\n\n";
+                        myfile << pXML->getIl().getRoutes().at(firstRoute).toString(pXML->getIl().getMaxPathLength(), pXML->getIl().getMaxChunk())  + "\n";
+                        myfile << "\n/* Interlocking End */\n";
+                        myfile << "\n/* UMC code */\n"; 
+                        //myfile << defaultUMCsetupOneRoute(pXML->getNl(),pXML->getIl(),i,pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
+                        myfile << defaultUMCsetupOneRoute(pXML,firstRoute);
+                        myfile.close();
+                        cout << "Successfully wrote to the file."<<endl;
+                    }catch(const exception& e){
+                        cerr << "An error occured" << endl;
+                    }
+                }
+            }else{
+                if(outputFile != ""){ 
+                    int secondRoute = pXML->getSecondRoute(firstRoute);
+                    string outputFiletxt = outputFile + "route" + stringCombinerId(pXML,firstRoute,secondRoute) + ".txt";      
+                    try{
+                        ofstream myfile;
+                        myfile.open(outputFiletxt);
+                        myfile << "\n/* NetworkLayout */\n\n";
+                        myfile << stringCombinerNl(pXML,firstRoute,secondRoute);
+                        myfile << "\n\n/* NetworkLayout End */\n\n";
+                        myfile << "\n/* Interlocking */\n\n";
+                        myfile << stringCombinerIl(pXML,firstRoute, secondRoute)  + "\n";
+                        myfile << "\n/* Interlocking End */\n";
+                        myfile << "\n/* UMC code */\n"; 
+                        //myfile << defaultUMCsetupOneRoute(pXML->getNl(),pXML->getIl(),i,pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
+                         myfile << defaultUMCsetupTwoRoute(pXML,firstRoute,secondRoute);
+
+                        myfile.close();
+                        cout << "Successfully wrote to the file."<<endl;
+                    }catch(const exception& e){
+                        cerr << "An error occured" << endl;
+                    }
+                }
+            }
+        }
+    }else{
         if(train == 1){
-            if(outputFile != ""){ 
-                string outputFiletxt = outputFile + "route" + to_string(pXML->getIl().getRoutes().at(firstRoute).getRouteId()) + ".txt";      
+            if(outputFile != ""){  //check if you want print at display  
+                string outputFiletxt = outputFile + "route" + to_string(pXML->getIl().getRoutes().at(route1).getRouteId()) + ".txt";      
                 try{
                     ofstream myfile;
                     myfile.open(outputFiletxt);
                     myfile << "\n/* NetworkLayout */\n\n";
-                    myfile << pXML->getNl().toStringAdaptive(pXML->getIl().getRoutes().at(firstRoute),pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
+                    myfile << pXML->getNl().toStringAdaptive(pXML->getIl().getRoutes().at(route1),pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
                     myfile << "\n\n/* NetworkLayout End */\n\n";
                     myfile << "\n/* Interlocking */\n\n";
-                    myfile << pXML->getIl().getRoutes().at(firstRoute).toString(pXML->getIl().getMaxPathLength(), pXML->getIl().getMaxChunk())  + "\n";
+                    myfile << pXML->getIl().getRoutes().at(route1).toString(pXML->getIl().getMaxPathLength(), pXML->getIl().getMaxChunk())  + "\n";
                     myfile << "\n/* Interlocking End */\n";
                     myfile << "\n/* UMC code */\n"; 
                     //myfile << defaultUMCsetupOneRoute(pXML->getNl(),pXML->getIl(),i,pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
-                    myfile << defaultUMCsetupOneRoute(pXML,firstRoute);
+                    myfile << defaultUMCsetupOneRoute(pXML,route1);
                     myfile.close();
                     cout << "Successfully wrote to the file."<<endl;
                 }catch(const exception& e){
@@ -37,20 +85,19 @@ void writerUMC::writeFile(const string outputFile, ParserXML *pXML,int train){
             }
         }else{
             if(outputFile != ""){ 
-                int secondRoute = pXML->getSecondRoute(firstRoute);
-                string outputFiletxt = outputFile + "route" + stringCombinerId(pXML,firstRoute,secondRoute) + ".txt";      
+                string outputFiletxt = outputFile + "route" + stringCombinerId(pXML,route1,route2) + ".txt";      
                 try{
                     ofstream myfile;
                     myfile.open(outputFiletxt);
                     myfile << "\n/* NetworkLayout */\n\n";
-                    myfile << stringCombinerNl(pXML,firstRoute,secondRoute);
+                    myfile << stringCombinerNl(pXML,route1,route2);
                     myfile << "\n\n/* NetworkLayout End */\n\n";
                     myfile << "\n/* Interlocking */\n\n";
-                    myfile << stringCombinerIl(pXML,firstRoute, secondRoute)  + "\n";
+                    myfile << stringCombinerIl(pXML,route1, route2)  + "\n";
                     myfile << "\n/* Interlocking End */\n";
                     myfile << "\n/* UMC code */\n"; 
                     //myfile << defaultUMCsetupOneRoute(pXML->getNl(),pXML->getIl(),i,pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
-                    myfile << defaultUMCsetupTwoRoute(pXML,firstRoute,secondRoute);
+                    myfile << defaultUMCsetupTwoRoute(pXML,route1,route2);
 
                     myfile.close();
                     cout << "Successfully wrote to the file."<<endl;
@@ -59,7 +106,7 @@ void writerUMC::writeFile(const string outputFile, ParserXML *pXML,int train){
                 }
             }
         }
-    } 
+    }
 }
 
 string writerUMC::defaultUMCsetupOneRoute(ParserXML *pXML, int firstRoute){
@@ -79,19 +126,21 @@ string writerUMC::defaultUMCsetupOneRoute(ParserXML *pXML, int firstRoute){
 string writerUMC::defaultUMCsetupTwoRoute(ParserXML *pXML, int firstRoute, int secondRoute){
     string s;
     s += "Objects:\n\n";
-    s += signalObjectUmcOneRoute(pXML->getIl().getRoutes().at(firstRoute),  pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
+    s += signalObjectUmcOneRoute(pXML->getIl().getRoutes().at(firstRoute), pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
     s += signalObjectUmcOneRoute(pXML->getIl().getRoutes().at(secondRoute), pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
 
-    s += pointObjectUmcOneRoute (pXML->getIl().getRoutes().at(firstRoute),  pXML->getPlCorrispondence(), pXML->getNl());  // changed
-    s += pointObjectUmcOneRoute (pXML->getIl().getRoutes().at(secondRoute), pXML->getPlCorrispondence(), pXML->getNl());  // changed
+    // s += pointObjectUmcOneRoute (pXML->getIl().getRoutes().at(firstRoute), pXML->getPlCorrispondence(), pXML->getNl());  // changed
+    // s += pointObjectUmcOneRoute (pXML->getIl().getRoutes().at(secondRoute), pXML->getPlCorrispondence(), pXML->getNl());  // changed
 
-    s += linearObjectUmcOneRoute(pXML->getIl().getRoutes().at(firstRoute),  1, pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
+    s += pointObjectUmcTwoRoute (pXML->getIl().getRoutes().at(firstRoute), pXML->getIl().getRoutes().at(secondRoute), pXML->getPlCorrispondence(),pXML->getNl());
+
+    s += linearObjectUmcOneRoute(pXML->getIl().getRoutes().at(firstRoute), 1, pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
     s += linearObjectUmcOneRoute(pXML->getIl().getRoutes().at(secondRoute), 2, pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
     
-    s += trainObjectUmcOneRoute (pXML->getIl().getRoutes().at(firstRoute),  1, pXML->getPlCorrispondence());
+    s += trainObjectUmcOneRoute (pXML->getIl().getRoutes().at(firstRoute), 1, pXML->getPlCorrispondence());
     s += trainObjectUmcOneRoute (pXML->getIl().getRoutes().at(secondRoute), 2, pXML->getPlCorrispondence());
 
-    s += abstractionUmcTwoRoute (pXML->getIl().getRoutes().at(firstRoute),pXML->getIl().getRoutes().at(secondRoute), 1, 2, pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
+    s += abstractionUmcTwoRoute (pXML->getIl().getRoutes().at(firstRoute), pXML->getIl().getRoutes().at(secondRoute), 1, 2, pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
     return s;
 }
 
@@ -288,15 +337,15 @@ string writerUMC::abstractionUmcOneRoute(Route route,int number,const map<int,st
     output += "\n}";
     return output;
 }
-string writerUMC::abstractionUmcTwoRoute(Route route1,Route route2,int n1, int n2,const map<int,string> plC,const map<int,string> sC,const NetworkLayout &nl){
+string writerUMC::abstractionUmcTwoRoute(Route route1,Route route2,int n1, int n2,const map<int,string> plC,const map<int,string> sC,const NetworkLayout nl){
     string output = "Abstractions{\n\t";
     output += "Action $1($*) -> $1($*)\n\t";
-    output += trainArrived(route1,n1,plC);
-    output += trainArrived(route2,n2,plC);
-    output += derailAbsOneRoute(route1,n1,plC, nl);
-    output += derailAbsOneRoute(route2,n2,plC, nl);
-    output += brokenSignalsOneRoute(route1,n1,plC,sC,nl);
-    output += brokenSignalsOneRoute(route2,n2,plC,sC,nl);
+    output += trainArrived          (route1,n1,plC);
+    output += trainArrived          (route2,n2,plC);
+    output += derailAbsOneRoute     (route1,n1,plC, nl);
+    output += derailAbsOneRoute     (route2,n2,plC, nl);
+    output += brokenSignalsOneRoute (route1,n1,plC,sC,nl);
+    output += brokenSignalsOneRoute (route2,n2,plC,sC,nl);
 
     output += "\n}";
     return output;
@@ -328,6 +377,147 @@ string writerUMC::stringCombinerId(ParserXML *pXML, int i, int j){
     s += to_string(pXML->getIl().getRoutes().at(i).getRouteId()) + "-";
     s += to_string(pXML->getIl().getRoutes().at(j).getRouteId());
     return s;
+}
+
+string writerUMC::pointObjectUmcTwoRoute(Route &route1, Route &route2, map<int,string> plC, NetworkLayout nl){
+    string output;
+    vector<int> p1 = route1.getPath();
+    vector<int> p2 = route2.getPath();
+    bool find1, find2;
+    int index1, index2;
+    for(int i = 0;i < (int)nl.getPoints().size(); i++){
+        if(route1.getPoints().at(i) != "INTER" ||route2.getPoints().at(i) != "INTER"){
+            // auto it1 = find(p1.begin(),p1.end(), i);
+            // auto it2 = find(p2.begin(),p2.end(), i);
+            for(int j = 0; j < route1.getPath().size();j++){
+                if(route1.getPath().at(j) == i){
+                    find1 = true;
+                    index1 = j;
+                }      
+            }
+            for(int w = 0; w < route2.getPath().size();w++){
+                if(route2.getPath().at(w) == i){
+                    find2 = true;
+                    index2 = w;
+                }   
+            }
+            string name = plC.find(i)->second;
+            output += (isdigit(name[0]) ? ("_"+name) :name) + ": Scambio (\n\t";
+            string conf1 = (route1.getPoints().at(i) == "PLUS") ? "true" : "false";
+            string conf2 = (route2.getPoints().at(i) == "PLUS") ? "true" : "false";
+            if((find1 != true) && (find2 != true)){
+                output += "prev => [null,null],";
+                output += "\n\t";
+                output += "next => [null,null]";
+                output += "\n\t";
+                output += "conf => ["+ conf1 +","+conf2+"],\n\t";
+                output += "treno => null\n);\n\n";
+            }else if((find1 == true) && (find2 != true)){
+                string prova = plC.find(p1.at(index1-1))->second;
+                output += "prev => [" + prova + ",null],",
+                output += "\n\t";                
+                output += "next => [" + plC.find(p1.at(index1+1))->second + ",null],",
+                output += "\n\t";
+                output += "conf => ["+ conf1 +","+conf2+"],\n\t";
+                output += "treno => null\n);\n\n";
+            }else if((find1 != true) && (find2 == true)){
+                string prova = plC.find(p2.at(index2-1))->second;
+                output += "prev => [null," + prova + "],",
+                output += "\n\t";                
+                output += "next => [null," + plC.find(p2.at(index2+1))->second + "],",
+                output += "\n\t";
+                output += "conf => ["+ conf1 +","+conf2+"],\n\t";
+                output += "treno => null\n);\n\n";
+            }else{
+                output += "prev => [" + plC.find(p1.at(index1-1))->second + "," + plC.find(p2.at(index2-1))->second + "],",
+                output += "\n\t";                
+                output += "next => [" + plC.find(p1.at(index1+1))->second + "," + plC.find(p2.at(index2+1))->second + "],",
+                output += "\n\t"; 
+                output += "conf => ["+ conf1 +","+conf2+"],\n\t";
+                output += "treno => null\n);\n\n";
+            }   
+        }
+    }
+    return output;
+}
+//     for(int i = 0; i < (int)route1.getPath().size();i++){
+//         int current = route1.getPath().at(i);
+//         if(current < (int)route1.getPoints().size()){
+//             if(route.getPoints().at(current) != "INTER"){
+//                 string name = plC.find(current)->second;
+//                 output += (isdigit(name[0]) ? ("_"+name) :name) + ": Scambio (\n\t";
+//                 output += "prev => [" + plC.find(route1.getPath().at(i-1))->second;
+//                 for(int j = 0; j < route2.getPath().size();i++){
+//                     if(route2.getPath().at(j) == current)
+//                         output += ","+ plC.find(route2.getPath().at(j-1))->second + "],";
+//                     else
+//                         output += ",null],";
+//                 }
+//                 output += "\n\t";
+//                 output += "next => [" + plC.find(route1.getPath().at(i+1))->second;
+//                 for(int j = 0; j < route2.getPath().size();i++){
+//                     if(route2.getPath().at(j) == current)
+//                         output += ","+ plC.find(route2.getPath().at(j-1))->second + "],";
+//                     else
+//                         output += ",null],";
+//                 }
+//                 output += "\n\t";
+//                 string conf1 = (route1.getPoints().at(current) == "PLUS") ? "true" : "false";
+//                 string conf2 = (route2.getPoints().at(current) == "PLUS") ? "true" : "false";
+//                 output += "conf => ["+ conf1 +","+conf2+"],\n\t";
+//                 output += "treno => null\n);\n\n";
+//             }
+//         }
+//     }
+//     // Should I comment/decomment this??
+//     //Chain effect probably..
+//     if(output.empty()){
+//         //string prev,next;
+//         for(int i =0; i < (int)route1.getPoints().size();i++ ){
+//             if(route1.getPoints().at(i) != "INTER"){
+//                 // if(nl.getPoints().at(i).getPlus() == route.getPath().back()) {
+//                 //     prev = plC.find(nl.getPoints().at(i).getPlus())->second;
+//                 //     next = plC.find(nl.getPoints().at(i).getStem())->second;
+//                 // }
+//                 // else if(nl.getPoints().at(i).getMinus() == route.getPath().back()){
+//                 //     prev = plC.find(nl.getPoints().at(i).getMinus())->second;
+//                 //     next = plC.find(nl.getPoints().at(i).getStem())->second;
+//                 // }
+//                 // else if(nl.getPoints().at(i).getStem() == route.getPath().back()){
+//                 //     prev = plC.find(nl.getPoints().at(i).getStem())->second;
+//                 //     next = route.getPoints().at(i) == "PLUS" ? plC.find(nl.getPoints().at(i).getPlus())->second :plC.find(nl.getPoints().at(i).getMinus())->second;
+//                 // }
+//                 // else if(prev == plC.find(nl.getPoints().at(i).getMinus())->second){
+//                 //     prev = plC.find(nl.getPoints().at(i).getMinus())->second;
+//                 //     next = plC.find(nl.getPoints().at(i).getStem())->second;
+//                 // }
+//                 // ----------------------
+//                 //FIXME: find a solution to create all Scambio objects required
+//                 // Could be inserted manually using only the config
+//                 // cut off the "if" to visualize all points ( even blank);
+//                 // ----------------------
+//                 // if(!prev.empty() ){
+//                     string name = plC.find(nl.getPoints().at(i).sectionId)->second;
+//                     output += isdigit(name[0]) ? "_"+name : name +": Scambio (\n\t";
+//                     // prev and next should be "null"
+//                     // output += "prev => [" + prev + "],\n\t";
+//                     // output += "next => [" + next  +"],\n\t";
+//                     output += "prev => [null],\n\t";
+//                     output += "next => [null],\n\t";
+//                     string conf = route1.getPoints().at(i) == "PLUS" ? "true" : "false";
+//                     output += "conf => ["+ conf +"],\n\t";
+//                     output += "treno => null\n);\n\n";
+//                 // }
+//             } 
+//         }
+//     }
+//     return output;
+// }
+string writerUMC::linearObjectUmcTwoRoute(Route route1, Route route2, int i, map<int,string> plC, map<int,string> sC, NetworkLayout nl){
+    return "null";
+}
+string writerUMC::trainObjectUmcTwoRoute (Route route1, Route route2, int i, map<int,string> plC){
+    return "null";
 }
 
 
