@@ -5,3 +5,4 @@
 *.scannerwork
 *.dSYM
 *.DS_ignores
+.DS_Store
