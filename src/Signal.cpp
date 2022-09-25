@@ -9,7 +9,6 @@ Signal::Signal(const int &id,const int &secId,const string &linEnd){
     sectionId = secId;
     linearEnd = linEnd;
     //cout << to_string(mbId) << " " <<  to_string(sectionId) << " "<< linearEnd<< endl;
-
 };
 
 string Signal::toString(){
