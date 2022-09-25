@@ -93,7 +93,7 @@ string NetworkLayout::toStringAdaptive(Route route,const map<int,string> plC,con
     return s;
 }
 
-void NetworkLayout::addSignal(int &id,const int &section,const string &linEnd){
+void NetworkLayout::addSignal(const int &id,const int &section,const string &linEnd){
     Signal s(id, section, linEnd);
     signals.push_back(s);
 }

@@ -379,7 +379,7 @@ string writerUMC::stringCombinerId(ParserXML *pXML, int i, int j){
     return s;
 }
 
-string writerUMC::pointObjectUmcTwoRoute(Route &route1, Route &route2, map<int,string> plC, NetworkLayout nl){
+string writerUMC::pointObjectUmcTwoRoute(Route &route1, Route &route2,const map<int,string> plC, NetworkLayout nl){
     string output;
     vector<int> p1 = route1.getPath();
     vector<int> p2 = route2.getPath();
