@@ -25,7 +25,7 @@ public:
 	vector<Signal> getSignals(){return signals;}
     string toString(map<int,string>,map<int,string>);
     string toStringAdaptive(Route,map<int,string>,map<int,string>);
-    void addSignal(int &id, int &section,const string &linearEnd);
+    void addSignal(int &id,const int &section,const string &linearEnd);
     void addLinear(int &id,const int &up,const int &down);
     void addPoint(int &id,const int &stem,const int &plus,const int &minus);
 

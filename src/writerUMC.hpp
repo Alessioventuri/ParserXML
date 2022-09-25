@@ -26,13 +26,16 @@ private :
     string stringCombinerNl       (ParserXML *, int, int);
     string stringCombinerIl       (ParserXML *, int, int);
     string stringCombinerId       (ParserXML *, int, int);
-    string abstractionUmcTwoRoute (Route, Route , int, int, const map<int,string>, const map<int,string>, const NetworkLayout &);
+    string abstractionUmcTwoRoute (Route, Route , int, int, map<int,string>, map<int,string>, NetworkLayout );
+    string pointObjectUmcTwoRoute (Route &, Route &, map<int,string> , NetworkLayout );
+    string linearObjectUmcTwoRoute(Route, Route , int, map<int,string>, map<int,string>, NetworkLayout);
+    string trainObjectUmcTwoRoute (Route, Route , int, map<int,string>);
 
 
 public:
     writerUMC(){};
     ~writerUMC() = default;
-    void writeFile                (string,ParserXML*,int) override;
+    void writeFile                (string,ParserXML*,int,int,int,int) override;
 
     friend class writer;
 

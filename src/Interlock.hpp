@@ -28,5 +28,4 @@ public:
     vector<Route> getRoutes(){ return routes;}
     
     Interlock routeCombiner(const NetworkLayout &nl,Interlock il);
-
 };
