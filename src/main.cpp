@@ -166,7 +166,7 @@ int main(int argc,const char *argv[]){
                 }
             }else if(train == 2){
                 correct = true;
-                cout << "DO YOU WANT SELECT THE ROUTE?" <<endl;
+                cout << "DO YOU WANT SELECT THE ROUTES?" <<endl;
                 cout << "1 : YES" <<endl;
                 cout << "2 : NO " <<endl;
                 cin >> select;
@@ -206,7 +206,6 @@ int main(int argc,const char *argv[]){
             else{
                 cerr << "Number of trains incorrect. Please select '1' or '2'. " << endl;
                 cin >> train;
-
             }
         } 
     }
