@@ -346,7 +346,6 @@ string writerUMC::abstractionUmcTwoRoute(Route route1,Route route2,int n1, int n
     output += derailAbsOneRoute     (route2,n2,plC, nl);
     output += brokenSignalsOneRoute (route1,n1,plC,sC,nl);
     output += brokenSignalsOneRoute (route2,n2,plC,sC,nl);
-
     output += "\n}";
     return output;
 }
