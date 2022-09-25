@@ -3,7 +3,7 @@
     "tasks": [
         {
             "type": "cppbuild",
-            "label": "build",
+            "label": "[BUILD] BUILD",
             "command": "/usr/local/bin/g++-11",
             "args": [
                 "-fdiagnostics-color=always",

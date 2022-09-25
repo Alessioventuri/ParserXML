@@ -78,8 +78,8 @@ int main(int argc,const char *argv[]){
     rc = mkdir(ss.str().c_str(), 0777);
     if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
     int file;
-    cout << "WHICH TYPE DO YOU WANT" <<endl;
-    cout << "0 : UMCFileOneRoute" << endl;
+    cout << "WHICH TYPE DO YOU WANT" << endl;
+    cout << "0 : UMCFile" << endl;
     cout << "1 : SimpleFile " << endl;
     cin >> file;
     // outputFile = outputFile + "SingleRoute/";
