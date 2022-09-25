@@ -39,7 +39,7 @@ jobs:
       - name: Run build-wrapper
         run: |
           cd src
-          build-wrapper-macosx-x86 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} src/main
+          build-wrapper-macosx-x86 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} main
 
       - name: Run sonar-scanner
         env:
