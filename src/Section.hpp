@@ -7,5 +7,6 @@ public:
     // cppcheck-suppress  noExplicitConstructor 
     Section(int id);
     Section(){}
+    
 };
 

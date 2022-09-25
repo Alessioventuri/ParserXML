@@ -346,7 +346,6 @@ string writerUMC::abstractionUmcTwoRoute(Route route1,Route route2,int n1, int n
     output += derailAbsOneRoute     (route2,n2,plC, nl);
     output += brokenSignalsOneRoute (route1,n1,plC,sC,nl);
     output += brokenSignalsOneRoute (route2,n2,plC,sC,nl);
-
     output += "\n}";
     return output;
 }
@@ -440,35 +439,6 @@ string writerUMC::pointObjectUmcTwoRoute(Route &route1, Route &route2,const map<
     }
     return output;
 }
-//     for(int i = 0; i < (int)route1.getPath().size();i++){
-//         int current = route1.getPath().at(i);
-//         if(current < (int)route1.getPoints().size()){
-//             if(route.getPoints().at(current) != "INTER"){
-//                 string name = plC.find(current)->second;
-//                 output += (isdigit(name[0]) ? ("_"+name) :name) + ": Scambio (\n\t";
-//                 output += "prev => [" + plC.find(route1.getPath().at(i-1))->second;
-//                 for(int j = 0; j < route2.getPath().size();i++){
-//                     if(route2.getPath().at(j) == current)
-//                         output += ","+ plC.find(route2.getPath().at(j-1))->second + "],";
-//                     else
-//                         output += ",null],";
-//                 }
-//                 output += "\n\t";
-//                 output += "next => [" + plC.find(route1.getPath().at(i+1))->second;
-//                 for(int j = 0; j < route2.getPath().size();i++){
-//                     if(route2.getPath().at(j) == current)
-//                         output += ","+ plC.find(route2.getPath().at(j-1))->second + "],";
-//                     else
-//                         output += ",null],";
-//                 }
-//                 output += "\n\t";
-//                 string conf1 = (route1.getPoints().at(current) == "PLUS") ? "true" : "false";
-//                 string conf2 = (route2.getPoints().at(current) == "PLUS") ? "true" : "false";
-//                 output += "conf => ["+ conf1 +","+conf2+"],\n\t";
-//                 output += "treno => null\n);\n\n";
-//             }
-//         }
-//     }
 //     // Should I comment/decomment this??
 //     //Chain effect probably..
 //     if(output.empty()){
