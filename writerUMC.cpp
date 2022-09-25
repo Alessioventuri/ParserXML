@@ -439,6 +439,7 @@ string writerUMC::pointObjectUmcTwoRoute(Route &route1, Route &route2,const map<
     }
     return output;
 }
+
 //     // Should I comment/decomment this??
 //     //Chain effect probably..
 //     if(output.empty()){
