@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <fstream>
+#include <memory>
 
 #include <unordered_map>
 #include <string>
@@ -15,17 +16,28 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sstream>
+#include <memory>
 
 using namespace rapidxml;
 using namespace std;
 
-writer* writer::write(fileType type){
-    if(type == fileType::UMCFile) 
-        return new writerUMC();
-    if(type == fileType::SimpleFile)
-        return new writerSimple();
+unique_ptr<writer> writer::write(fileType type){
+    if(type == 0) 
+     //   return new writerUMC();
+        return unique_ptr<writerUMC>(new writerUMC);
+    if(type == 1)
+        return unique_ptr<writerSimple>(new writerSimple);
+    //    return new writerSimple();
     return NULL;
 }
+// writer* writer::write(fileType type){
+//     if(type == fileType::UMCFile) 
+//         return new writerUMC();
+//     if(type == fileType::SimpleFile)
+//         return new writerSimple();
+//     return NULL;
+// }
+
 int ParserXML::count = 0;
 
 int main(int argc,const char *argv[]){
@@ -68,11 +80,11 @@ int main(int argc,const char *argv[]){
 
     // }
 
-    ParserXML *pXML = new ParserXML(input);
+    auto pXML = make_unique<ParserXML>(input);
     int rc;
     std::stringstream ss;
     cout << outputFile << endl; 
-    outputFile = outputFile + (pXML)->SplitFilename(input) + "/";
+    outputFile = outputFile + pXML->SplitFilename(input) + "/";
     cout << outputFile << endl;
     ss << outputFile;
     rc = mkdir(ss.str().c_str(), 0777);
@@ -92,8 +104,10 @@ int main(int argc,const char *argv[]){
     // //Interlock il_comb = il.routeCombiner(nl,il);
     // obj->writeFile(outputFile,pXML,1);
     // }
-    writer* obj;
+    
     if(file == 0){
+        // auto obj = make_unique<writer::write>(UMCFile);
+        auto obj = writer::write(UMCFile);
         outputFile = outputFile  + "UMC/";
         cout << outputFile << endl;
         ss.str("");
@@ -112,7 +126,6 @@ int main(int argc,const char *argv[]){
         while(!correct){
             if(train == 1){
                 correct = true;
-                obj = writer::write(UMCFile);
                 int combined;
                 cout << "DO YOU WANT TO COMBINE ROUTE WITH LENGTH < 4 ?" <<endl;
                 cout << "PRESS:" << endl;
@@ -171,7 +184,6 @@ int main(int argc,const char *argv[]){
                 cout << "2 : NO " <<endl;
                 cin >> select;
                 if(select != 1){
-                    obj = writer::write(UMCFile);
                     outputFile = outputFile + "DoubleRoute/";
                     cout << outputFile << endl;
                     ss.str("");
@@ -190,9 +202,7 @@ int main(int argc,const char *argv[]){
                     do{
                         cout << "SELECT ROUTE 2 BETWEEN 0 AND " << size << " : "; 
                         cin >> route2;
-                    }while(route2 > size );
-                    
-                    obj = writer::write(UMCFile);
+                    }while(route2 > size && route2 != route1);
                     outputFile = outputFile + "DoubleRouteSelected/";
                     cout << outputFile << endl;
                     ss.str("");
@@ -210,7 +220,7 @@ int main(int argc,const char *argv[]){
         } 
     }
     if(file == 1){
-        obj = writer::write(SimpleFile);
+        auto obj = writer::write(SimpleFile);
         outputFile = outputFile  + "Simple/";
         cout << outputFile << endl;
         ss.str("");
@@ -220,6 +230,6 @@ int main(int argc,const char *argv[]){
         if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
         obj->writeFile(outputFile,pXML);
     }
-    delete obj;
+    
 }
 

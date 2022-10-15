@@ -3,12 +3,10 @@
 #include <string>
 #include <ctype.h>
 #include <algorithm>
-//FIXME: Find the error
-
 
 
 //void writerUMC::writeFile(string outputFile,NetworkLayout nl,Interlock il,map<int,string> pl,map<int,string> mb,int choose){
-void writerUMC::writeFile(const string outputFile, ParserXML *pXML,int train,int select,int route1, int route2){
+void writerUMC::writeFile(const string outputFile, unique_ptr<ParserXML> & pXML,int train,int select,int route1, int route2){
     // 1. create a file.txt for each route and add an extra routes that continue
     // 2. create a file.txt that contents all routes
     // 3. create a file.txt that contents some routes
@@ -109,7 +107,7 @@ void writerUMC::writeFile(const string outputFile, ParserXML *pXML,int train,int
     }
 }
 
-string writerUMC::defaultUMCsetupOneRoute(ParserXML *pXML, int firstRoute){
+string writerUMC::defaultUMCsetupOneRoute(unique_ptr<ParserXML>&pXML, int firstRoute){
     string s;
     s += "Objects:\n\n";
     // In UMC I can't insert object that I didn't declare. So:
@@ -123,7 +121,7 @@ string writerUMC::defaultUMCsetupOneRoute(ParserXML *pXML, int firstRoute){
     return s;
 }
 
-string writerUMC::defaultUMCsetupTwoRoute(ParserXML *pXML, int firstRoute, int secondRoute){
+string writerUMC::defaultUMCsetupTwoRoute(unique_ptr<ParserXML>&pXML, int firstRoute, int secondRoute){
     string s;
     s += "Objects:\n\n";
     s += signalObjectUmcOneRoute(pXML->getIl().getRoutes().at(firstRoute), pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
@@ -355,7 +353,7 @@ string writerUMC::trainArrived(Route route,int number,const map<int,string> plC)
     return output; 
     // "State : train.nodo == " + plC.find(route.getPath().back())->second + " -> train_arrivato\n\t";
 }
-string writerUMC::stringCombinerNl(ParserXML *pXML, int i, int j){
+string writerUMC::stringCombinerNl(unique_ptr<ParserXML>&pXML, int i, int j){
     string s;
     s += pXML->getNl().toStringAdaptive(pXML->getIl().getRoutes().at(i),pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
     s+= "\n\n";
@@ -363,7 +361,7 @@ string writerUMC::stringCombinerNl(ParserXML *pXML, int i, int j){
     return s;
 }
 
-string writerUMC::stringCombinerIl(ParserXML *pXML, int i, int j){
+string writerUMC::stringCombinerIl(unique_ptr<ParserXML>&pXML, int i, int j){
     string s;
     s += pXML->getIl().getRoutes().at(i).toString(pXML->getIl().getMaxPathLength(), pXML->getIl().getMaxChunk());
     s += "\n\n"; 
@@ -371,7 +369,7 @@ string writerUMC::stringCombinerIl(ParserXML *pXML, int i, int j){
     return s;
 }
 
-string writerUMC::stringCombinerId(ParserXML *pXML, int i, int j){
+string writerUMC::stringCombinerId(unique_ptr<ParserXML>&pXML, int i, int j){
     string s;
     s += to_string(pXML->getIl().getRoutes().at(i).getRouteId()) + "-";
     s += to_string(pXML->getIl().getRoutes().at(j).getRouteId());

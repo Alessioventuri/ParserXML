@@ -14,7 +14,6 @@ public:
     int getIntFromNeighborLinear(xml_node<> *neighbor);
     int getIntFromNeighborPoint(xml_node<> *neighbor);
     string SplitFilename(string str);
-    ~ParserXML();
     void searchPoints(xml_node<> *network_node);
     void searchLinears(xml_node<> *network_node);
     void searchSignals(xml_node<> *network_node);
