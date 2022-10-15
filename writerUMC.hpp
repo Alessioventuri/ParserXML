@@ -2,11 +2,13 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <memory>
+
 
 class writerUMC : public writer{
 private :
     // ONE TRAIN
-    string defaultUMCsetupOneRoute(ParserXML*,int);
+    string defaultUMCsetupOneRoute(unique_ptr<ParserXML>&,int);
 
     string pointObjectUmcOneRoute (Route, map<int,string>, NetworkLayout);
     string linearObjectUmcOneRoute(Route, int, map<int,string>, map<int,string>, NetworkLayout);
@@ -21,11 +23,11 @@ private :
     string trainArrived           (Route, int, map<int,string>);
 
     // TWO TRAINs
-    string defaultUMCsetupTwoRoute(ParserXML *, int);
-    string defaultUMCsetupTwoRoute(ParserXML *, int, int);
-    string stringCombinerNl       (ParserXML *, int, int);
-    string stringCombinerIl       (ParserXML *, int, int);
-    string stringCombinerId       (ParserXML *, int, int);
+    string defaultUMCsetupTwoRoute(unique_ptr<ParserXML>&, int);
+    string defaultUMCsetupTwoRoute(unique_ptr<ParserXML>&, int, int);
+    string stringCombinerNl       (unique_ptr<ParserXML>&, int, int);
+    string stringCombinerIl       (unique_ptr<ParserXML>&, int, int);
+    string stringCombinerId       (unique_ptr<ParserXML>&, int, int);
     string abstractionUmcTwoRoute (Route, Route , int, int, map<int,string>, map<int,string>, NetworkLayout );
     string pointObjectUmcTwoRoute (Route &, Route &, map<int,string> , NetworkLayout );
     string linearObjectUmcTwoRoute(Route, Route , int, map<int,string>, map<int,string>, NetworkLayout);
@@ -35,7 +37,7 @@ private :
 public:
     writerUMC(){};
     ~writerUMC() = default;
-    void writeFile                (string,ParserXML*,int,int,int,int) override;
+    void writeFile                (string,unique_ptr<ParserXML>&,int,int,int,int) override;
 
     friend class writer;
 
