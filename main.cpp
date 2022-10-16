@@ -34,44 +34,43 @@ unique_ptr<writer> writer::write(fileType type){
 int ParserXML::count = 0;
 
 int main(int argc,const char *argv[]){
-    // bool outputToFile = false;
-    // string input;
-    string input = "/Users/alessioventuri/Desktop/XML/lvr_7_right_rt.xml";
-    // string outputFile;
-    string outputFile = "/Users/alessioventuri/Desktop/Interlocking/";
-    // bool helpCalled = false;
+    string input;
+    // string input = "/Users/alessioventuri/Desktop/XML/lvr_7_right_rt.xml";
+    string outputFile;
+    // string outputFile = "/Users/alessioventuri/Desktop/Interlocking/";
+    bool helpCalled = false;
     
-    // for(int i = 0; i < argc; i++){
-    //     string stringInput = argv[i];
-    //     cout << stringInput << endl;
-    //     if(stringInput == ("-i")){
-    //         if(argc <= i+1 && !helpCalled) 
-    //             throw invalid_argument("There must be an input file");
-    //         input = argv[i+1];
-    //     }
-    //     if(stringInput == "-o"){
-    //         if(argc >i+1)
-    //             outputFile = argv[i+1];
-    //     }
-    //     if(stringInput == "-h"){
-    //         helpCalled = true;
-    //         break;
-    //     }
-    // }
-    // if(input == "" && !helpCalled)
-    //     throw invalid_argument("There must be an input file");
-    // if (helpCalled){
-    //     cout << "-i <inputfile> ";
-    //     cout << "Provides the input xml file that should be parsed" << endl;
-    //     cout << "-o <outputfile> ";
-    //     cout << "Provides the output text which the program should write the config data"<<endl;
-    //     cout << "This remove the printout in the terminal and is optional"<< endl;
-    //     cout << "-h ";
-    //     cout << "Shows this info" << endl;
+    for(int i = 0; i < argc; i++){
+        string stringInput = argv[i];
+        cout << stringInput << endl;
+        if(stringInput == ("-i")){
+            if(argc <= i+1 && !helpCalled) 
+                throw invalid_argument("There must be an input file");
+            input = argv[i+1];
+        }
+        if(stringInput == "-o"){
+            if(argc >i+1)
+                outputFile = argv[i+1];
+        }
+        if(stringInput == "-h"){
+            helpCalled = true;
+            break;
+        }
+    }
+    if(input == "" && !helpCalled)
+        throw invalid_argument("There must be an input file");
+    if (helpCalled){
+        cout << "-i <inputfile> ";
+        cout << "Provides the input xml file that should be parsed" << endl;
+        cout << "-o <outputfile> ";
+        cout << "Provides the output text which the program should write the config data"<<endl;
+        cout << "This remove the printout in the terminal and is optional"<< endl;
+        cout << "-h ";
+        cout << "Shows this info" << endl;
 
-    //     exit(0);
+        exit(0);
 
-    // }
+    }
 
     auto pXML = make_unique<ParserXML>(input);
     int rc;

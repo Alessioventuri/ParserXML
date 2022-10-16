@@ -241,12 +241,11 @@ void ParserXML::InterlockingProcess(xml_node<> *network_node){
 
 int ParserXML::getSecondRoute(int i){
     bool found = false;
-    int random;
     while(!found){
-        random = rand() % this->il.getRoutes().at(i).getConflict().size();
-        if(this->il.getRoutes().at(i).getConflict().at(random) == false){
+        secondRoute = rand() % this->il.getRoutes().at(i).getConflict().size();
+        if(this->il.getRoutes().at(i).getConflict().at(secondRoute) == false){
             found = true;
         }
     }
-    return random;
+    return secondRoute;
 }
