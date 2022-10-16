@@ -30,13 +30,6 @@ unique_ptr<writer> writer::write(fileType type){
     //    return new writerSimple();
     return NULL;
 }
-// writer* writer::write(fileType type){
-//     if(type == fileType::UMCFile) 
-//         return new writerUMC();
-//     if(type == fileType::SimpleFile)
-//         return new writerSimple();
-//     return NULL;
-// }
 
 int ParserXML::count = 0;
 
@@ -93,20 +86,8 @@ int main(int argc,const char *argv[]){
     cout << "WHICH TYPE DO YOU WANT" << endl;
     cout << "0 : UMCFile" << endl;
     cout << "1 : SimpleFile " << endl;
-    cin >> file;
-    // outputFile = outputFile + "SingleRoute/";
-    // writer* obj = writer::write(UMCFileOneRoute);
-    // cout << outputFile << endl;
-    // std::stringstream sss;
-    // sss <<  outputFile;
-    // int rc1 = mkdir(sss.str().c_str(), 0777);
-    // if(rc1 == 0) std::cout << "Created " << sss.str() << " success\n";
-    // //Interlock il_comb = il.routeCombiner(nl,il);
-    // obj->writeFile(outputFile,pXML,1);
-    // }
-    
+    cin >> file;  
     if(file == 0){
-        // auto obj = make_unique<writer::write>(UMCFile);
         auto obj = writer::write(UMCFile);
         outputFile = outputFile  + "UMC/";
         cout << outputFile << endl;
@@ -127,11 +108,13 @@ int main(int argc,const char *argv[]){
             if(train == 1){
                 correct = true;
                 int combined;
-                cout << "DO YOU WANT TO COMBINE ROUTE WITH LENGTH < 4 ?" <<endl;
-                cout << "PRESS:" << endl;
-                cout << "0 : YES" << endl;
-                cout << "1 : NO"  <<endl;
-                cin >> combined;
+                do{
+                    cout << "DO YOU WANT TO COMBINE ROUTE WITH LENGTH < 4 ?" <<endl;
+                    cout << "PRESS:" << endl;
+                    cout << "0 : YES" << endl;
+                    cout << "1 : NO"  <<endl;
+                    cin >> combined;
+                }while( combined != 0 && combined != 1);
                 if(combined == 0){
                     outputFile = outputFile + "CombinedSingleRoutes/";
                     cout << outputFile << endl;
@@ -140,9 +123,8 @@ int main(int argc,const char *argv[]){
                     ss <<  outputFile;
                     rc = mkdir(ss.str().c_str(), 0777);
                     if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
-                    Interlock il_comb = pXML->getIl().routeCombiner(pXML->getNl(),pXML->getIl());
+                    Interlock il_comb = pXML->getIl().routeCombiner(pXML->getIl());
                     pXML->setIl(il_comb);
-                    // cout << il_comb.toStringCombiner() << endl;
                     obj->writeFile(outputFile,pXML,train,select);
                 }
                 else{

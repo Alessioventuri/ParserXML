@@ -1,14 +1,16 @@
 #include "Interlock.hpp"
 #include "helpFunction.hpp"
 #include <iostream>
+#include <algorithm>
+
 using namespace std;
 
 	
-void Interlock::addRoute(Route &rou){
+void Interlock::addRoute(const Route &rou){
 	routes.push_back(rou);
 }
 
-void Interlock::deleteRoute(Route &rou,int i){
+void Interlock::deleteRoute(int i){
 	routes.erase(routes.begin()+i);
 }
 	
@@ -16,23 +18,30 @@ void Interlock::setMaxValues(const int &maxpath) {
 		maxPathLength = maxpath;
 
 }
+
+void Interlock::getCheckPointsSize(int i){
+	if (maxChunk < routes.at(i).getCheckPoints().size()){
+			maxChunk = routes.at(i).getCheckPoints().size();
+		}
+}
+
 void Interlock::generateMaxChunk(){
-		for (int i = 0; i < routes.size(); i++) {
-			if (maxChunk < routes.at(i).getCheckPoints().size()){
-				maxChunk = routes.at(i).getCheckPoints().size();
+		for(auto route : routes){
+			if (maxChunk < (int)route.getCheckPoints().size()){
+				maxChunk = (int)route.getCheckPoints().size();
 			}
 		}
 
 }
 string Interlock::toString() {
 	generateMaxChunk();
-	if (routes.size() == 0 && maxChunk == 0 && maxPathLength == 0) 
+	if (routes.empty() && maxChunk == 0 && maxPathLength == 0) 
 		return "";
 	string output = "value\n";
 	
 	output += "maxRoutes: Int = " + to_string(routes.size()) + ",\n" +
 			"maxPathLength: Int = " + to_string(maxPathLength) + ",\n" +
-			"maxChunks: Int = " + to_string((maxChunk-1)) + "\n";
+			"maxChunks: Int = " + to_string(maxChunk-1) + "\n";
 	output += "axiom\n";
 	for ( int i = 0 ; i < routes.size(); i++ )
 		output += routes.at(i).toString(maxPathLength, maxChunk) + ",\n";
@@ -50,8 +59,8 @@ string Interlock::toStringCombiner() {
 			"maxPathLength: Int = " + to_string(maxPathLength) + ",\n" +
 			"maxChunks: Int = " + to_string((maxChunk-1)) + "\n";
 	output += "axiom\n";
-	for ( int i = 0 ; i < routes.size(); i++ )
-		output += routes.at(i).toString(maxPathLength,maxChunk) + ",\n";
+	for(auto route : routes)
+		output += route.toString(maxPathLength,maxChunk) + ",\n";
 	if (output.length() > 0)
 		output = output.substr(0, output.length() - 2);
 	return output;
@@ -64,13 +73,14 @@ void Interlock::getRoutesDisplay()
 		<< (*it).getSrc() << " : source" << endl;
 	}
 }
-Interlock Interlock::routeCombiner(const NetworkLayout &nl, Interlock il){
+
+Interlock Interlock::routeCombiner(Interlock il) const{
     Interlock new_Il;
     int size = il.getRoutes().size();
     for(int i = 0; i < size;i++){
         if(il.getRoutes().at(i).getPath().size() < 4){
             for(int j = 0; j < size;j++){   
-                if(il.getRoutes().at(i).getPath().back() == il.getRoutes().at(j).getPath().at(0) and
+                if(il.getRoutes().at(i).getPath().back() == il.getRoutes().at(j).getPath().at(0) &&
                 il.getRoutes().at(i).getDirection() == il.getRoutes().at(j).getDirection()){
                     Route route1(il.getRoutes().at(i));
                     Route route2(il.getRoutes().at(j));

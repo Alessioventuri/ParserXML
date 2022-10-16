@@ -1,17 +1,10 @@
 #include "Route.hpp"
 
 
-Route::Route(int &id_,int src_, int dest_,string dire_, map<int,string> points_,const vector<int> path_,
- 	map<int,bool> signals_, vector<bool> overlap_, map<int,bool> conflict_, int maxPoints_){
-     	routeId = id_;
-		src = src_;
-		direction = dire_;
-		destination = dest_;
-		points = points_;
-		signals = signals_;
-		conflict = conflict_;
-		path = path_;
-		overlap = overlap_;
+Route::Route(int &id_,int src_, int dest_,const string &dire_, map<int,string> const &points_,const vector<int> &path_,
+ 	map<int,bool>const & signals_, vector<bool>const & overlap_, map<int,bool>const & conflict_, int maxPoints_) : 
+	routeId(id_), src(src_), direction(dire_), points(points_), signals(signals_), conflict(conflict_),path(path_),overlap(overlap_)
+	{
 		lastElem = path.at(path.size() -1);
 
 		for (int i = 0; i < (int)path.size(); i++) {
@@ -37,7 +30,8 @@ string Route::conflictString(){
 	string s;
 	set<int> keys;    
     for (auto it=conflict.begin(); it!=conflict.end(); ++it)
-        keys.insert(it->first);
+	for(auto conf : conflict)
+        keys.insert(conf.first);
 	for (int key : keys) { 
 		   s += "routeConflicts[" + to_string(routeId) + ", " + to_string(key) +
 		   		"] = " + (conflict.at(key) ? "true" : "false") + ",\n";
@@ -48,10 +42,9 @@ string Route::conflictString(){
 
 string Route::signalString(){
 	string s = "routeSignal[" + to_string(routeId) + "] = { ";
-	set<int> keys;    
-    for (auto it=signals.begin(); it!=signals.end(); ++it){
-        keys.insert(it->first);
-	}
+	set<int> keys;  
+	for(auto signal : signals)  
+        keys.insert(signal.first);
 	for (int key : keys) {
 		s += (signals.at(key) ? "true" : "false");
 		s += ", ";
@@ -65,8 +58,8 @@ string Route::pointString(){
 	string s = "routePoints[" + to_string(routeId) + "] = { ";
 	
 	set<int> keys;    
-    for (auto it=points.begin(); it!=points.end(); ++it)
-        keys.insert(it->first);
+	for(auto point : points)
+        keys.insert(point.first);
 	for (int key : keys) { 
 		s += points.at(key) + ", ";
 	}
@@ -91,11 +84,10 @@ string Route::overlapString() {
 
 string Route::checkPointString(int max) {
 	string s = "routeCheckPoints[" + to_string(routeId) + "] = { ";
-	
-	for ( int i = 0 ; i < (int)checkPoints.size(); i++ )
-		s += to_string(checkPoints.at(i)) + ", ";
-	if ((int)checkPoints.size() < max) {
-			for ( int i = 0 ; i < max - (int)checkPoints.size(); i++ )
+	for ( int i = 0 ; i < (int)path.size(); i++ )
+		s += to_string(path.at(i)) + ", ";
+	if ((int)path.size() < max) {
+			for ( int i = 0 ; i < max - (int)path.size(); i++ )
 				s +=  "-1, ";
 	}
 	s = s.substr(0, s.length() - 2);
