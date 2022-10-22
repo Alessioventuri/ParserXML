@@ -22,36 +22,35 @@ using namespace rapidxml;
 using namespace std;
 
 unique_ptr<writer> writer::write(fileType type){
-    if(type == 0) 
-     //   return new writerUMC();
-        return unique_ptr<writerUMC>(new writerUMC);
-    if(type == 1)
-        return unique_ptr<writerSimple>(new writerSimple);
-    //    return new writerSimple();
-    return NULL;
+    if(type == 0) {
+        auto uniqueP = make_unique<writerUMC>();
+        return uniqueP;
+    }
+    if(type == 1){
+        auto uniqueP = make_unique<writerSimple>();
+        return uniqueP;
+    }
+    return nullptr;
 }
 
 int ParserXML::count = 0;
 
 int main(int argc,const char *argv[]){
     string input;
-    // string input = "/Users/alessioventuri/Desktop/XML/lvr_7_right_rt.xml";
     string outputFile;
-    // string outputFile = "/Users/alessioventuri/Desktop/Interlocking/";
     bool helpCalled = false;
     
     for(int i = 0; i < argc; i++){
         string stringInput = argv[i];
         cout << stringInput << endl;
-        if(stringInput == ("-i")){
+        if(stringInput == "-i"){
             if(argc <= i+1 && !helpCalled) 
                 throw invalid_argument("There must be an input file");
             input = argv[i+1];
         }
-        if(stringInput == "-o"){
-            if(argc >i+1)
-                outputFile = argv[i+1];
-        }
+        if(stringInput == "-o" and argc > i+1)
+            outputFile = argv[i+1];
+        
         if(stringInput == "-h"){
             helpCalled = true;
             break;
@@ -91,8 +90,8 @@ int main(int argc,const char *argv[]){
         ss.str("");
         ss.clear();
         ss <<  outputFile;
-        int folder1 = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
-        if(folder1 == 0) std::cout << "Created " << ss.str() << " success\n";
+        folder = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
+        if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
         cout << "HOW MANY TRAIN DO YOU WANT?" <<endl;
         cout << "PRESS:" << endl;
         cout << " 1 : ONE" << endl;

@@ -53,7 +53,14 @@
         "string_view": "cpp",
         "system_error": "cpp",
         "initializer_list": "cpp",
-        "numbers": "cpp"
+        "numbers": "cpp",
+        "cassert": "cpp",
+        "cerrno": "cpp",
+        "climits": "cpp",
+        "ios": "cpp",
+        "locale": "cpp",
+        "queue": "cpp",
+        "ctgmath": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
