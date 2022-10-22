@@ -23,10 +23,10 @@ public:
     string toString();
     string toStringCombiner();
 
-    const int getMaxPathLength(){ return maxPathLength;}
-    const int getMaxChunk(){return maxChunk;}
+    int getMaxPathLength() const{ return maxPathLength;}
+    int getMaxChunk() const {return maxChunk;}
 
-    const vector<Route> getRoutes(){ return routes;}
+    vector<Route> getRoutes() const { return routes;}
     
     Interlock routeCombiner(Interlock il) const ;
 };
