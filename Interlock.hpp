@@ -1,8 +1,6 @@
 #include <vector>
 #include "NetworkLayout.hpp"
 
-using namespace std;
-
 class Interlock{
 private:
     vector<Route> routes;
@@ -11,7 +9,8 @@ private:
     	
 public:
     Interlock(){
-        maxPathLength=0,maxChunk=0;
+        maxPathLength=0;
+        maxChunk=0;
     };
     void generateMaxChunk();
     void addRoute(const Route &rou);
@@ -24,10 +23,10 @@ public:
     string toString();
     string toStringCombiner();
 
-    int getMaxPathLength(){ return maxPathLength;}
-    int getMaxChunk(){return maxChunk;}
+    const int getMaxPathLength(){ return maxPathLength;}
+    const int getMaxChunk(){return maxChunk;}
 
-    vector<Route> getRoutes(){ return routes;}
+    const vector<Route> getRoutes(){ return routes;}
     
     Interlock routeCombiner(Interlock il) const ;
 };

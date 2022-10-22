@@ -76,7 +76,7 @@ void Interlock::getRoutesDisplay()
 
 Interlock Interlock::routeCombiner(Interlock il) const{
     Interlock new_Il;
-    int size = (int)il.getRoutes().size();
+    auto size = (int)il.getRoutes().size();
     for(int i = 0; i < size;i++){
         if(il.getRoutes().at(i).getPath().size() < 4){
             for(int j = 0; j < size;j++){   
