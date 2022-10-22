@@ -73,14 +73,12 @@ int main(int argc,const char *argv[]){
     }
 
     auto pXML = make_unique<ParserXML>(input);
-    int rc;
+    int folder;
     std::stringstream ss;
-    cout << outputFile << endl; 
     outputFile = outputFile + pXML->SplitFilename(input) + "/";
-    cout << outputFile << endl;
     ss << outputFile;
-    rc = mkdir(ss.str().c_str(), 0777);
-    if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
+    folder = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
+    if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
     int file;
     cout << "WHICH TYPE DO YOU WANT" << endl;
     cout << "0 : UMCFile" << endl;
@@ -93,8 +91,8 @@ int main(int argc,const char *argv[]){
         ss.str("");
         ss.clear();
         ss <<  outputFile;
-        int rc1 = mkdir(ss.str().c_str(), 0777);
-        if(rc1 == 0) std::cout << "Created " << ss.str() << " success\n";
+        int folder1 = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
+        if(folder1 == 0) std::cout << "Created " << ss.str() << " success\n";
         cout << "HOW MANY TRAIN DO YOU WANT?" <<endl;
         cout << "PRESS:" << endl;
         cout << " 1 : ONE" << endl;
@@ -120,8 +118,8 @@ int main(int argc,const char *argv[]){
                     ss.str("");
                     ss.clear();
                     ss <<  outputFile;
-                    rc = mkdir(ss.str().c_str(), 0777);
-                    if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
+                    folder = mkdir(ss.str().c_str(),S_IRWXU | S_IRWXG);
+                    if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
                     Interlock il_comb = pXML->getIl().routeCombiner(pXML->getIl());
                     pXML->setIl(il_comb);
                     obj->writeFile(outputFile,pXML,train,select);
@@ -137,8 +135,8 @@ int main(int argc,const char *argv[]){
                         ss.str("");
                         ss.clear();
                         ss <<  outputFile;
-                        rc = mkdir(ss.str().c_str(), 0777);
-                        if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
+                        folder = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
+                        if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
                         obj->writeFile(outputFile,pXML,train,select);
                     }else{
                         int route1;
@@ -152,8 +150,8 @@ int main(int argc,const char *argv[]){
                         ss.str("");
                         ss.clear();
                         ss << outputFile;
-                        rc = mkdir(ss.str().c_str(), 0777);
-                        if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
+                        folder = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
+                        if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
                         obj->writeFile(outputFile,pXML,train,select,route1);
                         
                     }
@@ -170,8 +168,8 @@ int main(int argc,const char *argv[]){
                     ss.str("");
                     ss.clear(); 
                     ss << outputFile;
-                    rc = mkdir(ss.str().c_str(), 0777);
-                    if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
+                    folder = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
+                    if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
                     obj->writeFile(outputFile,pXML,train,select);
                 }else{
                     int route1,route2;
@@ -188,9 +186,9 @@ int main(int argc,const char *argv[]){
                     cout << outputFile << endl;
                     ss.str("");
                     ss.clear();
-                            ss <<  outputFile;
-                    rc = mkdir(ss.str().c_str(), 0777);
-                    if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
+                    ss <<  outputFile;
+                    folder = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
+                    if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
                     obj->writeFile(outputFile,pXML,train,select,route1,route2);
                 }
             }
@@ -207,8 +205,8 @@ int main(int argc,const char *argv[]){
         ss.str("");
         ss.clear();
         ss <<  outputFile;
-        rc = mkdir(ss.str().c_str(), 0777);
-        if(rc == 0) std::cout << "Created " << ss.str() << " success\n";
+        folder = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
+        if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
         obj->writeFile(outputFile,pXML);
     }
     
