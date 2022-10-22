@@ -21,7 +21,7 @@ void Interlock::setMaxValues(const int &maxpath) {
 
 void Interlock::getCheckPointsSize(int i){
 	if (maxChunk < routes.at(i).getCheckPoints().size()){
-			maxChunk = routes.at(i).getCheckPoints().size();
+			maxChunk = (int)routes.at(i).getCheckPoints().size();
 		}
 }
 
@@ -51,13 +51,13 @@ string Interlock::toString() {
 }
 string Interlock::toStringCombiner() {
 	generateMaxChunk();
-	if (routes.size() == 0 && maxChunk == 0 && maxPathLength == 0) 
+	if (routes.empty() && maxChunk == 0 && maxPathLength == 0) 
 		return "";
 	string output = "value\n";
 	
 	output += "maxRoutes: Int = " + to_string(routes.size()) + ",\n" +
 			"maxPathLength: Int = " + to_string(maxPathLength) + ",\n" +
-			"maxChunks: Int = " + to_string((maxChunk-1)) + "\n";
+			"maxChunks: Int = " + to_string(maxChunk-1) + "\n";
 	output += "axiom\n";
 	for(auto route : routes)
 		output += route.toString(maxPathLength,maxChunk) + ",\n";
@@ -76,7 +76,7 @@ void Interlock::getRoutesDisplay()
 
 Interlock Interlock::routeCombiner(Interlock il) const{
     Interlock new_Il;
-    int size = il.getRoutes().size();
+    int size = (int)il.getRoutes().size();
     for(int i = 0; i < size;i++){
         if(il.getRoutes().at(i).getPath().size() < 4){
             for(int j = 0; j < size;j++){   
@@ -94,7 +94,7 @@ Interlock Interlock::routeCombiner(Interlock il) const{
                             signalsCombiner(route1.getSignals(),route2.getSignals()),
                             overlapCombiner(route1.getOverlap(),route2.getOverlap()),
                             conflictCombiner(route1.getConflict(),route2.getConflict()),
-                            route1.getPoints().size());
+                            (int)route1.getPoints().size());
                     new_Il.addRoute(routeCombined);
                 }
             }   

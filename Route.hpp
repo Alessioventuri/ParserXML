@@ -31,7 +31,7 @@ private:
     void generateCheckPoints(int maxPoints,vector<int> &path);
 
 public:
-    Route(int &id, int src, int dest,const string &direction, map<int,string> const &points, vector<int>const & path,
+    Route(const int &id, int src, int dest,const string &direction, map<int,string> const &points, vector<int>const & path,
         map<int,bool> const &signals, vector<bool>const & overlap, map<int,bool> const &conflict, int maxPoints);
     string toString(int maxpath, int maxChunk);
     string toString(int maxpath);
@@ -45,4 +45,5 @@ public:
     map<int,string> getPoints(){return points;}
     vector<int> getPath(){return path;}
     map<int,bool> getSignals(){return signals;}
+    string createString(vector<int> a,int max);
 };

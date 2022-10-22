@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <random>
 using namespace std;
 
 int ParserXML::getIntFromNeighborLinear(xml_node<> *neighbor){
@@ -239,11 +240,14 @@ void ParserXML::InterlockingProcess(xml_node<> *network_node){
     }
 }
 
-int ParserXML::getSecondRoute(int i){
+int ParserXML::getSecondRoute(int index){
     bool found = false;
+    std::uniform_int_distribution<int> distribution(0, (int)this->il.getRoutes().at(index).getConflict().size()-1);
+    std::random_device rd;
+    std::mt19937 engine(rd());
     while(!found){
-        secondRoute = rand() % this->il.getRoutes().at(i).getConflict().size();
-        if(this->il.getRoutes().at(i).getConflict().at(secondRoute) == false){
+        secondRoute = distribution(engine);
+        if(this->il.getRoutes().at(index).getConflict().at(secondRoute) == false && index != secondRoute){
             found = true;
         }
     }
