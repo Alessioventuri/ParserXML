@@ -1,9 +1,9 @@
 #include "Route.hpp"
 
 
-Route::Route(int &id_,int src_, int dest_,const string &dire_, map<int,string> const &points_,const vector<int> &path_,
+Route::Route(const int &id_,int src_, int dest_,const string &dire_, map<int,string> const &points_,const vector<int> &path_,
  	map<int,bool>const & signals_, vector<bool>const & overlap_, map<int,bool>const & conflict_, int maxPoints_) : 
-	routeId(id_), src(src_), direction(dire_), points(points_), signals(signals_), conflict(conflict_),path(path_),overlap(overlap_)
+	routeId(id_), src(src_), direction(dire_), points(points_),path(path_), signals(signals_),overlap(overlap_),conflict(conflict_)
 	{
 		lastElem = path.at(path.size() -1);
 
@@ -16,11 +16,11 @@ Route::Route(int &id_,int src_, int dest_,const string &dire_, map<int,string> c
 		generateCheckPoints(maxPoints_,path);
 }
 
-void Route::generateCheckPoints(int maxPoints,vector<int> &path){
-    checkPoints.push_back(path.at(0));
-	for (int i = 1; i < (int)path.size(); i++) {
-        if (path.at(i) < maxPoints)
-            checkPoints.push_back(path.at(i));
+void Route::generateCheckPoints(int maxPoints,vector<int> &paths){
+    checkPoints.push_back(paths.at(0));
+	for (int i = 1; i < (int)paths.size(); i++) {
+        if (paths.at(i) < maxPoints)
+            checkPoints.push_back(paths.at(i));
     }
 	checkPoints.push_back(lastElem);
 	
@@ -29,9 +29,8 @@ void Route::generateCheckPoints(int maxPoints,vector<int> &path){
 string Route::conflictString(){
 	string s;
 	set<int> keys;    
-    for (auto it=conflict.begin(); it!=conflict.end(); ++it)
-	for(auto conf : conflict)
-        keys.insert(conf.first);
+	for(const auto& [key1, value] : conflict)
+        keys.insert(key1);
 	for (int key : keys) { 
 		   s += "routeConflicts[" + to_string(routeId) + ", " + to_string(key) +
 		   		"] = " + (conflict.at(key) ? "true" : "false") + ",\n";
@@ -43,8 +42,8 @@ string Route::conflictString(){
 string Route::signalString(){
 	string s = "routeSignal[" + to_string(routeId) + "] = { ";
 	set<int> keys;  
-	for(auto signal : signals)  
-        keys.insert(signal.first);
+	for(const auto& [key, value] :signals)  
+        keys.insert(key);
 	for (int key : keys) {
 		s += (signals.at(key) ? "true" : "false");
 		s += ", ";
@@ -71,11 +70,10 @@ string Route::pointString(){
 	
 string Route::overlapString() {
 	string s = "routeOverlap[" + to_string(routeId) + "] = { ";
-	for ( int i = 0 ; i < (int)overlap.size(); i++ ){
-		s += (overlap.at(i) ? "true" : "false");
+	for(bool over : overlap){
+		s += over ? "true" : "false";
 		s += ", ";
 	}
-	
 	s = s.substr(0, s.length() - 2);
 	s += " }";
 			
@@ -84,28 +82,14 @@ string Route::overlapString() {
 
 string Route::checkPointString(int max) {
 	string s = "routeCheckPoints[" + to_string(routeId) + "] = { ";
-	for ( int i = 0 ; i < (int)path.size(); i++ )
-		s += to_string(path.at(i)) + ", ";
-	if ((int)path.size() < max) {
-			for ( int i = 0 ; i < max - (int)path.size(); i++ )
-				s +=  "-1, ";
-	}
-	s = s.substr(0, s.length() - 2);
-	s += " }";		
+	s += createString(path,max);
 	return s;
 }
 
 
 string Route::pathString(int max) {
 	string s = "routePath[" + to_string(routeId) + "] = { ";	
-	for ( int i = 0 ; i < (int)path.size(); i++ )
-		s += to_string(path.at(i)) + ", ";
-	if ((int)path.size() < max) {
-			for ( int i = 0 ; i < max - (int)path.size(); i++ )
-				s +=  "-1, ";
-	}
-	s = s.substr(0, s.length() - 2);
-	s += " }";			
+	s += createString(path,max);	
 	return s;
 }
 
@@ -121,16 +105,32 @@ string Route::toString(int maxpath, int maxChunk){
 			+ ",\nrouteLastElem[" + to_string(routeId) +"] = " + to_string(lastElem) 
 			+ ",\n" + checkPointString(maxChunk); 
 }
-string Route::toString(int maxpath){
-	return "routeSrc[" + to_string(routeId) + "] = " + to_string(src)
-			+ "\nrouteDirection[" + to_string(routeId) + "] = " + getDirection() 
-			+ ",\nrouteDest[" + to_string(routeId) + "] = " + to_string(destination) 
-			+ (!points.empty() ? ",\n" + pointString() : "")
-			+ ",\n" + pathString(maxpath)
-			+ ",\n" + signalString()
-			+ ",\n" + overlapString()
-			+ ",\n" + conflictString()
-			+ ",\nrouteLastElem[" + to_string(routeId) +"] = " + to_string(lastElem) 
-			+ ",\n";
+// string Route::toString(int maxpath){
+// 	return "routeSrc[" + to_string(routeId) + "] = " + to_string(src)
+// 			+ "\nrouteDirection[" + to_string(routeId) + "] = " + getDirection() 
+// 			+ ",\nrouteDest[" + to_string(routeId) + "] = " + to_string(destination) 
+// 			+ (!points.empty() ? ",\n" + pointString() : "")
+// 			+ ",\n" + pathString(maxpath)
+// 			+ ",\n" + signalString()
+// 			+ ",\n" + overlapString()
+// 			+ ",\n" + conflictString()
+// 			+ ",\nrouteLastElem[" + to_string(routeId) +"] = " + to_string(lastElem) 
+// 			+ ",\n";
+// }
+
+string Route::createString(vector<int> a,int max){
+	int i = 0;
+	string s;
+	for(auto it = a.begin(); it != a.end();++it){
+		s += to_string(a.at(i)) + ", ";
+		i++;
+	}
+	if ((int)a.size() < max) {
+		for ( int j = 0 ; j < max - (int)a.size(); j++ )
+			s +=  "-1, ";
+	}
+	s = s.substr(0, s.length() - 2);
+	s += " }";
+	return s;
 }
 
