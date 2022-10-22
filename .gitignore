@@ -3,6 +3,7 @@
 !*.*
 !.github/
 
+
 *.scannerwork
 *.dSYM
 .DS_Store
