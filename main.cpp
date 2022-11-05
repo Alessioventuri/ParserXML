@@ -48,7 +48,7 @@ int main(int argc,const char *argv[]){
                 throw invalid_argument("There must be an input file");
             input = argv[i+1];
         }
-        if(stringInput == "-o" and argc > i+1)
+        if(stringInput == "-o" && argc > i+1)
             outputFile = argv[i+1];
         
         if(stringInput == "-h"){
@@ -140,11 +140,11 @@ int main(int argc,const char *argv[]){
                             obj->writeFile(outputFile,pXML,train,select);
                         }else{
                             int route1;
-                            int size = pXML->getIl().getRoutes().size();
+                            int size = (int)pXML->getIl().getRoutes().size();
                             do{
                                 cout << "SELECT ROUTE 1 BETWEEN 0 AND " << size << " : "; 
                                 cin >> route1;
-                            }while(route1 < 0 and route1 >= size );
+                            }while(route1 < 0 && route1 >= size );
                             outputFile = outputFile + "singleRouteSelected/";
                             cout << outputFile << endl;
                             ss.str("");
@@ -173,8 +173,9 @@ int main(int argc,const char *argv[]){
                         if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
                         obj->writeFile(outputFile,pXML,train,select);
                     }else{
-                        int route1,route2;
-                        int size = pXML->getIl().getRoutes().size();
+                        int route1;
+                        int route2;
+                        int size = (int)pXML->getIl().getRoutes().size();
                         do{
                             cout << "SELECT ROUTE 1 BETWEEN 0 AND " << size << " : "; 
                             cin >> route1;
