@@ -6,7 +6,7 @@
 using namespace std;
 
 	
-void Interlock::addRoute(Route &rou){
+void Interlock::addRoute(const Route &rou){
 	routes.push_back(rou);
 }
 
@@ -66,15 +66,7 @@ string Interlock::toStringCombiner() {
 	return output;
 }
 
-void Interlock::getRoutesDisplay()
-{
-	for(auto it = routes.begin(); it!=routes.end();++it){
-		cout << (*it).getDest() << " destination"
-		<< (*it).getSrc() << " : source" << endl;
-	}
-}
-
-Interlock Interlock::routeCombiner(Interlock il){
+Interlock Interlock::routeCombiner(Interlock il) const{
     Interlock new_Il;
     auto size = (int)il.getRoutes().size();
     for(int i = 0; i < size;i++){

@@ -19,7 +19,7 @@ private:
     string linearStringAdaptive(Route route,map<int,string>);
     string signalStringAdaptive(Route route,map<int,string>,map<int,string>);
 public:
-    NetworkLayout(){};
+    NetworkLayout() = default;
     vector<Point> getPoints(){return points;}
 	vector<Linear> getLinears(){return linears;}
 	vector<Signal> getSignals(){return signals;}
