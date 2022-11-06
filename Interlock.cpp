@@ -6,7 +6,7 @@
 using namespace std;
 
 	
-void Interlock::addRoute(const Route &rou){
+void Interlock::addRoute(Route &rou){
 	routes.push_back(rou);
 }
 
@@ -74,14 +74,13 @@ void Interlock::getRoutesDisplay()
 	}
 }
 
-Interlock Interlock::routeCombiner(Interlock il) const{
+Interlock Interlock::routeCombiner(Interlock il){
     Interlock new_Il;
     auto size = (int)il.getRoutes().size();
     for(int i = 0; i < size;i++){
         if(il.getRoutes().at(i).getPath().size() < 4){
-            for(int j = 0; j < size;j++){   
-                if(il.getRoutes().at(i).getPath().back() == il.getRoutes().at(j).getPath().at(0) &&
-                il.getRoutes().at(i).getDirection() == il.getRoutes().at(j).getDirection()){
+            for(int j = 0; j < size;j++){ 
+                if(il.getRoutes().at(i).getDest() == il.getRoutes().at(j).getSrc() && il.getRoutes().at(i).getDirection() == il.getRoutes().at(j).getDirection()){
                     Route route1(il.getRoutes().at(i));
                     Route route2(il.getRoutes().at(j));
                     int id = route2.getRouteId()*100+route1.getRouteId();

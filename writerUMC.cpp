@@ -11,7 +11,7 @@ void writerUMC::writeFile(const string outputFile, unique_ptr<ParserXML> & pXML,
     // 2. create a file.txt that contents all routes
     // 3. create a file.txt that contents some routes
     pXML->getIl().generateMaxChunk();
-    if(select != 1){
+    if(select == 1){
         for ( int firstRoute = 0 ; firstRoute < (int)pXML->getIl().getRoutes().size(); firstRoute++ ){
             if(train == 1){
                 if(outputFile != ""){ 
