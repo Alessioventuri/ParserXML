@@ -13,7 +13,7 @@ public:
         maxChunk=0;
     };
     void generateMaxChunk();
-    void addRoute(const Route &rou);
+    void addRoute(Route &rou);
     void deleteRoute(int i);
     void setMaxValues(const int &maxpath);
     void getRoutesDisplay();
@@ -23,10 +23,10 @@ public:
     string toString();
     string toStringCombiner();
 
-    int getMaxPathLength() const{ return maxPathLength;}
-    int getMaxChunk() const {return maxChunk;}
+    int getMaxPathLength(){ return maxPathLength;}
+    int getMaxChunk(){return maxChunk;}
 
-    vector<Route> getRoutes() const { return routes;}
+    vector<Route> getRoutes(){ return routes;}
     
-    Interlock routeCombiner(Interlock il) const ;
+    Interlock routeCombiner(Interlock il);
 };

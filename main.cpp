@@ -33,6 +33,35 @@ unique_ptr<writer> writer::write(fileType type){
     return nullptr;
 }
 
+int choose(const string &s,const string& s1,const string& s2){
+    int combined;
+    do{
+        cout << s << endl;
+        cout << "0 : " << s1 << endl;
+        cout << "1 : " << s2 << endl;
+        cin >> combined;
+    }while( combined != 0 && combined != 1);
+    return combined;
+}
+
+void createFolder(const string &s1,string &outputFile, std::stringstream &ss){
+    try {
+        outputFile = outputFile + s1;
+        cout << outputFile << endl;
+        outputFile +=  + "/";
+        ss.str("");
+        ss.clear();
+        ss <<  outputFile;
+        int folder = mkdir(ss.str().c_str(),S_IRWXU | S_IRWXG);
+        if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
+        }
+    catch (const std::exception &e){
+        
+        std::cerr << e.what();
+    }
+
+}
+
 int ParserXML::count = 0;
 
 int main(int argc,const char *argv[]){
@@ -42,7 +71,6 @@ int main(int argc,const char *argv[]){
     
     for(int i = 0; i < argc; i++){
         string stringInput = argv[i];
-        cout << stringInput << endl;
         if(stringInput == "-i"){
             if(argc <= i+1 && !helpCalled) 
                 throw invalid_argument("There must be an input file");
@@ -72,71 +100,30 @@ int main(int argc,const char *argv[]){
     }
 
     auto pXML = make_unique<ParserXML>(input);
-    int folder;
     std::stringstream ss;
-    outputFile = outputFile + pXML->SplitFilename(input) + "/";
-    ss << outputFile;
-    folder = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
-    if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
-    int file;
-    cout << "WHICH TYPE DO YOU WANT" << endl;
-    cout << "0 : UMCFile" << endl;
-    cout << "1 : SimpleFile " << endl;
-    cin >> file;  
+    createFolder(pXML->SplitFilename(input),outputFile,ss);
+    int file = choose("WHICH TYPE DO YOU WANT", "UMCFile", "SimpleFile");
     if(file == 0){
         auto obj = writer::write(UMCFile);
-        outputFile = outputFile  + "UMC/";
-        cout << outputFile << endl;
-        ss.str("");
-        ss.clear();
-        ss <<  outputFile;
-        folder = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
-        if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
-        cout << "HOW MANY TRAIN DO YOU WANT?" <<endl;
-        cout << "PRESS:" << endl;
-        cout << " 1 : ONE" << endl;
-        cout << " 2 : TWO"  <<endl;
-        int train;
+        createFolder("UMC",outputFile,ss);
+        int train = choose("HOW MANY TRAIN DO YOU WANT?", "ONE", "TWO") + 1; // TRAIN CONFIG CAN NOT 0 //
         bool correct = false;
-        int select;
-        cin >> train;
+        int select = 0;
         while(!correct){
             switch(train){
                 case 1:{
                     correct = true;
-                    int combined;
-                    do{
-                        cout << "DO YOU WANT TO COMBINE ROUTE WITH LENGTH < 4 ?" <<endl;
-                        cout << "PRESS:" << endl;
-                        cout << "0 : YES" << endl;
-                        cout << "1 : NO"  <<endl;
-                        cin >> combined;
-                    }while( combined != 0 && combined != 1);
+                    auto combined = choose("DO YOU WANT TO COMBINE ROUTE WITH LENGTH < 4 ?", "YES", "NO");
                     if(combined == 0){
-                        outputFile = outputFile + "CombinedSingleRoutes/";
-                        cout << outputFile << endl;
-                        ss.str("");
-                        ss.clear();
-                        ss <<  outputFile;
-                        folder = mkdir(ss.str().c_str(),S_IRWXU | S_IRWXG);
-                        if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
+                        createFolder("SingleRoutesCombined",outputFile, ss);
                         Interlock il_comb = pXML->getIl().routeCombiner(pXML->getIl());
-                        pXML->setIl(il_comb);
-                        obj->writeFile(outputFile,pXML,train,select);
+                        pXML->setIl(il_comb);  
+                        obj->writeFile(outputFile,pXML,train,1);
                     }
                     else{
-                        cout << "DO YOU WANT SELECT THE ROUTE?" <<endl;
-                        cout << "1 : YES" <<endl;
-                        cout << "2 : NO " <<endl;
-                        cin >> select;
-                        if(select != 1){
-                            outputFile = outputFile + "singleRoute/";
-                            cout << outputFile << endl;
-                            ss.str("");
-                            ss.clear();
-                            ss <<  outputFile;
-                            folder = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
-                            if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
+                        select = choose("DO YOU WANT SELECT ONE SPECIFIC ROUTE?","YES", "NO");
+                        if(select != 0 ){
+                            createFolder("SingleRoute",outputFile,ss);
                             obj->writeFile(outputFile,pXML,train,select);
                         }else{
                             int route1;
@@ -145,37 +132,21 @@ int main(int argc,const char *argv[]){
                                 cout << "SELECT ROUTE 1 BETWEEN 0 AND " << size << " : "; 
                                 cin >> route1;
                             }while(route1 < 0 && route1 >= size );
-                            outputFile = outputFile + "singleRouteSelected/";
-                            cout << outputFile << endl;
-                            ss.str("");
-                            ss.clear();
-                            ss << outputFile;
-                            folder = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
-                            if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
-                            obj->writeFile(outputFile,pXML,train,select,route1);
-                            
+                            createFolder("SingleRouteSelected",outputFile,ss);
+                            obj->writeFile(outputFile,pXML,train,select,route1); 
                         }
                     }
                 }break;
                 case 2: {
                     correct = true;
-                    cout << "DO YOU WANT SELECT THE ROUTES?" <<endl;
-                    cout << "1 : YES" <<endl;
-                    cout << "2 : NO " <<endl;
-                    cin >> select;
-                    if(select != 1){
-                        outputFile = outputFile + "DoubleRoute/";
-                        cout << outputFile << endl;
-                        ss.str("");
-                        ss.clear(); 
-                        ss << outputFile;
-                        folder = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
-                        if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
+                    select = choose("DO YOU WANT SELECT THE TWO ROUTES?", "YES", "NO");
+                    if(select != 0){
+                        createFolder("DoubleRoute",outputFile, ss);
                         obj->writeFile(outputFile,pXML,train,select);
                     }else{
                         int route1;
                         int route2;
-                        int size = (int)pXML->getIl().getRoutes().size();
+                        auto size = (int)pXML->getIl().getRoutes().size();
                         do{
                             cout << "SELECT ROUTE 1 BETWEEN 0 AND " << size << " : "; 
                             cin >> route1;
@@ -184,13 +155,7 @@ int main(int argc,const char *argv[]){
                             cout << "SELECT ROUTE 2 BETWEEN 0 AND " << size << " : "; 
                             cin >> route2;
                         }while(route2 > size && route2 != route1);
-                        outputFile = outputFile + "DoubleRouteSelected/";
-                        cout << outputFile << endl;
-                        ss.str("");
-                        ss.clear();
-                        ss <<  outputFile;
-                        folder = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
-                        if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
+                        createFolder("DoubleRouteSelected",outputFile,ss);
                         obj->writeFile(outputFile,pXML,train,select,route1,route2);
                     }
                 }break;
@@ -202,13 +167,7 @@ int main(int argc,const char *argv[]){
     }
     if(file == 1){
         auto obj = writer::write(SimpleFile);
-        outputFile = outputFile  + "Simple/";
-        cout << outputFile << endl;
-        ss.str("");
-        ss.clear();
-        ss <<  outputFile;
-        folder = mkdir(ss.str().c_str(), S_IRWXU | S_IRWXG);
-        if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
+        createFolder("Simple",outputFile,ss);
         obj->writeFile(outputFile,pXML);
     }
     
