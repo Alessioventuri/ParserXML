@@ -1,7 +1,6 @@
 #pragma once
 #include "Section.hpp"
 #include <string>
-using namespace std;
 
 class Linear :  public Section {
 	
@@ -15,8 +14,8 @@ public:
 		downNeighbour = down;
         
 	}
-	string toString(map<int,string>);
-    string toString();
-	int getUpNeig(){return upNeighbour;}
+	std::string toString(std::map<int,std::string>);
+    std::string toString();
+	int getUpNeig() {return upNeighbour;}
 	int getDownNeig(){return downNeighbour;}
 };

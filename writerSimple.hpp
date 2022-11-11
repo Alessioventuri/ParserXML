@@ -9,9 +9,8 @@ using namespace std;
 class writerSimple : public writer
 {
 public:
-    writerSimple(){};
+    writerSimple()= default;
     ~writerSimple() = default;
-   // virtual void writeFile(string,NetworkLayout,Interlock,map<int,string>,map<int,string>,int) override;
     void writeFile(string, unique_ptr<ParserXML>&,int ,int ,int , int) override;
     friend class writer;
 };

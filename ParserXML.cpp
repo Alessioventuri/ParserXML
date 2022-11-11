@@ -182,15 +182,13 @@ void ParserXML::InterlockingProcess(xml_node<> *network_node){
         path.push_back(nl.getSignals().at(this->id.find(route->first_attribute("source")->value())->second).getSectionId());
         int tempPath = 1;
         for(xml_node<> *icondition = route->first_node("condition");icondition ;icondition= icondition->next_sibling()){  
-            if((string)icondition->name() == "condition"){
-                if((string)icondition->first_attribute("type")->value() == "point"){
-                    auto stringpoint = (string)icondition->first_attribute("val")->value();
-                    for(int x = 0; x < (int)stringpoint.length();x++){
-                        stringpoint[x] = stringpoint[x] - 32;
-                    }
-                    points.at(this->id.find(icondition->first_attribute("ref")->value())->second) = stringpoint;
+            if((string)icondition->name() == "condition" && (string)icondition->first_attribute("type")->value() == "point"){
+                auto stringpoint = (string)icondition->first_attribute("val")->value();
+                for(int x = 0; x < (int)stringpoint.length();x++){
+                    stringpoint[x] = stringpoint[x] - 32;
                 }
-                else if((string)icondition->first_attribute("type")->value() == "signal"){
+                points.at(this->id.find(icondition->first_attribute("ref")->value())->second) = stringpoint;
+                if((string)icondition->first_attribute("type")->value() == "signal"){
                     signals.at(this->id.find(icondition->first_attribute("ref")->value())->second) = true;
                 }
                 else if((string)icondition->first_attribute("type")->value() == "trackvacancy"){
@@ -204,7 +202,7 @@ void ParserXML::InterlockingProcess(xml_node<> *network_node){
         }
         if(tempPath > maxPathLenght)
             maxPathLenght = tempPath;
-        int size = (int)this->nl.getPoints().size();
+        auto size = (int)this->nl.getPoints().size();
         Route rou(this->id.find(route->first_attribute("id")->value())->second,
             this->id.find(route->first_attribute("source")->value())->second,
             this->id.find(route->first_attribute("destination")->value())->second,
