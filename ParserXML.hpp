@@ -11,20 +11,20 @@ class ParserXML{
 public:
     // cppcheck-suppress  noExplicitConstructor 
     ParserXML(string input);    
-    int getIntFromNeighborLinear(xml_node<> *neighbor);
-    int getIntFromNeighborPoint(xml_node<> *neighbor);
-    string SplitFilename(string str);
+    int getIntFromNeighborLinear(xml_node<> *neighbor) const;
+    int getIntFromNeighborPoint(xml_node<> *neighbor) const;
+    string SplitFilename(string str) const;
     void searchPoints(xml_node<> *network_node);
     void searchLinears(xml_node<> *network_node);
     void searchSignals(xml_node<> *network_node);
     void NetworkLayoutProcess(xml_node<> *network_node);
     void InterlockingProcess(xml_node<> *network_node);
-    string getOutput(){ return output;}
-    Interlock getIl(){return this->il;};
-    NetworkLayout getNl(){return this->nl;}
-    map<int, string> getPlCorrispondence(){return this->plCorrispondence;}
-    map<int, string> getMbCorrispondence(){return this->mbCorrispondence;}
-    unordered_map<string,int> getIdMap(){return this->id;}
+    string getOutput() const { return output;}
+    Interlock getIl() const {return this->il;};
+    NetworkLayout getNl() const {return this->nl;}
+    map<int, string> getPlCorrispondence() const {return this->plCorrispondence;}
+    map<int, string> getMbCorrispondence() const {return this->mbCorrispondence;}
+    unordered_map<string,int> getIdMap() const {return this->id;}
     int getSecondRoute(int i);
     void setIl(const Interlock &i){this->il = i;}
 

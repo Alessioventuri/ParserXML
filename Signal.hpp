@@ -9,12 +9,12 @@ private:
     int sectionId;
 	string linearEnd;
 public:
-    int getMbId(){return mbId;}
-    int getSectionId(){return sectionId;}
-    string getLinearEnd(){return linearEnd;}
+    int getMbId() const{return mbId;}
+    int getSectionId() const{return sectionId;}
+    string getLinearEnd() const{return linearEnd;}
     Signal(const int &id,const int &secId,const string &linEnd);
-    string toString();
-    string toString(const map<int,string> &,const map<int,string> &);
+    string toString() const;
+    string toString(const map<int,string> &,const map<int,string> &) const;
 
 };
 
