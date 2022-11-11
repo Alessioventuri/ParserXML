@@ -1,9 +1,16 @@
 #include "Route.hpp"
 
 
-Route::Route(const int &id_,int src_, int dest_,const string &dire_, map<int,string> const &points_,const vector<int> &path_,
+Route::Route(const int &id_,int src_,[[maybe_unused]] int dest_,const string &dire_, map<int,string> const &points_,const vector<int> &path_,
  	map<int,bool>const & signals_, vector<bool>const & overlap_, map<int,bool>const & conflict_, int maxPoints_) : 
-	routeId(id_), src(src_), direction(dire_), points(points_),path(path_), signals(signals_),overlap(overlap_),conflict(conflict_)
+		routeId(id_),
+		src(src_), 
+		direction(dire_), 
+		points(points_),
+		path(path_), 
+		signals(signals_),
+		overlap(overlap_),
+		conflict(conflict_)
 	{
 		lastElem = path.at(path.size() -1);
 
@@ -57,8 +64,8 @@ string Route::pointString(){
 	string s = "routePoints[" + to_string(routeId) + "] = { ";
 	
 	set<int> keys;    
-	for(auto point : points)
-        keys.insert(point.first);
+	for(const auto& [key,value] : points)
+        keys.insert(key);
 	for (int key : keys) { 
 		s += points.at(key) + ", ";
 	}
@@ -68,7 +75,7 @@ string Route::pointString(){
 	return s;
 }
 	
-string Route::overlapString() {
+string Route::overlapString() const{
 	string s = "routeOverlap[" + to_string(routeId) + "] = { ";
 	for(bool over : overlap){
 		s += over ? "true" : "false";
@@ -105,20 +112,8 @@ string Route::toString(int maxpath, int maxChunk){
 			+ ",\nrouteLastElem[" + to_string(routeId) +"] = " + to_string(lastElem) 
 			+ ",\n" + checkPointString(maxChunk); 
 }
-// string Route::toString(int maxpath){
-// 	return "routeSrc[" + to_string(routeId) + "] = " + to_string(src)
-// 			+ "\nrouteDirection[" + to_string(routeId) + "] = " + getDirection() 
-// 			+ ",\nrouteDest[" + to_string(routeId) + "] = " + to_string(destination) 
-// 			+ (!points.empty() ? ",\n" + pointString() : "")
-// 			+ ",\n" + pathString(maxpath)
-// 			+ ",\n" + signalString()
-// 			+ ",\n" + overlapString()
-// 			+ ",\n" + conflictString()
-// 			+ ",\nrouteLastElem[" + to_string(routeId) +"] = " + to_string(lastElem) 
-// 			+ ",\n";
-// }
 
-string Route::createString(vector<int> a,int max){
+string Route::createString(vector<int> a,int max) const{
 	int i = 0;
 	string s;
 	for(auto it = a.begin(); it != a.end();++it){

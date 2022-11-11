@@ -9,17 +9,13 @@ private:
     int plusNeighbour;
     int minusNeighbour;
 public:
-    Point(int &id,const int &stem,const int &plus,const int &minus) : Section(id){
-        stemNeighbour = stem;
-		plusNeighbour = plus;
-		minusNeighbour = minus;
-    }
-    string toString(map<int,string>);
-    string toString();
-    int getStem(){ return stemNeighbour; }
-    int getPlus(){ return plusNeighbour; }
-    int getMinus(){ return minusNeighbour; }
-    int getSectionId(){ return sectionId; }
+    Point(int &id,const int &stem,const int &plus,const int &minus) : Section(id), stemNeighbour(stem), plusNeighbour(plus), minusNeighbour(minus){};
+    string toString(const map<int,string>&);
+    string toString() const;
+    int getStem() const{ return stemNeighbour; }
+    int getPlus() const{ return plusNeighbour; }
+    int getMinus() const{ return minusNeighbour; }
+    int getSectionId() const{ return sectionId; }
     
 };
 

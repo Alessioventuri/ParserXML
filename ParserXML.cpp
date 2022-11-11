@@ -5,31 +5,30 @@
 #include <random>
 using namespace std;
 
-int ParserXML::getIntFromNeighborLinear(xml_node<> *neighbor){
-    string neig = (string)neighbor->first_attribute("side")->value();
+int ParserXML::getIntFromNeighborLinear(xml_node<> *neighbor) const {
+    auto neig = (string)neighbor->first_attribute("side")->value();
     if(neig == "up")
         return 0;
     else
         return 1;
 }
 
-int ParserXML::getIntFromNeighborPoint(xml_node<> *neighbor){
-    string neig = (string)neighbor->first_attribute("side")->value();
+int ParserXML::getIntFromNeighborPoint(xml_node<> *neighbor) const{
+    auto neig = (string)neighbor->first_attribute("side")->value();
     if(neig == "stem")
         return 0;
     else if(neig == "plus")
         return 1;
     else return 2;
 }
-string ParserXML::SplitFilename (string str)
+string ParserXML::SplitFilename (string str) const 
 {
   std::size_t found = str.find_last_of("/\\");
   str = str.substr(found+1);
   return str.substr(0,str.length()-4);
 }
 
-ParserXML::ParserXML(const string in){
-    input = in;
+ParserXML::ParserXML(const string in) : input(in){
     cout << "Parsing the xml : " <<  input << endl;
 
     xml_document<> doc;
@@ -46,54 +45,39 @@ ParserXML::ParserXML(const string in){
     root_node = doc.first_node();
     
     // Iterate until reach the interlocking node
-    // std::cout << "Name of my first node is: " << doc.first_node()->name() << "\n";
     while(((string)root_node->name()) != "interlocking"){
         if(root_node->first_node() == nullptr){
             root_node = root_node->next_sibling();
-            // std::cout << "Name of my first node sibling is: " << root_node->name() << "\n";
         } else{
             root_node = root_node->first_node();
-            // std::cout << "Name of my first node is: " << root_node->name() << "\n";
         }
     }
-    // cout << "Sono arrivato a :" << root_node->name()<<endl;
-	NetworkLayout nl;
-	Interlock il ;
-    xml_node<> *network_node = root_node->first_node("network");
 
-    // cout << "Sono arrivato a :" << network_node->name()<<endl;
+    xml_node<> *network_node = root_node->first_node("network");
 
     searchPoints(network_node);
     searchLinears(network_node);
     searchSignals(network_node);
     NetworkLayoutProcess(network_node);
     InterlockingProcess(network_node);
-    // cout << typeid(trackSection =network_node->first_node("trackSection")).name() << endl;
 }
 
 void ParserXML::searchPoints(xml_node<> *network_node){
     for(auto trackSection =network_node->first_node("trackSection");trackSection;trackSection = trackSection->next_sibling()){
-        if((string)trackSection->name() == "trackSection"){
-            if((string)trackSection->first_attribute("type")->value() == "point"){
-                string value = trackSection->first_attribute("id")->value();
-                this->id.insert(pair<string,int>(value,this->id.size()));
-                this->plCorrispondence.insert(pair<int,string>(this->id.size()-1,"_"+value));
-               // cout << trackSection->first_attribute("id")->value()<<endl;
-            }
+        if((string)trackSection->name() == "trackSection" && (string)trackSection->first_attribute("type")->value() == "point"){
+            string value = trackSection->first_attribute("id")->value();
+            this->id.insert(pair<string,int>(value,this->id.size()));
+            this->plCorrispondence.insert(pair<int,string>(this->id.size()-1,"_"+value));
         }
     }
 }
 
 void ParserXML::searchLinears(xml_node<> *network_node){
     for(auto trackSection =network_node->first_node("trackSection");trackSection;trackSection = trackSection->next_sibling()){
-        if((string)trackSection->name() == "trackSection"){
-            if((string)trackSection->first_attribute("type")->value() == "linear"){
-                string value = trackSection->first_attribute("id")->value();
-                this->id.insert(pair<string,int>(value,this->id.size()));
-                this->plCorrispondence.insert(pair<int,string>(this->id.size()-1,"_"+value));
-
-              //  cout << trackSection->first_attribute("id")->value()<<endl;
-            }
+        if((string)trackSection->name() == "trackSection" && (string)trackSection->first_attribute("type")->value() == "linear"){
+            string value = trackSection->first_attribute("id")->value();
+            this->id.insert(pair<string,int>(value,this->id.size()));
+            this->plCorrispondence.insert(pair<int,string>(this->id.size()-1,"_"+value));
         }
     }
 }
@@ -109,10 +93,6 @@ void ParserXML::searchSignals(xml_node<> *network_node){
             auto a =(this->id.find(markerboard->first_attribute("track")->value()))->second;
             auto b = (string)markerboard->first_attribute("mounted")->value(); 
 
-            //UPPER CASE
-            // for(int x = 0; x < b.length();x++){
-            //     b[x] = b[x] - 32;
-            // }
             this->nl.addSignal(count,a,b);
             count++;
         }
@@ -224,7 +204,7 @@ void ParserXML::InterlockingProcess(xml_node<> *network_node){
         }
         if(tempPath > maxPathLenght)
             maxPathLenght = tempPath;
-        int size = this->nl.getPoints().size();
+        int size = (int)this->nl.getPoints().size();
         Route rou(this->id.find(route->first_attribute("id")->value())->second,
             this->id.find(route->first_attribute("source")->value())->second,
             this->id.find(route->first_attribute("destination")->value())->second,
