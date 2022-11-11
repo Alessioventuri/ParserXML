@@ -481,14 +481,7 @@ string writerUMC::pointObjectUmcTwoRoute(Route &route1, Route &route2, const map
 }
 
 
-[[maybe_unused]]string writerUMC::linearObjectUmcTwoRoute(Route route1, Route route2, int i, map<int, string> plC, map<int, string> sC, NetworkLayout nl)
-{
-    return "null";
-}
-[[maybe_unused]]string writerUMC::trainObjectUmcTwoRoute(Route route1, Route route2, int i, map<int, string> plC)
-{
-    return "null";
-}
+
 
 // Class Treno is
 

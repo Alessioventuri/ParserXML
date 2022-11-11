@@ -1,21 +1,19 @@
 #pragma once
 #include <string>
 #include <map>
-using namespace std;
 
 class Signal{
 private:
     int mbId;
     int sectionId;
-	string linearEnd;
+	std::string linearEnd;
 public:
     int getMbId() const{return mbId;}
     int getSectionId() const{return sectionId;}
-    string getLinearEnd() const{return linearEnd;}
-    Signal(const int &id,const int &secId,const string &linEnd);
-    string toString() const;
-    string toString(const map<int,string> &,const map<int,string> &) const;
-
+    std::string getLinearEnd() const{return linearEnd;}
+    Signal(const int &id,const int &secId,const std::string &linEnd);
+    std::string toString() const;
+    std::string toString(const std::map<int,std::string> &,const std::map<int,std::string> &) const;
 };
 
 

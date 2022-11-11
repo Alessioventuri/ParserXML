@@ -56,7 +56,6 @@ void createFolder(const string &s1,string &outputFile, std::stringstream &ss){
         if(folder == 0) std::cout << "Created " << ss.str() << " success\n";
         }
     catch (const std::exception &e){
-        
         std::cerr << e.what();
     }
 
@@ -127,7 +126,7 @@ int main(int argc,const char *argv[]){
                             obj->writeFile(outputFile,pXML,train,select);
                         }else{
                             int route1;
-                            int size = (int)pXML->getIl().getRoutes().size();
+                            auto size = (int)pXML->getIl().getRoutes().size();
                             do{
                                 cout << "SELECT ROUTE 1 BETWEEN 0 AND " << size << " : "; 
                                 cin >> route1;
