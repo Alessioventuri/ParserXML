@@ -35,7 +35,7 @@ private :
 
 
 public:
-    writerUMC(){};
+    writerUMC() = default;
     ~writerUMC() = default;
     void writeFile                (string,unique_ptr<ParserXML>&,int,int,int,int) override;
 

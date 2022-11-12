@@ -4,9 +4,8 @@
 class Section {
 public:
     int sectionId;
-    // cppcheck-suppress  noExplicitConstructor 
-    Section(int id);
-    Section(){}
+    explicit Section(int id);
+    Section() = default;
     
 };
 

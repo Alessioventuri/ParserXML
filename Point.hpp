@@ -2,7 +2,7 @@
 #include "Section.hpp"
 #include <string>
 
-using namespace std;
+
 class Point :  public Section{
 private:
     int stemNeighbour;
@@ -10,8 +10,8 @@ private:
     int minusNeighbour;
 public:
     Point(int &id,const int &stem,const int &plus,const int &minus) : Section(id), stemNeighbour(stem), plusNeighbour(plus), minusNeighbour(minus){};
-    string toString(const map<int,string>&);
-    string toString() const;
+    std::string toString(const std::map<int,std::string>&);
+    std::string toString() const;
     int getStem() const{ return stemNeighbour; }
     int getPlus() const{ return plusNeighbour; }
     int getMinus() const{ return minusNeighbour; }

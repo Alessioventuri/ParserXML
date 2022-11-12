@@ -9,23 +9,23 @@
 
 class NetworkLayout{
 private:
-	vector<Point> points;
-	vector<Linear> linears;
-	vector<Signal> signals;
-    string pointString(map<int,string>);
-    string linearString(map<int,string>);
-    string signalString(map<int,string>,map<int,string>);
-    string pointStringAdaptive(Route route,map<int,string>);
-    string linearStringAdaptive(Route route,map<int,string>);
-    string signalStringAdaptive(Route route,map<int,string>,map<int,string>);
+	std::vector<Point> points;
+	std::vector<Linear> linears;
+	std::vector<Signal> signals;
+    std::string pointString(std::map<int,std::string>);
+    std::string linearString(std::map<int,std::string>);
+    std::string signalString(std::map<int,std::string>,std::map<int,std::string>);
+    std::string pointStringAdaptive(Route route,std::map<int,std::string>);
+    std::string linearStringAdaptive(Route route,std::map<int,std::string>);
+    std::string signalStringAdaptive(Route route,std::map<int,std::string>,std::map<int,std::string>);
 public:
     NetworkLayout() = default;
-    vector<Point> getPoints(){return points;}
-	vector<Linear> getLinears(){return linears;}
-	vector<Signal> getSignals(){return signals;}
-    string toString(map<int,string>,map<int,string>);
-    string toStringAdaptive(Route,map<int,string>,map<int,string>);
-    void addSignal(const int &id,const int &section,const string &linearEnd);
+    std::vector<Point> getPoints(){return points;}
+	std::vector<Linear> getLinears(){return linears;}
+	std::vector<Signal> getSignals(){return signals;}
+    std::string toString(std::map<int,std::string>,std::map<int,std::string>);
+    std::string toStringAdaptive(Route,std::map<int,std::string>,std::map<int,std::string>);
+    void addSignal(const int &id,const int &section,const std::string &linearEnd);
     void addLinear(int &id,const int &up,const int &down);
     void addPoint(int &id,const int &stem,const int &plus,const int &minus);
 

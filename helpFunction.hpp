@@ -6,14 +6,14 @@
 #include <string>
 
 
-map<int,bool> signalsCombiner(map<int,bool> s1, map<int,bool> s2);
-map<int,string> pointsCombiner(map<int,string> s1, map<int,string> s2);
-vector<int> pathCombiner(vector<int> v1, vector<int> v2);
-vector<bool> overlapCombiner(vector<bool> v1, vector<bool> &v2);
-map<int,bool> conflictCombiner(map<int,bool> m1, map<int,bool> m2);
+std::map<int,bool> signalsCombiner(std::map<int,bool> s1, std::map<int,bool> s2);
+std::map<int,std::string> pointsCombiner(std::map<int,std::string> s1, std::map<int,std::string> s2);
+std::vector<int> pathCombiner(std::vector<int> v1, std::vector<int> v2);
+std::vector<bool> overlapCombiner(std::vector<bool> v1, std::vector<bool> &v2);
+std::map<int,bool> conflictCombiner(std::map<int,bool> m1, std::map<int,bool> m2);
 
 
-map<int,bool> signalsCombiner(map<int,bool> s1, map<int,bool> s2){
+std::map<int,bool> signalsCombiner(std::map<int,bool> s1, std::map<int,bool> s2){
     for(int i = 0; i < s1.size();i++){
         if(s1.at(i) == false and s2.at(i) == true)
             s1.at(i) = s2.at(i);
@@ -21,7 +21,7 @@ map<int,bool> signalsCombiner(map<int,bool> s1, map<int,bool> s2){
     return s1; 
 }
 //s1.at(i) == "INTER" and s2.at(i) != "INTER" or not because the s2 is supposed to be bigger that s1.
-map<int,string> pointsCombiner(map<int,string> s1, map<int,string> s2){
+std::map<int,std::string> pointsCombiner(std::map<int,std::string> s1, std::map<int,std::string> s2){
     for(int i = 0; i < s1.size();i++){
         if(s1.at(i) != s2.at(i))
             s1.at(i) = s2.at(i);
@@ -30,8 +30,8 @@ map<int,string> pointsCombiner(map<int,string> s1, map<int,string> s2){
 }
 
 
-vector<int> pathCombiner(vector<int> v1, vector<int> v2){
-    vector<int> path;
+std::vector<int> pathCombiner(std::vector<int> v1, std::vector<int> v2){
+    std::vector<int> path;
     for(int i = 0; i < v1.size();i++){
         path.push_back(v1.at(i));
     }
@@ -41,11 +41,11 @@ vector<int> pathCombiner(vector<int> v1, vector<int> v2){
     return path;
 }
 
-vector<bool> overlapCombiner(vector<bool> v1, vector<bool> &v2){
+std::vector<bool> overlapCombiner(std::vector<bool> v1, std::vector<bool> &v2){
     return v1;
 }
 
-map<int,bool> conflictCombiner(map<int,bool> m1,map<int,bool>m2){
+std::map<int,bool> conflictCombiner(std::map<int,bool> m1,std::map<int,bool>m2){
     for(int i = 0; i < m2.size();i++){
         if(m1.at(i)== true and m2.at(i) == false)
             m2.at(i) = true;

@@ -14,8 +14,8 @@ public:
 		downNeighbour = down;
         
 	}
-	std::string toString(std::map<int,std::string>);
-    std::string toString();
-	int getUpNeig() {return upNeighbour;}
-	int getDownNeig(){return downNeighbour;}
+	std::string toString(const std::map<int,std::string>&) const;
+    std::string toString() const;
+	int getUpNeig() const{return upNeighbour;}
+	int getDownNeig() const{return downNeighbour;}
 };
