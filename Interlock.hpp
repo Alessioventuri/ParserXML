@@ -3,7 +3,7 @@
 
 class Interlock{
 private:
-    vector<Route> routes;
+    std::vector<Route> routes;
 	int maxPathLength;
 	int maxChunk;
     	
@@ -16,13 +16,13 @@ public:
     void getCheckPointsSize(int i);
 
 
-    string toString();
-    string toStringCombiner();
+    std::string toString();
+    std::string toStringCombiner();
 
     int getMaxPathLength() const { return maxPathLength;}
     int getMaxChunk() const {return maxChunk;}
 
-    vector<Route> getRoutes() const{ return routes;}
+    std::vector<Route> getRoutes() const{ return routes;}
     
     Interlock routeCombiner(Interlock il) const;
 };
