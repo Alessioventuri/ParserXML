@@ -8,21 +8,21 @@
             "name": "g++-11 - Build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "program": "${fileDirname}\\${fileBasenameNoExtension}",
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${fileDirname}/**.cpp",
+                "${fileDirname}\\**.cpp",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}\\${fileBasenameNoExtension}",
+                "-lstdc++"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
             "externalConsole": true,
             "MIMode": "gdb",
-            "miDebuggerPath": "/usr/local/bin/gdb",
-            "preLaunchTask": "build"
+            "preLaunchTask": "[BUILD] BUILD normal"
         }
     ]
 }
