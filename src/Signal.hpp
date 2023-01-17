@@ -15,3 +15,4 @@ public:
     std::string toString() const;
     std::string toString(const std::map<int,std::string> &,const std::map<int,std::string> &) const;
 };
+
