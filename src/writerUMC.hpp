@@ -1,3 +1,4 @@
+#pragma once
 #include "writer.hpp"
 #include <string>
 #include <iostream>

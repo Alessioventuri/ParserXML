@@ -34,6 +34,8 @@ string NetworkLayout::linearString(const map<int,string> plC){
 }
 string NetworkLayout::linearStringAdaptive(Route route, const map<int,string> plC){
     string output;
+ 
+    
     for(int i = 0; i < (int)route.getPath().size();i++){
         //path contains index of linears and linears start when points end 
         //(ie. path{8},points has index (0,1,2,3,4), and linears start from 5, so path.at(i)-points.size() ( 8-5 = 3) 

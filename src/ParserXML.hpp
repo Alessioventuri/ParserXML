@@ -30,6 +30,7 @@ public:
     unordered_map<string,int> getIdMap() const {return this->id;}
     int getSecondRoute(int i);
     void setIl(const Interlock &i){this->il = i;}
+    void setCount(int value) { count = value; }
     
     
 

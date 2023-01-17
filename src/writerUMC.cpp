@@ -11,119 +11,108 @@ void writerUMC::writeFile(const string outputFile, unique_ptr<ParserXML> &pXML, 
     // 2. create a file.txt that contents all routes
     // 3. create a file.txt that contents some routes
     pXML->getIl().generateMaxChunk();
-    if (select == 1)
+    if (select == 0)
     {
         for (int firstRoute = 0; firstRoute < (int)pXML->getIl().getRoutes().size(); firstRoute++)
         {
-            if (train == 1)
+            if (train == 0)
             {
-                if (outputFile != "")
+                string outputFiletxt = outputFile + "route" + to_string(pXML->getIl().getRoutes().at(firstRoute).getRouteId()+1) + ".txt";
+                try
                 {
-                    string outputFiletxt = outputFile + "route" + to_string(pXML->getIl().getRoutes().at(firstRoute).getRouteId()) + ".txt";
-                    try
-                    {
-                        ofstream myfile;
-                        myfile.open(outputFiletxt);
-                        myfile << "\n/* NetworkLayout */\n\n";
-                        myfile << pXML->getNl().toStringAdaptive(pXML->getIl().getRoutes().at(firstRoute), pXML->getPlCorrispondence(), pXML->getMbCorrispondence());
-                        myfile << "\n\n/* NetworkLayout End */\n\n";
-                        myfile << "\n/* Interlocking */\n\n";
-                        myfile << pXML->getIl().getRoutes().at(firstRoute).toString(pXML->getIl().getMaxPathLength(), pXML->getIl().getMaxChunk()) + "\n";
-                        myfile << "\n/* Interlocking End */\n";
-                        myfile << "\n/* UMC code */\n";
-                        myfile << defaultUMCsetupOneRoute(pXML, firstRoute);
-                        myfile.close();
-                        cout << "Successfully wrote to the file." << endl;
-                    }
-                    catch (std::ofstream::failure &e)
-                    {
-                        std::cerr << e.what() << std::endl;
-                    }
+                    ofstream myfile;
+                    myfile.open(outputFiletxt);
+                    myfile << "\n/* NetworkLayout */\n\n";
+                    myfile << pXML->getNl().toStringAdaptive(pXML->getIl().getRoutes().at(firstRoute), pXML->getPlCorrispondence(), pXML->getMbCorrispondence());
+                    myfile << "\n\n/* NetworkLayout End */\n\n";
+                    myfile << "\n/* Interlocking */\n\n";
+                    myfile << pXML->getIl().getRoutes().at(firstRoute).toString(pXML->getIl().getMaxPathLength(), pXML->getIl().getMaxChunk()) + "\n";
+                    myfile << "\n/* Interlocking End */\n";
+                    myfile << "\n/* UMC code */\n";
+                    myfile << defaultUMCsetupOneRoute(pXML, firstRoute);
+                    myfile.close();
+                    cout << "Successfully wrote to the file." << endl;
+                }
+                catch (std::ofstream::failure &e)
+                {
+                    std::cerr << e.what() << std::endl;
                 }
             }
-            else
+            else if (train == 1)
             {
-                if (outputFile != "")
+                int secondRoute = pXML->getSecondRoute(firstRoute);
+                string outputFiletxt = outputFile + "route" + stringCombinerId(pXML, firstRoute, secondRoute) + ".txt";
+                try
                 {
-                    int secondRoute = pXML->getSecondRoute(firstRoute);
-                    string outputFiletxt = outputFile + "route" + stringCombinerId(pXML, firstRoute, secondRoute) + ".txt";
-                    try
-                    {
-                        ofstream myfile;
-                        myfile.open(outputFiletxt);
-                        myfile << "\n/* NetworkLayout */\n\n";
-                        myfile << stringCombinerNl(pXML, firstRoute, secondRoute);
-                        myfile << "\n\n/* NetworkLayout End */\n\n";
-                        myfile << "\n/* Interlocking */\n\n";
-                        myfile << stringCombinerIl(pXML, firstRoute, secondRoute) + "\n";
-                        myfile << "\n/* Interlocking End */\n";
-                        myfile << "\n/* UMC code */\n";
-                        // myfile << defaultUMCsetupOneRoute(pXML->getNl(),pXML->getIl(),i,pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
-                        myfile << defaultUMCsetupTwoRoute(pXML, firstRoute, secondRoute);
+                    ofstream myfile;
+                    myfile.open(outputFiletxt);
+                    myfile << "\n/* NetworkLayout */\n\n";
+                    myfile << stringCombinerNl(pXML, firstRoute, secondRoute);
+                    myfile << "\n\n/* NetworkLayout End */\n\n";
+                    myfile << "\n/* Interlocking */\n\n";
+                    myfile << stringCombinerIl(pXML, firstRoute, secondRoute) + "\n";
+                    myfile << "\n/* Interlocking End */\n";
+                    myfile << "\n/* UMC code */\n";
+                    // myfile << defaultUMCsetupOneRoute(pXML->getNl(),pXML->getIl(),i,pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
+                    myfile << defaultUMCsetupTwoRoute(pXML, firstRoute, secondRoute);
 
-                        myfile.close();
-                        cout << "Successfully wrote to the file." << endl;
-                    }
-                    catch (std::ofstream::failure &e)
-                    {
-                        std::cerr << e.what() << std::endl;
-                    }
+                    myfile.close();
+                    cout << "Successfully wrote to the file." << endl;
+                }
+                catch (std::ofstream::failure &e)
+                {
+                    std::cerr << e.what() << std::endl;
                 }
             }
         }
     }
-    else
+    else if ( select == 1)
     {
-        if (train == 1)
+        if (train == 0)
         {
-            if (outputFile != "")
-            { // check if you want print at display
-                string outputFiletxt = outputFile + "route" + to_string(pXML->getIl().getRoutes().at(route1).getRouteId()) + ".txt";
-                try
-                {
-                    ofstream myfile;
-                    myfile.open(outputFiletxt);
-                    myfile << "\n/* NetworkLayout */\n\n";
-                    myfile << pXML->getNl().toStringAdaptive(pXML->getIl().getRoutes().at(route1), pXML->getPlCorrispondence(), pXML->getMbCorrispondence());
-                    myfile << "\n\n/* NetworkLayout End */\n\n";
-                    myfile << "\n/* Interlocking */\n\n";
-                    myfile << pXML->getIl().getRoutes().at(route1).toString(pXML->getIl().getMaxPathLength(), pXML->getIl().getMaxChunk()) + "\n";
-                    myfile << "\n/* Interlocking End */\n";
-                    myfile << "\n/* UMC code */\n";
-                    myfile << defaultUMCsetupOneRoute(pXML, route1);
-                    myfile.close();
-                    cout << "Successfully wrote to the file." << endl;
-                }
-                catch (std::ofstream::failure &e)
-                {
-                    std::cerr << e.what() << std::endl;
-                }
+            // check if you want print at display
+            string outputFiletxt = outputFile + "route" + to_string(pXML->getIl().getRoutes().at(route1).getRouteId()+1) + ".txt";
+            try
+            {
+                ofstream myfile;
+                myfile.open(outputFiletxt);
+                myfile << "\n/* NetworkLayout */\n\n";
+                myfile << pXML->getNl().toStringAdaptive(pXML->getIl().getRoutes().at(route1), pXML->getPlCorrispondence(), pXML->getMbCorrispondence());
+                myfile << "\n\n/* NetworkLayout End */\n\n";
+                myfile << "\n/* Interlocking */\n\n";
+                myfile << pXML->getIl().getRoutes().at(route1).toString(pXML->getIl().getMaxPathLength(), pXML->getIl().getMaxChunk()) + "\n";
+                myfile << "\n/* Interlocking End */\n";
+                myfile << "\n/* UMC code */\n";
+                myfile << defaultUMCsetupOneRoute(pXML, route1);
+                myfile.close();
+                cout << "Successfully wrote to the file." << endl;
+            }
+            catch (std::ofstream::failure &e)
+            {
+                std::cerr << e.what() << std::endl;
             }
         }
-        else
+        else if ( train == 1)
         {
-            if (outputFile != "")
+            string outputFiletxt = outputFile + "route" + stringCombinerId(pXML, route1, route2) + ".txt";
+            try
             {
-                string outputFiletxt = outputFile + "route" + stringCombinerId(pXML, route1, route2) + ".txt";
-                try
-                {
-                    ofstream myfile;
-                    myfile.open(outputFiletxt);
-                    myfile << "\n/* NetworkLayout */\n\n";
-                    myfile << stringCombinerNl(pXML, route1, route2);
-                    myfile << "\n\n/* NetworkLayout End */\n\n";
-                    myfile << "\n/* Interlocking */\n\n";
-                    myfile << stringCombinerIl(pXML, route1, route2) + "\n";
-                    myfile << "\n/* Interlocking End */\n";
-                    myfile << "\n/* UMC code */\n";
-                    myfile << defaultUMCsetupTwoRoute(pXML, route1, route2);
-                    myfile.close();
-                    cout << "Successfully wrote to the file." << endl;
-                }
-                catch (std::ofstream::failure &e)
-                {
-                    std::cerr << e.what() << std::endl;
-                }
+                ofstream myfile;
+                myfile.open(outputFiletxt);
+                myfile << "\n/* NetworkLayout */\n\n";
+                myfile << stringCombinerNl(pXML, route1, route2);
+                myfile << "\n\n/* NetworkLayout End */\n\n";
+                myfile << "\n/* Interlocking */\n\n";
+                myfile << stringCombinerIl(pXML, route1, route2) + "\n";
+                myfile << "\n/* Interlocking End */\n";
+                myfile << "\n/* UMC code */\n";
+                myfile << defaultUMCsetupTwoRoute(pXML, route1, route2);
+                myfile.close();
+                cout << "Successfully wrote to the file." << endl;
+            }
+            catch (std::ofstream::failure &e)
+            {
+                std::cerr << e.what() << std::endl;
             }
         }
     }
@@ -167,6 +156,8 @@ string writerUMC::linearObjectUmcOneRoute(Route route, int number, const map<int
 {
     string output;
     int index;
+    std::cout << "HERE" << std::endl;
+    std::cout << (int)route.getPath().size() << std::endl;
     for (int i = 0; i < (int)route.getPath().size(); i++)
     {
         if (route.getPath().at(i) >= (int)route.getPoints().size() and i != (int)route.getPath().size() - 1)
@@ -401,8 +392,8 @@ string writerUMC::stringCombinerIl(unique_ptr<ParserXML> &pXML, int i, int j) co
 string writerUMC::stringCombinerId(unique_ptr<ParserXML> &pXML, int i, int j) const
 {
     string s;
-    s += to_string(pXML->getIl().getRoutes().at(i).getRouteId()) + "-";
-    s += to_string(pXML->getIl().getRoutes().at(j).getRouteId());
+    s += to_string(pXML->getIl().getRoutes().at(i).getRouteId()+1) + "-";
+    s += to_string(pXML->getIl().getRoutes().at(j).getRouteId()+1);
     return s;
 }
 

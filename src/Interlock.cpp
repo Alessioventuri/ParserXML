@@ -1,5 +1,4 @@
 #include "Interlock.hpp"
-#include "helpFunction.hpp"
 #include <iostream>
 #include <algorithm>
 
@@ -66,7 +65,47 @@ string Interlock::toStringCombiner() {
 	return output;
 }
 
-Interlock Interlock::routeCombiner(Interlock il) const{
+std::map<int,bool> Interlock::signalsCombiner(std::map<int,bool> s1, std::map<int,bool> s2){
+    for(int i = 0; i < (int)s1.size();i++){
+        if(s1.at(i) == false and s2.at(i) == true)
+            s1.at(i) = s2.at(i);
+    }
+    return s1; 
+}
+
+std::map<int,bool> Interlock::conflictCombiner(std::map<int,bool> m1,std::map<int,bool>m2){
+    for(int i = 0; i < (int)m2.size();i++){
+        if(m1.at(i)== true and m2.at(i) == false)
+            m2.at(i) = true;
+    }
+    return m2;
+}
+
+std::map<int,std::string> Interlock::pointsCombiner(std::map<int,std::string> s1, std::map<int,std::string> s2){
+    for(int i = 0; i < (int)s1.size();i++){
+        if(s1.at(i) != s2.at(i))
+            s1.at(i) = s2.at(i);
+    }
+    return s1;
+}
+
+
+std::vector<int> Interlock::pathCombiner(std::vector<int> v1, std::vector<int> v2){
+    std::vector<int> path;
+    for(int i = 0; i < (int)v1.size();i++){
+        path.push_back(v1.at(i));
+    }
+    for(int i = 1; i < (int)v2.size();i++){
+        path.push_back(v2.at(i));
+    }
+    return path;
+}
+
+std::vector<bool> Interlock::overlapCombiner(std::vector<bool> v1, std::vector<bool> &v2){
+    return v1;
+}
+
+Interlock Interlock::routeCombiner(Interlock il){
     Interlock new_Il;
     auto size = (int)il.getRoutes().size();
     for(int i = 0; i < size;i++){

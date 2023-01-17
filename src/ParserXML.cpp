@@ -59,8 +59,6 @@ ParserXML::ParserXML(const string in) : input(in){
     int size = countRoutes(input);
     cout << size << " bellaaa " << endl;
 
-    
-    
 
     searchPoints(network_node);
     searchLinears(network_node);
@@ -222,16 +220,23 @@ void ParserXML::InterlockingProcess(xml_node<> *network_node){
         signals.at(this->id.find(route->first_attribute("destination")->value())->second) = true;
         string direction = route->first_attribute("dir")->value();
         //ADD THE SOURCE SECTION ON THE PATH ( IT'S COMING FROM THAT SECTION TO THE DESTINATION'S SECTION)
+        // std::cout << "BEFORE "<< path.size() << std::endl;
         path.push_back(nl.getSignals().at(this->id.find(route->first_attribute("source")->value())->second).getSectionId());
+        // std::cout << "AFTER "<< path.size() << std::endl;
+        for (int h =0; h < path.size() ; h++){
+            std::cout << path.at(h) << std ::endl;
+        }
         int tempPath = 1;
         for(xml_node<> *icondition = route->first_node("condition");icondition ;icondition= icondition->next_sibling()){  
-            if((string)icondition->name() == "condition" && (string)icondition->first_attribute("type")->value() == "point"){
-                auto stringpoint = (string)icondition->first_attribute("val")->value();
-                for(int x = 0; x < (int)stringpoint.length();x++){
-                    stringpoint[x] = stringpoint[x] - 32;
+            if((string)icondition->name() == "condition" ){
+                if((string)icondition->first_attribute("type")->value() == "point"){
+                    auto stringpoint = (string)icondition->first_attribute("val")->value();
+                    for(int x = 0; x < (int)stringpoint.length();x++){
+                        stringpoint[x] = stringpoint[x] - 32;
+                    }
+                    points.at(this->id.find(icondition->first_attribute("ref")->value())->second) = stringpoint;
                 }
-                points.at(this->id.find(icondition->first_attribute("ref")->value())->second) = stringpoint;
-                if((string)icondition->first_attribute("type")->value() == "signal"){
+                else if((string)icondition->first_attribute("type")->value() == "signal"){
                     signals.at(this->id.find(icondition->first_attribute("ref")->value())->second) = true;
                 }
                 else if((string)icondition->first_attribute("type")->value() == "trackvacancy"){
@@ -243,9 +248,14 @@ void ParserXML::InterlockingProcess(xml_node<> *network_node){
                 }
             }
         }
+        // std::cout << "SIZE1111 "<< path.size() << std::endl;
+        // for (int h =0; h < path.size() ; h++){
+        //     std::cout << path.at(h) << std ::endl;
+        // }
         if(tempPath > maxPathLenght)
             maxPathLenght = tempPath;
         auto size = (int)this->nl.getPoints().size();
+        cout << id.size() << endl;
         Route rou(this->id.find(route->first_attribute("id")->value())->second,
             this->id.find(route->first_attribute("source")->value())->second,
             this->id.find(route->first_attribute("destination")->value())->second,
@@ -259,6 +269,13 @@ void ParserXML::InterlockingProcess(xml_node<> *network_node){
         this->il.addRoute(rou);
         this->il.setMaxValues(maxPathLenght);
     }
+    // std::cout << "SIZE2222 "<< this->il.getRoutes().size() << std::endl;
+    // for(int i=0; i < 5 ; i++ ){
+    //     std::cout << "SIZE "<< this->il.getRoutes().at(i).getPath().size()<< std::endl;
+    //     for (int h =0; h < this->il.getRoutes().at(i).getPath().size() ; h++){
+    //         std::cout << this->il.getRoutes().at(i).getPath().at(h) << std ::endl;
+    //     }
+    // }
 }
 
 int ParserXML::getSecondRoute(int index){

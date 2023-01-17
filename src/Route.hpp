@@ -42,7 +42,7 @@ public:
     std::string getDirection() const{return direction;}
     std::map<int,bool> getConflict() const{return conflict;}
     std::map<int,std::string> getPoints() const{return points;}
-    std::vector<int> getPath() const{return path;}
+    std::vector<int> getPath() {return path;}
     std::map<int,bool> getSignals() const{return signals;}
     std::string createString(std::vector<int> a,int max) const;
 };
