@@ -2,6 +2,12 @@
 !/**/
 !*.*
 !.github/
+!build
+!dep
+!libs
+!out
+!script
+!exec.
 
 *.scannerwork
 *.dSYM

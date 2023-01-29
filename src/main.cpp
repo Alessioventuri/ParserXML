@@ -19,6 +19,8 @@
 #include <unordered_map>
 #include <string>
 #include <cstring>
+#include <cstdlib>
+#include <fcntl.h>
 #include <exception>
 #include <direct.h>
 #include <sys/stat.h>
@@ -62,6 +64,23 @@ void createFolder(const std::string &s1,std::string &outputFile, std::stringstre
 bool run(string input, string outputFile,int file, int train,int combined,int select,int route1, int route2){
     outputFile += "\\";
     auto pXML = make_unique<ParserXML>(input);
+    if( access( ".\\vectors.json", F_OK ) != -1 ) {
+        unlink(".\\vectors.json");
+    }
+    try{
+        std::vector<std::vector<std::string>> vectors = pXML->get_vector_from_network();
+        std::vector<std::vector<std::string>> routes = pXML->get_vector_from_il();
+        std::vector<std::vector<std::string>> sectionID_corrispondence = pXML->get_signals_from_network();
+        json j;
+        j["vectors"] = vectors;  
+        j["routes"] = routes;
+        j["sectionID"] = sectionID_corrispondence;
+        int out = open(".\\vectors.json", O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR);
+        write(out, j.dump(4).c_str(), j.dump(4).size());
+        close(out);
+    }catch (const std::exception &e){
+        std::cerr << e.what();
+    }
     std::stringstream ss;
     createFolder(pXML->SplitFilename(input),outputFile,ss);
     if(file == 0){
@@ -140,6 +159,7 @@ private:
     void OnCalculateRoute(wxCommandEvent& event);
     void OnFileChanged(wxFileDirPickerEvent& event);
     void OnDirChanged(wxFileDirPickerEvent& event);
+    void OnDrawMe(wxCommandEvent& event);
 
 
 
@@ -147,9 +167,11 @@ private:
     wxTextCtrl* m_outputField;
     wxFilePickerCtrl *inputFilePicker;
     wxDirPickerCtrl *outputDirPicker;
+    bool combSelect = false;
 
     wxButton*  routeButton;
     wxButton*  runButton;
+    wxButton*  drawButton;
 
     wxRadioBox* radioBoxType;
     wxRadioBox* radioBoxTrain;
@@ -204,14 +226,15 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     wxStaticText *outputLabel = new wxStaticText(panel, wxID_ANY, "Output Folder:");
     outputLabel->SetFont( wxFont( 9, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString ) );
     outputDirPicker = new wxDirPickerCtrl(panel, wxID_ANY);
+    outputDirPicker->Disable();
 
     // Create the "Run" and "Clear" buttons
     runButton = new wxButton(panel, wxID_ANY, "Run");
     wxButton* clearButton = new wxButton(panel, wxID_ANY, "Clear");
     routeButton = new wxButton(panel, wxID_ANY, "Calculate Route");
     routeButton->Disable();
-
-
+    drawButton = new wxButton(panel, wxID_ANY,"Draw me");
+    drawButton->Disable();
 
     //  Create a radioBox for selecting the number of trains
     wxString radioBoxChoicesType[] = { wxT("UMC file"), wxT("Simple File") };
@@ -270,12 +293,13 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
     vbox->Add(routeButton, 0, wxALIGN_BOTTOM | wxALIGN_CENTER | wxALL, 5 );
     vbox->Add(runButton, 0, wxALIGN_BOTTOM | wxALIGN_CENTER | wxALL, 5 );
-
+    vbox->Add(drawButton, 0, wxALIGN_BOTTOM | wxALIGN_CENTER | wxALL, 5);
     vbox->Add(clearButton, 0, wxALIGN_BOTTOM | wxALIGN_CENTER | wxALL, 5 );
     vbox->Add(m_gauge,0,wxALIGN_BOTTOM | wxALIGN_CENTER | wxALL, 5 );
 
     // Connect the button events to their event handlers
     runButton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &MyFrame::OnRun, this);
+    drawButton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &MyFrame::OnDrawMe,this);
     routeButton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &MyFrame::OnCalculateRoute, this);
     clearButton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &MyFrame::OnClean, this);
 
@@ -294,6 +318,10 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     list1->Disable();
     list2->Disable();
     runButton->Disable();
+    radioBoxSelected->Disable();
+    radioBoxCombined->Disable();
+    radioBoxType->Disable();
+    radioBoxTrain->Disable();
     
     panel->SetSizer(vbox);
     Layout();
@@ -335,8 +363,10 @@ void MyFrame::OnRun(wxCommandEvent& event)
         wxMessageDialog dialog(nullptr, "The process not completed! \n Retry with different parameters", "Fail", wxOK | wxICON_INFORMATION);
         dialog.ShowModal();
     }
+
     m_gauge->SetValue(0);
     m_gauge->Disable();
+    drawButton->Enable();
 }
 
 void MyFrame::OnClean(wxCommandEvent& event)
@@ -348,6 +378,15 @@ void MyFrame::OnClean(wxCommandEvent& event)
     radioBoxSelected->SetSelection(0);
     radioBoxCombined->SetSelection(0);
     radioBoxTrain->Enable();
+    drawButton->Disable();
+    runButton->Disable();
+    routeButton->Disable();
+    radioBoxSelected->Disable();
+    radioBoxCombined->Disable();
+    radioBoxType->Disable();
+    radioBoxTrain->Disable();
+    outputDirPicker->Disable();
+    
     list1->Disable();
     list2->Disable();
 }
@@ -428,7 +467,8 @@ void MyFrame::OnRadioBoxSelected(wxCommandEvent& event)
         if(radioBoxTrain->GetSelection() == 1)
             list2->Enable();
         list1->Enable();
-        runButton->Disable();
+        if(!combSelect)
+            runButton->Disable();
     }
 }
 
@@ -449,26 +489,32 @@ void MyFrame::OnRadioBoxCombined(wxCommandEvent& event)
 
 void MyFrame::OnCalculateRoute(wxCommandEvent& event)
 {
-    ParserXML parser;
     string path = inputFilePicker->GetPath().ToStdString();
+    ParserXML parser;
     int size = parser.countRoutes(path);
+
+    if (size <= 0)
+    {
+        wxMessageDialog dialog(this, "Error: Routes not correctly loaded.", "Fail", wxOK | wxICON_INFORMATION);
+        dialog.ShowModal();
+        return;
+    }
+
     list1->Clear();
     list2->Clear();
+
     for (int i = 0; i < size; i++)
     {
-        list1->Append(wxString::Format("%d", i+1));
-        list2->Append(wxString::Format("%d", i+1));
+        list1->Append(wxString::Format("%d", i + 1));
+        list2->Append(wxString::Format("%d", i + 1));
     }
-    if(!list1->IsListEmpty() && !list2->IsListEmpty()){
-        list1->SetSelection(0);
-        list2->SetSelection(1);
-        runButton->Enable();
-    }else{
-        wxMessageDialog dialog(nullptr, "Error: Routes not correctly loaded.", "Fail", wxOK | wxICON_INFORMATION);
-        dialog.ShowModal();
-    }
-    
+
+    list1->SetSelection(0);
+    list2->SetSelection(1);
+    runButton->Enable();
+    combSelect = true;
 }
+
 
 void MyFrame::OnFileChanged(wxFileDirPickerEvent& event)
 {
@@ -492,12 +538,35 @@ void MyFrame::OnFileChanged(wxFileDirPickerEvent& event)
         inputFilePicker->SetPath("");
         return;
     }
-    runButton->Enable(CheckPickersFilled(inputFilePicker,outputDirPicker));
-    
+     outputDirPicker->Enable();
 }
 
 void MyFrame::OnDirChanged(wxFileDirPickerEvent& event) {
     routeButton->Enable(CheckPickersFilled(inputFilePicker,outputDirPicker));
     runButton->Enable(CheckPickersFilled(inputFilePicker,outputDirPicker));
+    radioBoxSelected->Enable(CheckPickersFilled(inputFilePicker,outputDirPicker));
+    radioBoxCombined->Enable(CheckPickersFilled(inputFilePicker,outputDirPicker));
+    radioBoxType->Enable(CheckPickersFilled(inputFilePicker,outputDirPicker));
+    radioBoxTrain->Enable(CheckPickersFilled(inputFilePicker,outputDirPicker));
 }
 
+void MyFrame::OnDrawMe(wxCommandEvent& event){
+
+    std::string output = outputDirPicker->GetPath().ToStdString();
+    string path = inputFilePicker->GetPath().ToStdString();
+
+    std::size_t found = path.find_last_of("/\\");
+    path = path.substr(found+1);
+    std::string name  = path.substr(0,path.length()-4);
+    std::string command = "python script.py --json vectors.json --name-file ";
+    command += name; 
+    if(radioBoxSelected->IsEnabled() && radioBoxSelected->GetSelection() == 1 ){
+        command += " --route1 ";
+        command += list1->GetStringSelection().ToStdString();
+        if(radioBoxTrain->GetSelection() == 1){
+            command += " --route2 ";
+            command += list2->GetStringSelection().ToStdString();
+        }
+    }
+    system(command.c_str());
+} 

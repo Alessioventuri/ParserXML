@@ -6,6 +6,8 @@ public:
     int sectionId;
     explicit Section(int id);
     Section() = default;
+    virtual ~Section() {}
+
     
 };
 

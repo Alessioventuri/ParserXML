@@ -3,7 +3,11 @@
 #include <iostream>
 #include <fstream>
 #include <random>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 using namespace std;
+
 
 int ParserXML::getIntFromNeighborLinear(xml_node<> *neighbor) const {
     auto neig = (string)neighbor->first_attribute("side")->value();
@@ -32,7 +36,6 @@ string ParserXML::SplitFilename(string str) const
 
 
 ParserXML::ParserXML(const string in) : input(in){
-    cout << "Parsing the xml : " <<  input << endl;
 
     xml_document<> doc;
     xml_node<> *root_node;
@@ -55,11 +58,7 @@ ParserXML::ParserXML(const string in) : input(in){
     }
 
     xml_node<> *network_node = root_node->first_node("network");
-
-    int size = countRoutes(input);
-    cout << size << " bellaaa " << endl;
-
-
+    
     searchPoints(network_node);
     searchLinears(network_node);
     searchSignals(network_node);
@@ -88,9 +87,9 @@ int ParserXML::countRoutes(string input){
         }
     }
     xml_node<> *network_node = root_node->first_node("network");
-    cout << network_node->name() << endl;
+    // cout << network_node->name() << endl;
     xml_node<> *routeTable = network_node->next_sibling();
-    cout << routeTable->name() << endl;
+    // cout << routeTable->name() << endl;
     int count = 0;
     for(xml_node<> *route = routeTable->first_node("route");route;route= route->next_sibling()){
         if((string)route->name() == "route"){
@@ -99,6 +98,99 @@ int ParserXML::countRoutes(string input){
     }
     return count;
 }
+
+std::vector<std::vector<std::string>> ParserXML::get_vector_from_il(){
+    std::vector<std::vector<std::string>> vectors;
+    for( auto route : il.getRoutes()){
+        std::vector<std::string> vector;
+        for(auto element : route.getPath()){
+            auto it = plCorrispondence.find(element);
+            if (it != plCorrispondence.end()) {
+                std::string a = it->second;
+                vector.push_back(a);
+            }
+        }
+        vectors.push_back(vector);
+    }
+    return vectors;
+}
+
+std::vector<std::vector<std::string>> ParserXML::get_signals_from_network(){
+   
+    std::vector<Linear> linear_vec = nl.getLinears();
+    std::vector<Signal> signal_vec = nl.getSignals();
+
+    std::vector<std::vector<std::string>> section_strings;
+    for (auto& linear : linear_vec) {
+        std::vector<std::string> lin_sig;
+        lin_sig.push_back(plCorrispondence.find(linear.getSectionId())->second);
+        for(auto& signal : signal_vec){
+            if( signal.getSectionId() == linear.getSectionId()){
+                lin_sig.push_back(mbCorrispondence.find(signal.getMbId())->second);
+            }
+        }
+        section_strings.push_back(lin_sig);
+    }
+    return section_strings;
+}
+
+std::vector<std::vector<std::string>> ParserXML::get_vector_from_network(){
+    std::vector<std::vector<std::string>> vectors;
+    std::vector<std::unique_ptr<Section>> sections;
+
+    // Add Linear objects to sections vector
+    std::vector<Linear> linear_vec = nl.getLinears();
+    for (auto& linear : linear_vec) {
+        sections.push_back(std::make_unique<Linear>(linear));
+        
+    }
+
+    // Add Point objects to sections vector
+    std::vector<Point> point_vec = nl.getPoints();
+    for (auto& point : point_vec) {
+        sections.push_back(std::make_unique<Point>(point));
+    }
+
+    std::vector<std::vector<std::string>> section_strings;
+    for (auto& section : sections) {
+        if (auto point = dynamic_cast<Point*>(section.get())) {
+            std::vector<std::string> points;
+            points.push_back(plCorrispondence.find(point->getSectionId())->second);
+            points.push_back(plCorrispondence.find(point->getStem())->second);
+            points.push_back("S");
+            section_strings.push_back(points);
+            points.clear();
+            points.push_back(plCorrispondence.find(point->getSectionId())->second);
+            points.push_back(plCorrispondence.find(point->getPlus())->second);
+            points.push_back("P");
+            section_strings.push_back(points);
+            points.clear();
+            points.push_back(plCorrispondence.find(point->getSectionId())->second);
+            points.push_back(plCorrispondence.find(point->getMinus())->second);
+            points.push_back("M");
+            section_strings.push_back(points);
+        } else if (auto linear = dynamic_cast<Linear*>(section.get())) {
+            std::vector<std::string> linears;
+            if(linear->getDownNeig() != -1){
+                linears.push_back(plCorrispondence.find(linear->getSectionId())->second);
+                linears.push_back(plCorrispondence.find(linear->getDownNeig())->second);
+                section_strings.push_back(linears);
+            }
+            linears.clear();
+            if(linear->getUpNeig() != -1){
+                linears.push_back(plCorrispondence.find(linear->getSectionId())->second);
+                linears.push_back(plCorrispondence.find(linear->getUpNeig())->second);
+                section_strings.push_back(linears);
+            }
+        }
+    }
+    // Delete the dynamically allocated objects in sections
+    sections.clear();
+
+    return section_strings;
+}
+
+
 
 void ParserXML::searchPoints(xml_node<> *network_node){
     for(auto trackSection =network_node->first_node("trackSection");trackSection;trackSection = trackSection->next_sibling()){
@@ -173,10 +265,7 @@ void ParserXML::NetworkLayoutProcess(xml_node<> *network_node){
                 this->nl.addLinear(this->id.find(type->first_attribute("id")->value())->second,up,down); 
             }
         }
-    }
-    cout << this->nl.getLinears().size() << "Linears and " << nl.getPoints().size() << " Points";
-    cout << "\n"<<endl;
-    
+    }  
 }
 
 
@@ -218,14 +307,18 @@ void ParserXML::InterlockingProcess(xml_node<> *network_node){
         //ADD SOURCE AND DESTINATION TO THE SIGNALS OF ROUTE
         signals.at(this->id.find(route->first_attribute("source")->value())->second) = true;
         signals.at(this->id.find(route->first_attribute("destination")->value())->second) = true;
-        string direction = route->first_attribute("dir")->value();
-        //ADD THE SOURCE SECTION ON THE PATH ( IT'S COMING FROM THAT SECTION TO THE DESTINATION'S SECTION)
-        // std::cout << "BEFORE "<< path.size() << std::endl;
-        path.push_back(nl.getSignals().at(this->id.find(route->first_attribute("source")->value())->second).getSectionId());
-        // std::cout << "AFTER "<< path.size() << std::endl;
-        for (int h =0; h < path.size() ; h++){
-            std::cout << path.at(h) << std ::endl;
+        string direction;
+        auto attr = route->first_attribute("dir");
+        if (attr) {
+            direction = attr->value();
+        } 
+        else {
+            direction = "null";
         }
+       //ADD THE SOURCE SECTION ON THE PATH ( IT'S COMING FROM THAT SECTION TO THE DESTINATION'S SECTION)
+        
+        path.push_back(nl.getSignals().at(this->id.find(route->first_attribute("source")->value())->second).getSectionId());
+
         int tempPath = 1;
         for(xml_node<> *icondition = route->first_node("condition");icondition ;icondition= icondition->next_sibling()){  
             if((string)icondition->name() == "condition" ){
@@ -248,14 +341,10 @@ void ParserXML::InterlockingProcess(xml_node<> *network_node){
                 }
             }
         }
-        // std::cout << "SIZE1111 "<< path.size() << std::endl;
-        // for (int h =0; h < path.size() ; h++){
-        //     std::cout << path.at(h) << std ::endl;
-        // }
+
         if(tempPath > maxPathLenght)
             maxPathLenght = tempPath;
         auto size = (int)this->nl.getPoints().size();
-        cout << id.size() << endl;
         Route rou(this->id.find(route->first_attribute("id")->value())->second,
             this->id.find(route->first_attribute("source")->value())->second,
             this->id.find(route->first_attribute("destination")->value())->second,
@@ -269,13 +358,7 @@ void ParserXML::InterlockingProcess(xml_node<> *network_node){
         this->il.addRoute(rou);
         this->il.setMaxValues(maxPathLenght);
     }
-    // std::cout << "SIZE2222 "<< this->il.getRoutes().size() << std::endl;
-    // for(int i=0; i < 5 ; i++ ){
-    //     std::cout << "SIZE "<< this->il.getRoutes().at(i).getPath().size()<< std::endl;
-    //     for (int h =0; h < this->il.getRoutes().at(i).getPath().size() ; h++){
-    //         std::cout << this->il.getRoutes().at(i).getPath().at(h) << std ::endl;
-    //     }
-    // }
+
 }
 
 int ParserXML::getSecondRoute(int index){

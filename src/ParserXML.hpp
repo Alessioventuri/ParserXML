@@ -4,6 +4,10 @@
 #include "rapidxml_utils.hpp"
 #include <iostream>
 #include <unordered_map>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
 
 using namespace rapidxml;
 using namespace std;
@@ -31,12 +35,14 @@ public:
     int getSecondRoute(int i);
     void setIl(const Interlock &i){this->il = i;}
     void setCount(int value) { count = value; }
-    
-    
+    std::vector<std::vector<std::string>> get_vector_from_il();
+    std::vector<std::vector<std::string>> get_vector_from_network();
+    std::vector<std::vector<std::string>> get_signals_from_network();
 
 private:
     static int count;
     int secondRoute;
+    bool get_json = false;
     string input,output;
     Interlock il;
     NetworkLayout nl;

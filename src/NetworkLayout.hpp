@@ -27,5 +27,6 @@ public:
     void addSignal(const int &id,const int &section,const std::string &linearEnd);
     void addLinear(int &id,const int &up,const int &down);
     void addPoint(int &id,const int &stem,const int &plus,const int &minus);
+    
 
 };
