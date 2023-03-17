@@ -1,49 +1,24 @@
 name: Build
-on:
-  push:
-    branches:
-      - main
-      - '**'
-  pull_request:
-    types: [opened, synchronize, reopened]
+
+on: [push]
+
 jobs:
   build:
-    name: Build
-    runs-on: macos-11
-    env:
-      SONAR_SCANNER_VERSION: 4.7.0.2747
-      SONAR_SERVER_URL: "https://sonarcloud.io"
-      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
+    runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-      - name: Download and set up sonar-scanner
-        env:
-          SONAR_SCANNER_DOWNLOAD_URL: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ env.SONAR_SCANNER_VERSION }}-macosx.zip
-        run: |
-          mkdir -p $HOME/.sonar
-          curl -sSLo $HOME/.sonar/sonar-scanner.zip ${{ env.SONAR_SCANNER_DOWNLOAD_URL }}
-          unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-          echo "$HOME/.sonar/sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-macosx/bin" >> $GITHUB_PATH
-      - name: Download and set up build-wrapper
-        env:
-          BUILD_WRAPPER_DOWNLOAD_URL: ${{ env.SONAR_SERVER_URL }}/static/cpp/build-wrapper-macosx-x86.zip
-        run: |
-          curl -sSLo $HOME/.sonar/build-wrapper-macosx-x86.zip ${{ env.BUILD_WRAPPER_DOWNLOAD_URL }}
-          unzip -o $HOME/.sonar/build-wrapper-macosx-x86.zip -d $HOME/.sonar/
-          echo "$HOME/.sonar/build-wrapper-macosx-x86" >> $GITHUB_PATH
-      - name: Run build-wrapper
-        run: |
-          build-wrapper-macosx-x86 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} g++-11 -g *.cpp -o main
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Run sonar-scanner
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          sonar-scanner --define sonar.host.url="${{ env.SONAR_SERVER_URL }}" --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
+    - name: Set up MSYS2
+      uses: msys2/setup-msys2@v2
+
+    - name: Install build dependencies
+      run: |
+        pacman -Syu --noconfirm
+        pacman -S --noconfirm mingw-w64-x86_64-gcc mingw-w64-x86_64-wxWidgets mingw-w64-x86_64-graphviz
+
+
+    - name: Build
+      run: |
+        g++ -I${{ github.workspace }}/dep/win/lib/gcc_lib/mswu -I${{ github.workspace }}/dep/win/include -IC:\\Program Files\\Graphviz\\include -I${{ github.workspace }}/libs/json/include -c $("dir" -Path ${{ github.workspace }}/src -Filter *.cpp -Recurse | %{$_.FullName}) -g -Wall -D_WINDOWS -D_UNICODE -D__WXMSW__ -DNDEBUG -DNOPCH
+        g++ -L${{ github.workspace }}/dep/win/lib/gcc_lib -LC:\\Program Files\\Graphviz\\lib -Lc:\\mingw-w64\\mingw64\\x86_64-w64-mingw32\\lib -mwindows -static ${{ github.workspace }}/out/**/*.o -o ${{ github.workspace }}/exec/myapp.exe -lwxmsw31u_core -lwxbase31u -lwxpng -lcomdlg32 -lgdi32 -lcomctl32 -lole32 -loleaut32 -ldmoguids -luuid -lwinspool -lz -lwxregexu -lwxzlib -luxtheme -loleacc -lshlwapi -lversion -lgvc -lcgraph
