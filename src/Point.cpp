@@ -2,12 +2,7 @@
 
 using namespace std;
 
-string Point::toString() const{
-    string secId = to_string(sectionId);
-    return "pointStem[" + secId + "] = " + to_string(stemNeighbour)
-            + ",\npointPlus[" + secId + "] = " + to_string(plusNeighbour) 
-            + ",\npointMinus[" + secId + "] = " + to_string(minusNeighbour);
-}
+
 string Point::toString(const map<int,string> &plC){
     
     string id = plC.find(sectionId)->second;

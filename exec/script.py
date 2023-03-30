@@ -34,7 +34,7 @@ def color_nodes_by_count(G, vectors):
     return node_colors
 
 def create_table(vectors):
-    linear_signal = {lst[0].replace("_",""): lst[1].replace("_","") + '   ' + lst[2].replace("_","") if len(lst) > 2 else lst[1].replace("_","") for lst in vectors["sectionID"]}
+    linear_signal = {lst[0].replace("_",""): "D: " + lst[1].replace("_","") + ' U:' + lst[2].replace("_","")  for lst in vectors["sectionID"]}
     return linear_signal
 
 def main(json_file, name_png, route1=None, route2=None):

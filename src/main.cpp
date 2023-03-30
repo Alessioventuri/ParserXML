@@ -1,31 +1,29 @@
-#include <wx/wx.h>
-#include <wx/filepicker.h>
-#include <wx/dirctrl.h>
-#include <wx/apptrait.h>
-#include <wx/combobox.h>
-#include <wx/msgdlg.h>
-
-
-#include "NetworkLayout.hpp"
-#include "writerUMC.hpp"
-#include "writerSimple.hpp"
-#include "ParserXML.hpp"
-#include <stdexcept>
-#include <iostream>
-#include <stdlib.h>
+#include <direct.h>
+#include <exception>
+#include <fcntl.h>
 #include <fstream>
+#include <iostream>
 #include <memory>
-
-#include <unordered_map>
+#include <sstream>
+#include <stdexcept>
+#include <stdlib.h>
 #include <string>
 #include <cstring>
-#include <cstdlib>
-#include <fcntl.h>
-#include <exception>
-#include <direct.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sstream>
+#include <unordered_map>
+
+#include <wx/apptrait.h>
+#include <wx/combobox.h>
+#include <wx/dirctrl.h>
+#include <wx/filepicker.h>
+#include <wx/msgdlg.h>
+#include <wx/wx.h>
+
+#include "NetworkLayout.hpp"
+#include "ParserXML.hpp"
+#include "writerSimple.hpp"
+#include "writerUMC.hpp"
 
 
 using namespace rapidxml;

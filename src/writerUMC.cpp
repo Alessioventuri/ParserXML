@@ -164,14 +164,14 @@ string writerUMC::linearObjectUmcOneRoute(Route route, int number, const map<int
         if (route.getPath().at(i) >= (int)route.getPoints().size() and i != (int)route.getPath().size() - 1)
         {
             index = (int)route.getPath().at(i) - nl.getPoints().size();
-            // I did that to put NULL on last linear and stop the request. I know that there is also the point that have to checked
+
+            // I did that to put NULL on last linear and stop the request
             string up = nl.getLinears().at(index).getUpNeig() != -1 ? plC.find(nl.getLinears().at(index).getUpNeig())->second : "null";
             string down = nl.getLinears().at(index).getDownNeig() != -1 ? plC.find(nl.getLinears().at(index).getDownNeig())->second : "null";
             string sign = findMb(route, nl, nl.getLinears().at(index).sectionId, sC);
             string train = (nl.getLinears().at(index).sectionId == route.getPath().at(0)) ? "train" + to_string(number) : "null";
             output += plC.find(nl.getLinears().at(index).sectionId)->second + ": Linear (\n\t";
             output += "prev => [";
-            // output += i != 0 ? (route.getDirection() == "up" ? down : up) : "null";
             if(number == 2)
                 output += "null,";
             if (i != 0)
@@ -363,6 +363,7 @@ string writerUMC::abstractionUmcOneRoute(Route route, int number, const map<int,
 {
     string output = "Abstractions{\n\t";
     output += "Action $1($*) -> $1($*)\n\t";
+    output += "Action: $obj:Runtime_Error -> Design_Error($obj)\n\t";
     output += "State : train" + to_string(number) + ".node == " + plC.find(route.getPath().back())->second + " -> train" + to_string(number) + "_arrived\n\t";
     output += derailAbsOneRoute(route, number, plC, nl);
     output += brokenSignalsOneRoute(route, number, plC, sC, nl);
@@ -373,6 +374,7 @@ string writerUMC::abstractionUmcTwoRoute(const Route &route1,const Route& route2
 {
     string output = "Abstractions{\n\t";
     output += "Action $1($*) -> $1($*)\n\t";
+    output += "Action: $obj:Runtime_Error -> Design_Error($obj)\n\t";
     output += trainArrived(route1, n1, plC);
     output += trainArrived(route2, n2, plC);
     output += derailAbsOneRoute(route1, n1, plC, nl);

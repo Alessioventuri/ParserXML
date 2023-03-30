@@ -87,9 +87,7 @@ int ParserXML::countRoutes(string input){
         }
     }
     xml_node<> *network_node = root_node->first_node("network");
-    // cout << network_node->name() << endl;
     xml_node<> *routeTable = network_node->next_sibling();
-    // cout << routeTable->name() << endl;
     int count = 0;
     for(xml_node<> *route = routeTable->first_node("route");route;route= route->next_sibling()){
         if((string)route->name() == "route"){
@@ -124,11 +122,24 @@ std::vector<std::vector<std::string>> ParserXML::get_signals_from_network(){
     for (auto& linear : linear_vec) {
         std::vector<std::string> lin_sig;
         lin_sig.push_back(plCorrispondence.find(linear.getSectionId())->second);
-        for(auto& signal : signal_vec){
-            if( signal.getSectionId() == linear.getSectionId()){
-                lin_sig.push_back(mbCorrispondence.find(signal.getMbId())->second);
-            }
-        }
+        std::string mb_down = "null";
+        std::string mb_up = "null";
+        auto iter_down = std::find_if(signal_vec.begin(), signal_vec.end(), [&](const auto& signal){
+            return signal.getSectionId() == linear.getSectionId() && signal.getLinearEnd() == "down";
+        });
+
+        if (iter_down != signal_vec.end())
+            mb_down = mbCorrispondence.find(iter_down->getMbId())->second;
+        lin_sig.push_back(mb_down);
+        
+        auto iter_up = std::find_if(signal_vec.begin(), signal_vec.end(), [&](const auto& signal){
+            return signal.getSectionId() == linear.getSectionId() && signal.getLinearEnd() == "up";
+        });
+
+        if (iter_up != signal_vec.end()) 
+            mb_up = mbCorrispondence.find(iter_up->getMbId())->second;
+        lin_sig.push_back(mb_up);
+        
         section_strings.push_back(lin_sig);
     }
     return section_strings;

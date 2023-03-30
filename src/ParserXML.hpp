@@ -1,7 +1,6 @@
 #pragma once
 #include "Interlock.hpp"
-#include "rapidxml.hpp"
-#include "rapidxml_utils.hpp"
+#include "../rapidxml/rapidxml.hpp"
 #include <iostream>
 #include <unordered_map>
 #include <nlohmann/json.hpp>

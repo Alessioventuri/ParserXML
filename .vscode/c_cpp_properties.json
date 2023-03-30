@@ -3,20 +3,24 @@
         {
             "name": "Win64",
             "includePath": [
-                "${workspaceFolder}/**",
-                "C:/Program Files/Graphviz/include\""
+                "${workspaceFolder}\\**",
+                "C:\\Program Files\\Graphviz\\include\\"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "C:\\msys64\\mingw64\\bin\\gcc.exe",
+            "compilerPath": "C:\\msys64\\mingw64\\bin\\g++.exe",
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "gcc-x64",
             "compilerArgs": [
-                "C:\\\\Program Files\\\\Graphviz\\\\include\""
+                "-Wall",
+                "-Wextra",
+                "-Wpedantic",
+                "-Werror",
+                "-Wno-unused-parameter"
             ]
         }
     ],

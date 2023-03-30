@@ -102,7 +102,9 @@
         "stop_token": "cpp",
         "valarray": "cpp",
         "variant": "cpp",
-        "*.def": "cpp"
+        "*.def": "cpp",
+        "csetjmp": "cpp",
+        "future": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

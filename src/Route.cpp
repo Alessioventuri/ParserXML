@@ -129,4 +129,3 @@ string Route::createString(vector<int> a,int max) const{
 	s += " }";
 	return s;
 }
-
