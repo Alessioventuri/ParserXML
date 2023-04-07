@@ -1,3 +1,4 @@
+
 #include "writerUMC.hpp"
 #include "ParserXML.hpp"
 #include <string>
@@ -32,7 +33,6 @@ void writerUMC::writeFile(const string outputFile, unique_ptr<ParserXML> &pXML, 
                     myfile << codeUMC;
                     myfile << defaultUMCsetupOneRoute(pXML, firstRoute);
                     myfile.close();
-                    cout << "Successfully wrote to the file." << endl;
                 }
                 catch (std::ofstream::failure &e)
                 {
@@ -58,7 +58,6 @@ void writerUMC::writeFile(const string outputFile, unique_ptr<ParserXML> &pXML, 
                     // myfile << defaultUMCsetupOneRoute(pXML->getNl(),pXML->getIl(),i,pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
                     myfile << defaultUMCsetupTwoRoute(pXML, firstRoute, secondRoute);
                     myfile.close();
-                    cout << "Successfully wrote to the file." << endl;
                 }
                 catch (std::ofstream::failure &e)
                 {
@@ -87,7 +86,6 @@ void writerUMC::writeFile(const string outputFile, unique_ptr<ParserXML> &pXML, 
                 myfile << codeUMC;
                 myfile << defaultUMCsetupOneRoute(pXML, route1);
                 myfile.close();
-                cout << "Successfully wrote to the file." << endl;
             }
             catch (std::ofstream::failure &e)
             {
@@ -111,7 +109,6 @@ void writerUMC::writeFile(const string outputFile, unique_ptr<ParserXML> &pXML, 
                 myfile << codeUMC;
                 myfile << defaultUMCsetupTwoRoute(pXML, route1, route2);
                 myfile.close();
-                cout << "Successfully wrote to the file." << endl;
             }
             catch (std::ofstream::failure &e)
             {
@@ -364,6 +361,7 @@ string writerUMC::abstractionUmcOneRoute(Route route, int number, const map<int,
     string output = "Abstractions{\n\t";
     output += "Action $1($*) -> $1($*)\n\t";
     output += "Action: $obj:Runtime_Error -> Design_Error($obj)\n\t";
+    output += "Action: lostevent($e,$*) -> discarded_message($e,$*)\n\t";
     output += "State : train" + to_string(number) + ".node == " + plC.find(route.getPath().back())->second + " -> train" + to_string(number) + "_arrived\n\t";
     output += derailAbsOneRoute(route, number, plC, nl);
     output += brokenSignalsOneRoute(route, number, plC, sC, nl);
@@ -372,9 +370,11 @@ string writerUMC::abstractionUmcOneRoute(Route route, int number, const map<int,
 }
 string writerUMC::abstractionUmcTwoRoute(const Route &route1,const Route& route2, int n1, int n2, const map<int, string> plC, const map<int, string> sC, const NetworkLayout nl)
 {
+    //TODO : fix the common element of two routes
     string output = "Abstractions{\n\t";
     output += "Action $1($*) -> $1($*)\n\t";
     output += "Action: $obj:Runtime_Error -> Design_Error($obj)\n\t";
+    output += "Action: lostevent($e,$*) -> discarded_message($e,$*)\n\t";
     output += trainArrived(route1, n1, plC);
     output += trainArrived(route2, n2, plC);
     output += derailAbsOneRoute(route1, n1, plC, nl);

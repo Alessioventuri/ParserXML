@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from collections import Counter
 import json
 import sys
+import os
 
 
 def create_graph(vectors):
@@ -40,10 +41,11 @@ def create_table(vectors):
 def main(json_file, name_png, route1=None, route2=None):
         with open(json_file) as user_file:
             routes = []
-            route_edges =[]
+            route_edges1 =[]
+            route_edges2 =[]
             edge_colors = []
             
-            name_png = "..\\fig\\" + name_png
+            name_png = os.path.join("..","fig",name_png)
             file_contents = user_file.read()
             vectors = json.loads(file_contents)
             G_merged,edge_labels = create_graph(vectors)
@@ -60,20 +62,30 @@ def main(json_file, name_png, route1=None, route2=None):
             if(route1 != None):
                 routes.append(vectors["routes"][int(route1)])
                 name_png = name_png + "_" + route1
-                if(route2 != None):
-                    routes.append(vectors["routes"][int(route2)])
-                    name_png = name_png + "_" + route2
                 for route in routes:
                     for element in route:
                         index = route.index(element)
                         if index < len(route) - 1:
                             next_element = route[index+1]
-                            route_edges.append((element, next_element))
-                for edge in G_merged.edges(data=True):
-                    if edge[0:2] in route_edges or edge[1::-1] in route_edges:
-                        edge_colors.append("red")
-                    else:
-                        edge_colors.append("black")
+                            route_edges1.append((element, next_element))
+            if(route2 != None):
+                    routes.append(vectors["routes"][int(route2)])
+                    name_png = name_png + "_" + route2
+                    for route in routes:
+                        for element in route:
+                            index = route.index(element)
+                            if index < len(route) - 1:
+                                next_element = route[index+1]
+                                route_edges2.append((element, next_element))
+            for edge in G_merged.edges(data=True):
+                if ((edge[0:2] in route_edges1 or edge[1::-1] in route_edges1) and (edge[0:2] in route_edges2 or edge[1::-1] in route_edges2)):
+                    edge_colors.append("orange")
+                elif edge[0:2] in route_edges1 or edge[1::-1] in route_edges1:
+                    edge_colors.append("blue")
+                elif edge[0:2] in route_edges2 or edge[1::-1] in route_edges2:
+                    edge_colors.append("red")
+                else:
+                    edge_colors.append("black")
             nx.draw_networkx_edges(G_merged, pos, edge_color=edge_colors)
             if(len(edge_colors) != 0):
                 nx.draw(G_merged, pos, with_labels=True, node_size=400, node_color=node_colors, edge_color=edge_colors, font_size=5)

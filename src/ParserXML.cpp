@@ -3,9 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <random>
-#include <nlohmann/json.hpp>
-
-using json = nlohmann::json;
+#include <memory>
 using namespace std;
 
 

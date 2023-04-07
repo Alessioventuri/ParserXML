@@ -235,10 +235,18 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     drawButton->Disable();
 
     //  Create a radioBox for selecting the number of trains
+    // wxString radioBoxChoicesType[] = { wxT("UMC file"), wxT("Simple File") };
+	// int radioBox2Choices = sizeof( radioBoxChoicesType ) / sizeof( wxString );
+	// radioBoxType = new wxRadioBox( panel, wxID_ANY, wxT("Type?"), wxDefaultPosition, wxDefaultSize, radioBox2Choices, radioBoxChoicesType, 1, wxRA_SPECIFY_COLS );
+	// radioBoxType->SetSelection( 0 );
     wxString radioBoxChoicesType[] = { wxT("UMC file"), wxT("Simple File") };
-	int radioBox2Choices = sizeof( radioBoxChoicesType ) / sizeof( wxString );
-	radioBoxType = new wxRadioBox( panel, wxID_ANY, wxT("Type?"), wxDefaultPosition, wxDefaultSize, radioBox2Choices, radioBoxChoicesType, 1, wxRA_SPECIFY_COLS );
-	radioBoxType->SetSelection( 0 );
+    int radioBox2Choices = sizeof( radioBoxChoicesType ) / sizeof( wxString );
+
+    // Custom size with increased width
+    wxSize customSize(100, wxDefaultCoord);
+
+    radioBoxType = new wxRadioBox( panel, wxID_ANY, wxT("Type?"), wxDefaultPosition, customSize, radioBox2Choices, radioBoxChoicesType, 1, wxRA_SPECIFY_COLS );
+    radioBoxType->SetSelection( 0 );
 
     wxString radioBoxChoicesTrain[] = { wxT("1"), wxT("2") };
 	int radioBoxNChoices = sizeof( radioBoxChoicesTrain ) / sizeof( wxString );
@@ -252,7 +260,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	wxString m_choice2Choices[] = { wxT("No"), wxT("Yes") };
     int m_choice2NChoices = sizeof( m_choice1Choices ) / sizeof( wxString );
-    radioBoxSelected = new wxRadioBox( panel, wxID_ANY, wxT("Choosen routes?"), wxDefaultPosition, wxDefaultSize, m_choice2NChoices, m_choice2Choices, 1, wxRA_SPECIFY_COLS );
+    radioBoxSelected = new wxRadioBox( panel, wxID_ANY, wxT("Chosen routes?"), wxDefaultPosition, wxDefaultSize, m_choice2NChoices, m_choice2Choices, 1, wxRA_SPECIFY_COLS );
 	radioBoxSelected->SetSelection( 0 );
 
     // Create the two lists
@@ -265,7 +273,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     // Add some items to the lists
 
     CreateStatusBar();
-    SetStatusText("Welcome to the XML parser!");
+    SetStatusText("Welcome to the Parser XML!");
 
     // Create a vbox and hbox to layout the input and output fields and buttons
     wxBoxSizer* hbox = new wxBoxSizer( wxHORIZONTAL );

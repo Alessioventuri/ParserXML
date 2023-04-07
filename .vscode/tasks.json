@@ -4,14 +4,14 @@
         {
             "type": "shell",
             "label": "Compile & Link",
-            "linux":{
+            "linux": {
                 "command": "g++",
                 "args": [
                     "-o",
                     "${workspaceFolder}/exec/myapp",
                     "${workspaceFolder}/out/**.o",
                     "-L${workspaceFolder}/dep/linux/linux_lib/lib",
-                    "-Bstatic",                     
+                    "-Bstatic",
                     "-pthread",
                     "-lwx_gtk3u_core-3.1",
                     "-lwx_baseu-3.1",
@@ -39,15 +39,14 @@
                     "-lXtst",
                     "-lpangoft2-1.0",
                     "-lfontconfig",
-                    "-lfreetype"                    
+                    "-lfreetype"
                 ]
             },
-            "osx":{
+            "osx": {
                 "command": "g++",
                 "args": [
                     "-I${workspaceFolder}/dep/mac/mac_lib/lib/wx/include/osx_cocoa-unicode-static-3.1",
-                    "-I${workspaceFolder}/dep/mac/include"
-                    ,
+                    "-I${workspaceFolder}/dep/mac/include",
                     "-isysroot",
                     "/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk",
                     "-mmacosx-version-min=10.15",
@@ -72,7 +71,7 @@
                     "WebKit",
                     "-framework",
                     "Security",
-                    "-framework", 
+                    "-framework",
                     "QuartzCore",
                     "-lwx_osx_cocoau_core-3.1",
                     "-lwx_baseu-3.1",
@@ -84,7 +83,7 @@
                     "-lpthread",
                     "-liconv",
                     "-llzma"
-                ],
+                ]
             },
             "windows": {
                 "command": "g++",
@@ -93,7 +92,7 @@
                     "-LC:\\Program Files\\Graphviz\\lib",
                     "-Lc:\\mingw-w64\\mingw64\\x86_64-w64-mingw32\\lib",
                     "-mwindows",
-                    "-static",                                        
+                    "-static",
                     "${workspaceFolder}\\out\\**.o",
                     "-o",
                     "${workspaceFolder}\\exec\\myapp.exe",
@@ -117,8 +116,8 @@
                     "-lversion",
                     "-lgvc",
                     "-lcgraph"
-                ],
-              },
+                ]
+            },
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -129,16 +128,16 @@
             "problemMatcher": [
                 "$gcc"
             ],
-            "dependsOn": [                
-                "MoveObjects",
+            "dependsOn": [
+                "MoveObjects"
             ]
         },
         {
             "type": "shell",
             "label": "Compile",
-            "linux":{
+            "linux": {
                 "command": "g++",
-                "args": [                    
+                "args": [
                     "-c",
                     "$(find",
                     "${workspaceFolder}/src/",
@@ -153,7 +152,8 @@
                     "-fno-strict-aliasing",
                     "-pthread",
                     "-I${workspaceFolder}/dep/linux/linux_lib/lib/wx/include/gtk3-unicode-static-3.1",
-                    "-I${workspaceFolder}/dep/linux/include",                    
+                    "-I${workspaceFolder}/dep/linux/include",
+                    "-I${workspaceFolder}/googletest/googletest/include",
                     "-I/usr/include/gtk-3.0",
                     "-I/usr/include/at-spi2-atk/2.0",
                     "-I/usr/include/at-spi-2.0",
@@ -173,16 +173,17 @@
                     "-I/usr/include/libmount",
                     "-I/usr/include/blkid",
                     "-I/usr/include/glib-2.0",
-                    "-I/usr/lib/x86_64-linux-gnu/glib-2.0/include",                    
+                    "-I/usr/lib/x86_64-linux-gnu/glib-2.0/include",
                     "-I/usr/include/gtk-3.0/unix-print",
-                    "-Wall"                   
+                    "-Wall"
                 ]
             },
-            "osx":{
+            "osx": {
                 "command": "g++",
                 "args": [
                     "-I${workspaceFolder}/dep/mac/mac_lib/lib/wx/include/osx_cocoa-unicode-static-3.1",
                     "-I${workspaceFolder}/dep/mac/include",
+                    "-I${workspaceFolder}/googletest/googletest/include",
                     "-isysroot",
                     "/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk",
                     "-mmacosx-version-min=10.15",
@@ -207,13 +208,14 @@
                 "command": "g++",
                 "args": [
                     "-I${workspaceFolder}\\dep\\win\\lib\\gcc_lib\\mswu",
-                    "-I${workspaceFolder}\\dep\\win\\include",  
+                    "-I${workspaceFolder}\\dep\\win\\include",
                     "-IC:\\Program Files\\Graphviz\\include",
-                    "-I${workspaceFolder}\\json\\include",                  
+                    "-I${workspaceFolder}\\json\\include",
+                    "-I${workspaceFolder}\\googletest\\googletest\\include",
                     "-c",
                     "$(",
                     "dir",
-                    "-Path",                    
+                    "-Path",
                     "${workspaceFolder}\\src",
                     "-Filter",
                     "*.cpp",
@@ -228,7 +230,7 @@
                     "-D__WXMSW__",
                     "-DNDEBUG",
                     "-DNOPCH"
-                ],
+                ]
             },
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -240,14 +242,14 @@
         {
             "type": "shell",
             "label": "MoveObjects",
-            "linux":{
+            "linux": {
                 "command": "mv",
-                "args": [                    
+                "args": [
                     "${workspaceFolder}/*.o",
-                    "${workspaceFolder}/out/"                 
+                    "${workspaceFolder}/out/"
                 ]
             },
-            "osx":{
+            "osx": {
                 "command": "mv",
                 "args": [
                     "${workspaceFolder}/*.o",
@@ -262,13 +264,13 @@
                     "-Destination",
                     "${workspaceFolder}\\out",
                     "-Force"
-                ],
+                ]
             },
             "options": {
                 "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [],
-            "dependsOn": [                
+            "dependsOn": [
                 "Compile"
             ]
         }

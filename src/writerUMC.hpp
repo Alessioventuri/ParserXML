@@ -277,9 +277,9 @@ public:
         next: obj[];
         prev: obj[];
         conf: bool[];
-        rovescio: bool := False;
+        reverse: bool := False;
         train: obj := null;
-        itinerario: int;
+        itinerary: int;
 
     State Top = NOT_RESERVED, WAIT_ACK, WAIT_COMMIT, WAIT_AGREE, POSITIONING, RESERVED, CHECK_NOT_RESERVED, TRAIN_IN_TRANSIT
     State WAIT_ACK Defers req(sender: obj, id_itinerary: int)
@@ -296,18 +296,18 @@ public:
         WAIT_COMMIT  -> WAIT_AGREE   { commit(sender, id_itinerary) /
                     s:obj:=next[id_itinerary];s.commit(self, id_itinerary); }
 
-        WAIT_AGREE   -> Top.RESERVED      { agree(sender, id_itinerary) [rovescio = conf[id_itinerary]]/
+        WAIT_AGREE   -> Top.RESERVED      { agree(sender, id_itinerary) [reverse = conf[id_itinerary]]/
                                         t:obj:=prev[id_itinerary];t.agree(self, id_itinerary); }
 
-        WAIT_AGREE   -> POSITIONING { agree(sender, id_itinerary) [rovescio /= conf[id_itinerary]] /
-                                            itinerario := id_itinerary;}
+        WAIT_AGREE   -> POSITIONING { agree(sender, id_itinerary) [reverse /= conf[id_itinerary]] /
+                                            itinerary := id_itinerary;}
 
         POSITIONING -> Top.RESERVED      { - /
-                                            rovescio := not rovescio;
-                        u:obj:=prev[itinerario];u.agree(self, itinerario); }
+                                            reverse := not reverse;
+                        u:obj:=prev[itinerary];u.agree(self, itinerary); }
 
         POSITIONING -> CHECK_NOT_RESERVED { - /
-                        z:obj:=next[itinerario];z.disagree(self, itinerario);}
+                        z:obj:=next[itinerary];z.disagree(self, itinerary);}
 
         CHECK_NOT_RESERVED -> NOT_RESERVED { nack(sender,id_itinerary) /
                             v:obj:=prev[id_itinerary];v.disagree(self, id_itinerary);}
