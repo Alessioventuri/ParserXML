@@ -1,9 +1,6 @@
 [submodule "json"]
 	path = json
 	url = https://github.com/nlohmann/json
-[submodule "unit_test_framework"]
-	path = unit_test_framework
-	url = https://github.com/eecs280staff/unit_test_framework
 [submodule "rapidxml"]
 	path = rapidxml
 	url = https://github.com/viriw/rapidxml
