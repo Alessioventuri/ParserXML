@@ -5,6 +5,10 @@
 #include <map>
 #include <memory>
 
+/*
+Abstract class used for create a singleton
+*/
+
 enum fileType{
     UMCFile,SimpleFile
 };

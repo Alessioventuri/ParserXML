@@ -1,6 +1,10 @@
 #pragma once
 #include <map>
 
+/*
+Parent class of linear and point
+
+*/
 class Section {
 public:
     int sectionId;

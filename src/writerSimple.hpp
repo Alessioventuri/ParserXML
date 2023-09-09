@@ -7,6 +7,11 @@
 
 using namespace std;
 
+
+/*
+Global overview of railway interlocking
+*/
+
 class writerSimple : public writer
 {
 public:

@@ -2,6 +2,10 @@
 #include <string>
 #include <map>
 
+/*
+Signal element 
+It is associated to only one linear
+*/
 class Signal{
 private:
     int mbId;

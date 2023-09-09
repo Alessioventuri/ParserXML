@@ -2,6 +2,11 @@
 #include "Section.hpp"
 #include <string>
 
+/*
+This represent the Point element of a railway interlocking
+stem -> plus : main branch
+stem -> minus : deviation branch
+*/
 
 class Point :  public Section{
 private:

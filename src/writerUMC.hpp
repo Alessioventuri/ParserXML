@@ -5,6 +5,9 @@
 #include <fstream>
 #include <memory>
 
+/*
+UMC model creation for railway interlocking routes
+*/
 
 class writerUMC : public writer{
 private :
@@ -24,15 +27,12 @@ private :
     string trainArrived           (Route, int, map<int,string>) const;
 
     // TWO TRAINs
-    string defaultUMCsetupTwoRoute(unique_ptr<ParserXML>&, int);
     string defaultUMCsetupTwoRoute(unique_ptr<ParserXML>&, int, int);
     string stringCombinerNl       (unique_ptr<ParserXML>&, int, int) const;
     string stringCombinerIl       (unique_ptr<ParserXML>&, int, int) const;
     string stringCombinerId       (unique_ptr<ParserXML>&, int, int) const;
     string abstractionUmcTwoRoute (const Route&,const Route&, int, int, map<int,string>, map<int,string>, NetworkLayout );
     string pointObjectUmcTwoRoute (Route &, Route &, map<int,string> , NetworkLayout ) const;
-    string linearObjectUmcTwoRoute(Route, Route , int, map<int,string>, map<int,string>, NetworkLayout);
-    string trainObjectUmcTwoRoute (Route, Route , int, map<int,string>);
 
 
 public:

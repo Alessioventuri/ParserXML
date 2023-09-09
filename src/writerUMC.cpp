@@ -55,7 +55,6 @@ void writerUMC::writeFile(const string outputFile, unique_ptr<ParserXML> &pXML, 
                     myfile << "\n/* Interlocking End */\n";
                     myfile << "\n/* UMC code */\n";
                     myfile << codeUMC;
-                    // myfile << defaultUMCsetupOneRoute(pXML->getNl(),pXML->getIl(),i,pXML->getPlCorrispondence(),pXML->getMbCorrispondence());
                     myfile << defaultUMCsetupTwoRoute(pXML, firstRoute, secondRoute);
                     myfile.close();
                 }
@@ -142,7 +141,8 @@ string writerUMC::defaultUMCsetupTwoRoute(unique_ptr<ParserXML> &pXML, int first
 
     s += pointObjectUmcTwoRoute(pXML->getIl().getRoutes().at(firstRoute), pXML->getIl().getRoutes().at(secondRoute), pXML->getPlCorrispondence(), pXML->getNl());
 
-    s += linearObjectUmcOneRoute(pXML->getIl().getRoutes().at(firstRoute), 1, pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
+
+    s += linearObjectUmcOneRoute(pXML->getIl().getRoutes().at(firstRoute), 3, pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
     s += linearObjectUmcOneRoute(pXML->getIl().getRoutes().at(secondRoute), 2, pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
 
     s += trainObjectUmcOneRoute(pXML->getIl().getRoutes().at(firstRoute), 1, pXML->getPlCorrispondence());
@@ -151,6 +151,18 @@ string writerUMC::defaultUMCsetupTwoRoute(unique_ptr<ParserXML> &pXML, int first
     s += abstractionUmcTwoRoute(pXML->getIl().getRoutes().at(firstRoute), pXML->getIl().getRoutes().at(secondRoute), 1, 2, pXML->getPlCorrispondence(), pXML->getMbCorrispondence(), pXML->getNl());
     return s;
 }
+
+/*
+string linearObjectUmcOneRoute(Route route, int number, const map<int, string> plC, const map<int, string> sC, NetworkLayout nl):
+route : route to be mapped,
+number : it can be
+    - 1 : one route
+    - 2 : two routes -> second route
+    - 3 : two routes -> first route
+plC : point - linear corrispondence
+sC : signal corrispondence
+nl : networLayout
+*/
 
 string writerUMC::linearObjectUmcOneRoute(Route route, int number, const map<int, string> plC, const map<int, string> sC, NetworkLayout nl)
 {
@@ -175,15 +187,23 @@ string writerUMC::linearObjectUmcOneRoute(Route route, int number, const map<int
                 output += route.getDirection() == "up" ? down : up;
             else
                 output += "null";
+            if(number == 3)
+                output += ",null";
             output += "],\n\t";
             output += "next => [";
             if(number == 2)
                 output += "null,";
-            output += (route.getDirection() == "up" ? up : down) + "],\n\t";
+            output += route.getDirection() == "up" ? up : down;
+            if(number == 3)
+                output +=",null";
+            output += "],\n\t";
             output += "sign => [" ;
             if(number == 2)
                 output += "null,";
-            output += sign + "],\n\t";
+            output += sign;
+            if(number ==3)
+                output += ",null";
+            output += "],\n\t";
             output += "train => " + train + "\n);\n\n";
         }
         else if (i == (int)route.getPath().size() - 1)
@@ -197,15 +217,24 @@ string writerUMC::linearObjectUmcOneRoute(Route route, int number, const map<int
             output += "prev => [";
             if(number == 2)
                 output += "null,";
-            output += (route.getDirection() == "up" ? down : up) + "],\n\t";
+            output += (route.getDirection() == "up" ? down : up);
+            if(number ==3)
+                output += ",null";
+            output += "],\n\t";
             output += "next => [";
             if(number == 2)
                 output += "null,";
-            output += "null],\n\t";
+            output += "null";
+            if(number ==3)
+                output += ",null";
+            output += "],\n\t";
             output += "sign => [";
             if(number == 2)
                 output += "null,";
-            output += sign + "],\n\t";
+            output += sign;
+            if(number ==3)
+                output += ",null";
+            output += "],\n\t";
             output += "train => " + train + "\n);\n\n";
         }
     }
