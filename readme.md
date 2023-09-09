@@ -12,16 +12,17 @@ Link to the whole [paper](Implementation_of_a_parser_for_railway_interlockings.p
   * [WxWidgets](https://github.com/wxWidgets/wxWidgets)
   * [Nlohmann/json](https://github.com/nlohmann/json)
   * [RapidXML](https://rapidxml.sourceforge.net/)
+  * [UMC](https://fmt.isti.cnr.it/umc/V4.8/umc.html)
 
 ### Pre-requisites
-Hbase, Storm and Hadoop have to be installed and set correctly on your pseudo-distribuited cluster.
+ * WxWidgets correctly working.
+ * Remember to pull also the submodules ( git clone .. --recursive)
 
 ### Usage
 Launch the task "Compile and Link" to generate the .exe file into the exec folder.
 
-
 After that, you can finally execute the parser:
-* `Insert a valid RailwayXML and a valid output folder`
+ * Insert a valid RailwayXML and a valid output folder
   * Select the configuration you would like to test
     *  Calculate the roots to choose your path to test
   * DrawMe button will create a graph representing the topology of the interlocking
@@ -30,4 +31,7 @@ After that, you can finally execute the parser:
 
 ### Tips
 This whole project was executed on Windows using VisualStudio code.
+
+### CI/CD
+In progress...
 
